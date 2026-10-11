@@ -1,0 +1,7 @@
+.peckboard/
+.pydeps/
+.pio-core/
+firmware/.pio/
+__pycache__/
+*.pyc
+firmware/tools/*.wav
