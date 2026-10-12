@@ -1,0 +1,223 @@
+{
+ "title": "Gyroid Mist Shell: 4 segments x 9 pockets, fog loop",
+ "target_z": 620.0,
+ "parts": [
+  {
+   "name": "tank_bottom",
+   "file": "preview/tank_bottom.stl",
+   "color": "#3d4a3f",
+   "lvl": -1,
+   "spin": false
+  },
+  {
+   "name": "tank_ring_1",
+   "file": "preview/tank_ring_1.stl",
+   "color": "#46544a",
+   "lvl": 0,
+   "spin": false
+  },
+  {
+   "name": "tank_ring_2",
+   "file": "preview/tank_ring_2.stl",
+   "color": "#3d4a3f",
+   "lvl": 1,
+   "spin": false
+  },
+  {
+   "name": "lid",
+   "file": "preview/lid.stl",
+   "color": "#56645a",
+   "lvl": 2,
+   "spin": false
+  },
+  {
+   "name": "fill_plug",
+   "file": "preview/fill_plug.stl",
+   "color": "#56645a",
+   "lvl": 2.4,
+   "spin": false
+  },
+  {
+   "name": "pod_base",
+   "file": "preview/pod_base.stl",
+   "color": "#7a6a55",
+   "lvl": 2.2,
+   "spin": false
+  },
+  {
+   "name": "pod_roof",
+   "file": "preview/pod_roof.stl",
+   "color": "#7a6a55",
+   "lvl": 2.6,
+   "spin": false
+  },
+  {
+   "name": "pinion",
+   "file": "preview/pinion.stl",
+   "color": "#c9a227",
+   "lvl": 3,
+   "spin": false
+  },
+  {
+   "name": "rotor",
+   "file": "preview/rotor.stl",
+   "color": "#b8862e",
+   "lvl": 3.4,
+   "spin": true
+  },
+  {
+   "name": "pipe_foot",
+   "file": "preview/pipe_foot.stl",
+   "color": "#4a90c2",
+   "lvl": -1,
+   "spin": false
+  },
+  {
+   "name": "float_bracket",
+   "file": "preview/float_bracket.stl",
+   "color": "#4a90c2",
+   "lvl": -0.5,
+   "spin": false
+  },
+  {
+   "name": "hub",
+   "file": "preview/hub.stl",
+   "color": "#2b2b2b",
+   "lvl": -2,
+   "spin": false
+  },
+  {
+   "name": "leg_1",
+   "file": "preview/leg_1.stl",
+   "color": "#2b2b2b",
+   "lvl": -2,
+   "spin": false
+  },
+  {
+   "name": "leg_2",
+   "file": "preview/leg_2.stl",
+   "color": "#2b2b2b",
+   "lvl": -2,
+   "spin": false
+  },
+  {
+   "name": "leg_3",
+   "file": "preview/leg_3.stl",
+   "color": "#2b2b2b",
+   "lvl": -2,
+   "spin": false
+  },
+  {
+   "name": "leg_4",
+   "file": "preview/leg_4.stl",
+   "color": "#2b2b2b",
+   "lvl": -2,
+   "spin": false
+  },
+  {
+   "name": "seg_1",
+   "file": "concepts/gyroid_mist/preview/seg_1.stl",
+   "color": "#e3dcc2",
+   "lvl": 4.0,
+   "spin": true
+  },
+  {
+   "name": "seg_2",
+   "file": "concepts/gyroid_mist/preview/seg_2.stl",
+   "color": "#d3caa9",
+   "lvl": 5.2,
+   "spin": true
+  },
+  {
+   "name": "seg_3",
+   "file": "concepts/gyroid_mist/preview/seg_3.stl",
+   "color": "#e3dcc2",
+   "lvl": 6.4,
+   "spin": true
+  },
+  {
+   "name": "seg_4",
+   "file": "concepts/gyroid_mist/preview/seg_4.stl",
+   "color": "#d3caa9",
+   "lvl": 7.6,
+   "spin": true
+  },
+  {
+   "name": "duct",
+   "file": "concepts/gyroid_mist/preview/duct.stl",
+   "color": "#b7c7b0",
+   "lvl": 3.0,
+   "spin": false
+  },
+  {
+   "name": "duct_foot",
+   "file": "concepts/gyroid_mist/preview/duct_foot.stl",
+   "color": "#7a6a55",
+   "lvl": 2.6,
+   "spin": false
+  },
+  {
+   "name": "mist_head",
+   "file": "concepts/gyroid_mist/preview/mist_head.stl",
+   "color": "#4a90c2",
+   "lvl": 8.8,
+   "spin": false
+  },
+  {
+   "name": "fan_box",
+   "file": "concepts/gyroid_mist/preview/fan_box.stl",
+   "color": "#7a6a55",
+   "lvl": 1.0,
+   "spin": false
+  },
+  {
+   "name": "fan_roof",
+   "file": "concepts/gyroid_mist/preview/fan_roof.stl",
+   "color": "#8f7d63",
+   "lvl": 1.5,
+   "spin": false
+  },
+  {
+   "name": "fog_float",
+   "file": "concepts/gyroid_mist/preview/fog_float.stl",
+   "color": "#e07b39",
+   "lvl": 0.0,
+   "spin": false
+  },
+  {
+   "name": "fog_cradle",
+   "file": "concepts/gyroid_mist/preview/fog_cradle.stl",
+   "color": "#c9662a",
+   "lvl": -0.3,
+   "spin": false
+  },
+  {
+   "name": "pipe",
+   "file": "preview/pipe.stl",
+   "color": "#9fb7c9",
+   "lvl": 2,
+   "spin": false
+  },
+  {
+   "name": "cap",
+   "file": "preview/cap.stl",
+   "color": "#cfc6aa",
+   "lvl": 9.4,
+   "spin": true
+  },
+  {
+   "name": "fan",
+   "file": "concepts/gyroid_mist/preview/fan.stl",
+   "color": "#2b2b2b",
+   "lvl": 0.6,
+   "spin": false
+  },
+  {
+   "name": "fogger",
+   "file": "concepts/gyroid_mist/preview/fogger.stl",
+   "color": "#333333",
+   "lvl": -0.5,
+   "spin": false
+  }
+ ]
+}

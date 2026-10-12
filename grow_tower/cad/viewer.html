@@ -1,0 +1,154 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Rotating grow tower viewer</title>
+<style>
+  body { margin: 0; background: #f4f4f4; font: 14px sans-serif; overflow: hidden; }
+  #ui { position: absolute; top: 8px; left: 8px; background: #fffd; padding: 8px; border-radius: 6px; }
+  #ui label { display: block; }
+  #title { position: absolute; bottom: 10px; width: 100%; text-align: center; font-size: 18px; color: #333; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="ui">
+  <label>Concept <select id="concept"></select></label>
+  <label><input type="checkbox" id="section"> Cross-section</label>
+  <label>Explode <input type="range" id="explode" min="0" max="100" value="0"></label>
+  <label><input type="checkbox" id="spin"> Rotate tower</label>
+</div>
+<div id="title"></div>
+<script type="module">
+import * as THREE from 'three';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// URL params: concept=classic|<name>, view=iso|front|top|base, section=1, explode=0..100,
+// spin=1, hideui=1, title=...
+// Each concept writes <dir>/preview/manifest.json (grow_tower.export_set); concepts.json
+// lists them.  File paths in a manifest are relative to this folder.
+const q = new URLSearchParams(location.search);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(innerWidth, innerHeight);
+renderer.localClippingEnabled = true;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xf4f4f4);
+const camera = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 1, 20000);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 0, 600);
+camera.up.set(0, 0, 1);
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x666666, 1.6));
+const sun = new THREE.DirectionalLight(0xffffff, 2.0);
+sun.position.set(800, -1200, 1600);
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0xffffff, 0.6);
+fill.position.set(-1200, 800, -400);
+scene.add(fill);
+
+const clip = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);  // section: keep the y >= 0 half
+// manifest parts: assembled-position STL, colour, explode level, spin = turns with the stack
+const meshes = {};
+const parts = {};
+const loader = new STLLoader();
+let names = [];
+let loaded = 0;
+const conceptEl = document.getElementById('concept');
+const concepts = await fetch('concepts.json').then(r => r.json())
+  .catch(() => [{ name: 'classic', label: 'Classic cylinder', dir: '.' }]);
+for (const c of concepts) conceptEl.add(new Option(c.label, c.name));
+conceptEl.value = q.get('concept') || 'classic';
+conceptEl.onchange = () => {
+  q.set('concept', conceptEl.value);
+  history.replaceState(null, '', '?' + q);
+  load(conceptEl.value);
+};
+
+async function load(name) {
+  window.ready = false;
+  for (const m of Object.values(meshes)) { scene.remove(m); m.geometry.dispose(); }
+  for (const k of Object.keys(meshes)) delete meshes[k];
+  for (const k of Object.keys(parts)) delete parts[k];
+  const c = concepts.find(x => x.name === name) || concepts[0];
+  const man = await fetch(`${c.dir}/preview/manifest.json`).then(r => r.json());
+  document.getElementById('title').textContent = q.get('title') || man.title;
+  for (const p of man.parts) parts[p.name] = p;
+  names = Object.keys(parts);
+  loaded = 0;
+  const gen = load.gen = (load.gen || 0) + 1;
+  for (const n of names) {
+    loader.load(parts[n].file, geo => {
+      if (gen !== load.gen) return;           // concept switched meanwhile
+      geo.computeVertexNormals();
+      const mat = new THREE.MeshStandardMaterial({
+        color: new THREE.Color(parts[n].color), roughness: 0.75, metalness: 0.0,
+        side: THREE.DoubleSide, clippingPlanes: [],
+      });
+      const m = new THREE.Mesh(geo, mat);
+      meshes[n] = m;
+      scene.add(m);
+      if (++loaded === names.length) { apply(); window.ready = true; }
+    });
+  }
+}
+
+const sectionEl = document.getElementById('section');
+const explodeEl = document.getElementById('explode');
+const spinEl = document.getElementById('spin');
+if (q.get('section') === '1') sectionEl.checked = true;
+if (q.get('explode')) explodeEl.value = q.get('explode');
+if (q.get('spin') === '1') spinEl.checked = true;
+if (q.get('hideui') === '1') document.getElementById('ui').style.display = 'none';
+sectionEl.onchange = apply;
+explodeEl.oninput = apply;
+
+function apply() {
+  const e = explodeEl.value / 100;
+  for (const [n, m] of Object.entries(meshes)) {
+    m.position.z = e * 90 * parts[n].lvl;
+    m.material.clippingPlanes = sectionEl.checked ? [clip] : [];
+    m.material.needsUpdate = true;
+  }
+}
+
+const views = {
+  iso:   [[1700, -2100, 1500], 620],
+  front: [[0, -3200, 650], 620],
+  top:   [[600, -900, 1900], 1100],
+  base:  [[650, -800, 900], 470],
+};
+const [v, tz] = views[q.get('view') || 'iso'];
+controls.target.set(0, 0, tz);
+camera.position.set(v[0], v[1], v[2]);
+const dist = parseFloat(q.get('dist') || '1.0');
+camera.position.sub(controls.target).multiplyScalar(dist).add(controls.target);
+controls.update();
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+await load(conceptEl.value);
+let spin = 0;
+renderer.setAnimationLoop(() => {
+  if (spinEl.checked && loaded === names.length) {
+    spin += 0.01;
+    for (const [n, m] of Object.entries(meshes)) if (parts[n].spin) m.rotation.z = spin;
+  }
+  controls.update();
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>

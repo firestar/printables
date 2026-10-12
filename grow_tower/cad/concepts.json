@@ -1,0 +1,7 @@
+[
+ {"name": "classic", "label": "Classic cylinder", "dir": "."},
+ {"name": "helix_vortex", "label": "Helix Vortex", "dir": "concepts/helix_vortex"},
+ {"name": "lotus_cascade", "label": "Lotus Cascade", "dir": "concepts/lotus_cascade"},
+ {"name": "hyperboloid_lattice", "label": "Hyperboloid Lattice", "dir": "concepts/hyperboloid_lattice"},
+ {"name": "gyroid_mist", "label": "Gyroid Mist Shell", "dir": "concepts/gyroid_mist"}
+]

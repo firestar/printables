@@ -1,0 +1,181 @@
+{
+ "title": "Lotus Cascade: 6 bowls, 36 plants",
+ "target_z": 820.0,
+ "parts": [
+  {
+   "name": "tank_bottom",
+   "file": "preview/tank_bottom.stl",
+   "color": "#3d4a3f",
+   "lvl": -1,
+   "spin": false
+  },
+  {
+   "name": "tank_ring_1",
+   "file": "preview/tank_ring_1.stl",
+   "color": "#46544a",
+   "lvl": 0,
+   "spin": false
+  },
+  {
+   "name": "tank_ring_2",
+   "file": "preview/tank_ring_2.stl",
+   "color": "#3d4a3f",
+   "lvl": 1,
+   "spin": false
+  },
+  {
+   "name": "lid",
+   "file": "preview/lid.stl",
+   "color": "#56645a",
+   "lvl": 2,
+   "spin": false
+  },
+  {
+   "name": "fill_plug",
+   "file": "preview/fill_plug.stl",
+   "color": "#56645a",
+   "lvl": 2.4,
+   "spin": false
+  },
+  {
+   "name": "pod_base",
+   "file": "preview/pod_base.stl",
+   "color": "#7a6a55",
+   "lvl": 2.2,
+   "spin": false
+  },
+  {
+   "name": "pod_roof",
+   "file": "preview/pod_roof.stl",
+   "color": "#7a6a55",
+   "lvl": 2.6,
+   "spin": false
+  },
+  {
+   "name": "pinion",
+   "file": "preview/pinion.stl",
+   "color": "#c9a227",
+   "lvl": 3,
+   "spin": false
+  },
+  {
+   "name": "rotor",
+   "file": "preview/rotor.stl",
+   "color": "#b8862e",
+   "lvl": 3.4,
+   "spin": true
+  },
+  {
+   "name": "pipe_foot",
+   "file": "preview/pipe_foot.stl",
+   "color": "#4a90c2",
+   "lvl": -1,
+   "spin": false
+  },
+  {
+   "name": "float_bracket",
+   "file": "preview/float_bracket.stl",
+   "color": "#4a90c2",
+   "lvl": -0.5,
+   "spin": false
+  },
+  {
+   "name": "hub",
+   "file": "preview/hub.stl",
+   "color": "#2b2b2b",
+   "lvl": -2,
+   "spin": false
+  },
+  {
+   "name": "leg_1",
+   "file": "preview/leg_1.stl",
+   "color": "#2b2b2b",
+   "lvl": -2,
+   "spin": false
+  },
+  {
+   "name": "leg_2",
+   "file": "preview/leg_2.stl",
+   "color": "#2b2b2b",
+   "lvl": -2,
+   "spin": false
+  },
+  {
+   "name": "leg_3",
+   "file": "preview/leg_3.stl",
+   "color": "#2b2b2b",
+   "lvl": -2,
+   "spin": false
+  },
+  {
+   "name": "leg_4",
+   "file": "preview/leg_4.stl",
+   "color": "#2b2b2b",
+   "lvl": -2,
+   "spin": false
+  },
+  {
+   "name": "adapter",
+   "file": "concepts/lotus_cascade/preview/adapter.stl",
+   "color": "#a8743a",
+   "lvl": 4,
+   "spin": true
+  },
+  {
+   "name": "bowl_1",
+   "file": "concepts/lotus_cascade/preview/bowl_1.stl",
+   "color": "#f2c6d4",
+   "lvl": 5,
+   "spin": true
+  },
+  {
+   "name": "bowl_2",
+   "file": "concepts/lotus_cascade/preview/bowl_2.stl",
+   "color": "#f8e1e8",
+   "lvl": 6,
+   "spin": true
+  },
+  {
+   "name": "bowl_3",
+   "file": "concepts/lotus_cascade/preview/bowl_3.stl",
+   "color": "#f2c6d4",
+   "lvl": 7,
+   "spin": true
+  },
+  {
+   "name": "bowl_4",
+   "file": "concepts/lotus_cascade/preview/bowl_4.stl",
+   "color": "#f8e1e8",
+   "lvl": 8,
+   "spin": true
+  },
+  {
+   "name": "bowl_5",
+   "file": "concepts/lotus_cascade/preview/bowl_5.stl",
+   "color": "#f2c6d4",
+   "lvl": 9,
+   "spin": true
+  },
+  {
+   "name": "bowl_6",
+   "file": "concepts/lotus_cascade/preview/bowl_6.stl",
+   "color": "#f8e1e8",
+   "lvl": 10,
+   "spin": true
+  },
+  {
+   "name": "distributor",
+   "file": "concepts/lotus_cascade/preview/distributor.stl",
+   "color": "#c9b458",
+   "lvl": 11.5,
+   "spin": false
+  },
+  {
+   "name": "pipe",
+   "file": "concepts/lotus_cascade/preview/pipe.stl",
+   "color": "#9fb7c9",
+   "lvl": 2,
+   "spin": false
+  }
+ ]
+}
