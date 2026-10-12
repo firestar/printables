@@ -1,31 +1,37 @@
-"""Helix Vortex: a twisted soft-hex grow tower with a spiral NFT gutter.
+"""Helix Vortex: a twisted 6-lobe star grow tower with a spiral NFT gutter.
 
 Concept tower for the rotating grow tower (see ../BRIEF.md).  Only the turning
 stack and its water path differ from the classic design; the stand, tank, lid,
 drive and rotor come unchanged from grow_tower.py.
 
-  TIER x 6   soft (petal) hexagon, the outline twists 12 deg per tier, so the
-             six port columns spiral up the tower.  Every tier is identical
-             and is placed 12 deg further round than the one below.
-             Inside each tier a V-gutter (vertical outer wall + 45 deg flank)
-             winds once round the wall at 3 % slope, starting high and ending
-             low.  The six ports sit on the hexagon flats and follow the
-             gutter down, each window opening 2 mm above the gutter floor, so
-             the net pot drains straight into the flow and roots land in it.
+  TIER x 6   6-lobe star (r 76..100, 24 mm deep V valleys) whose outline twists
+             continuously, 25 deg per tier, so lobes and valleys run as
+             unbroken helices up the whole stack.  Every tier is identical and
+             is placed 25 deg further round than the one below.  A collar on
+             each tier top carries the lobes up over the 45 deg neck of the
+             tier above (1 mm seam), so the joints don't break the spiral.
+             The six ports sit on the lobes (pot lip drops into a scoop cut in
+             the lobe above the mouth).
+             Inside each tier a V-gutter (wall + 45 deg flank) winds round at
+             3 % slope, starting high and ending low.  In the valleys its outer
+             side is the wall; where a lobe bulges further out, the corner
+             rides the 45 deg bottom funnel instead.  Each port follows the
+             gutter down and its pot base hangs 5-15 mm over the flow.
              At its end the gutter pours onto the tier's inner shoulder; the
-             water runs down the spigot and drips 12 deg further on, which
-             (because of the 12 deg twist) is exactly the start of the gutter
+             water runs down the spigot and drips 25 deg further on, which
+             (because of the 25 deg twist) is exactly the start of the gutter
              in the tier below.  6 turns of NFT gutter, 6 small cascades.
   HEADER     port-less 7th ring with the same gutter.  The fixed spray head
              squirts at its wall; the gutter collects it and feeds tier 6.
-  CAP        base cap with a petal plate, bushing on the spray-head stub.
+  CAP        base cap with a star plate, bushing on the spray-head stub.
   keys       a tooth in every socket and a slot in every spigot fix the
-             12 deg indexing (the rotor has no tooth, so tier 1 goes anywhere).
+             25 deg indexing (the rotor has no tooth, so tier 1 goes anywhere).
 
 The gutter is printed with the tier (spigot down): its underside is a 45 deg
-flank, the ports are 45 deg tubes, so nothing needs support.  If a gutter
-clogs, water spills over the lip (r <= 65 mm, inside every spigot) and falls
-straight to the rotor funnel and the lid drain.
+flank, the ports are 45 deg tubes, the twisted lobes lean < 15 deg and the
+collar's inside is an upward-opening cone, so nothing needs support.  If a
+gutter clogs, water spills over the lip (r <= 62 mm, inside every spigot) and
+falls straight to the rotor funnel and the lid drain.
 
 Run: env PYTHONPATH=/home/infra/printables/.pydeps python3 \\
      grow_tower/cad/concepts/helix_vortex/helix_vortex.py
@@ -50,21 +56,22 @@ SPIG_L, SEAT_DROP, RIM_CH = gt.SPIG_L, gt.SEAT_DROP, gt.RIM_CH
 # ---- parameters (mm, deg) ----------------------------------------------------
 N_TIERS, N_PORT = 6, 6
 PITCH = 116.0            # tier-to-tier spacing once seated
-TWIST = 12.0             # outline twist and placement step per tier
+TWIST = 25.0             # outline twist and placement step per tier
 TIER_H = PITCH + SEAT_DROP
-PETAL_A = 4.0            # soft hexagon: r = R + A (1 + cos 6 theta)
+LOBE_A = 12.0            # 6-lobe star: r = R + A lobe(theta), 24 mm deep valleys
+LOBE_P = 0.6             # < 1: fat lobes, sharp V valleys (crisp helical grooves)
 WALL = R_TO - R_TI       # 3.4 radial
 SOCK_BAND = SPIG_L + SEAT_DROP + 2.0   # round socket bore at the top of a tier
 SEG_PETAL = 360
 
 SLOPE = 0.03             # gutter fall along the corner (NFT 2-5 %)
-GUT_W = 18.0             # flank width (radial = height, 45 deg)
+GUT_W = 26.0             # flank width (radial = height, 45 deg)
 GUT_T = 2.4              # flank plate thickness
 GUT_T45 = GUT_T * S2     # its vertical thickness
-GUT_EMB = 2.0            # flank runs this far into the wall
-SHOULDER_CLR = 1.0       # gutter floor above the inner spigot shoulder
-PSI_LAND = 8.0           # drip from the tier above lands here (on a lobe)
-PSI_END = 360.0 + PSI_LAND - TWIST     # gutter end (356 deg after its start)
+SHOULDER_CLR = 1.0       # gutter floor above the inner spigot shoulder (valleys)
+PSI_LAND = 8.0           # drip from the tier above lands here
+PSI_END = 360.0 + PSI_LAND - TWIST     # gutter end (338 deg after its start)
+PORT_GAP = 24.5          # first port this far (deg) after the landing drip
 DAM_T, DAM_H = 3.0, 8.0
 
 BORE_R = gt.PORT_ID / 2
@@ -72,9 +79,12 @@ PORT_RO = BORE_R + gt.PORT_WALL
 PORT_L = gt.PORT_L       # wall to mouth along the axis (mouth at r = 102)
 WIN_GAP = 2.0            # port window bottom above the gutter floor
 POT_R, POT_L = 25.0, 50.0  # 2" net pot body radius, length under the lip
+SCOOP_R = 31.0           # lobe cut away above the mouth so the pot lip drops in
+COLLAR_H, COLLAR_G = 24.0, 1.0   # lobes carried up over the next tier's 45 deg neck
 
 TOOTH_HW = 3.0           # key tooth half width (tangential)
 SLOT_HW = TOOTH_HW + 0.5
+TOOTH_OFF = 15.0         # tooth sits on a lobe flank, clear of the pots
 
 TIER_Z0 = gt.Z_RT - SEAT_DROP          # tier 1 seat (same socket as classic)
 HEAD_Z = TIER_Z0 + N_TIERS * PITCH     # header seat
@@ -88,7 +98,19 @@ def tw(z):
 
 def r_in(phi, z):
     """Inner wall radius at local angle phi (deg), local height z."""
-    return R_TI + PETAL_A * (1 + np.cos(np.radians(6 * (np.asarray(phi) - tw(z)))))
+    return R_TI + LOBE_A * lobe(np.asarray(phi) - tw(z))
+
+
+def lobe(x):
+    """Star profile 0..2 at angle x (deg), lobe tips at x = 0, 60, ..."""
+    c = np.clip((1 + np.cos(np.radians(6 * np.asarray(x, dtype=float)))) / 2, 0.0, 1.0)
+    return 2.0 * c ** LOBE_P
+
+
+def r_corner(phi, z):
+    """Gutter corner: on the wall in the valleys, on the 45 deg bottom funnel
+    (r = R_SI + z) where a lobe reaches further out."""
+    return np.minimum(r_in(phi, z), R_SI + np.asarray(z, dtype=float))
 
 
 def schedule(z_cs, phi_s, n=1801):
@@ -96,24 +118,39 @@ def schedule(z_cs, phi_s, n=1801):
     psi = np.linspace(0.0, PSI_END, n)
     z = np.full(n, z_cs)
     for _ in range(3):
-        r = r_in(phi_s + psi, z)
+        r = r_corner(phi_s + psi, z)
         a = np.radians(phi_s + psi)
         seg = np.hypot(np.diff(r * np.cos(a)), np.diff(r * np.sin(a)))
         arc = np.concatenate([[0.0], np.cumsum(seg)])
         z = z_cs - SLOPE * arc
-    return psi, z, r_in(phi_s + psi, z), arc
+    return psi, z, r_corner(phi_s + psi, z), arc
+
+
+def port_layout(phi_s, psi_t, zc_t):
+    """(local angle, axis z at r = R_TI, gutter floor z, psi) per port, sorted
+    along the gutter.  Ports sit on the lobes and follow the gutter down."""
+    out = []
+    for j in range(N_PORT):
+        zp = float(zc_t[0]) + WIN_GAP + BORE_R * S2
+        for _ in range(6):
+            phi = 60.0 * j + float(tw(zp))
+            psi = (phi - phi_s) % 360.0
+            zc = float(np.interp(psi, psi_t, zc_t))
+            zp = zc + WIN_GAP + BORE_R * S2
+        out.append((phi, zp, zc, psi))
+    return sorted(out, key=lambda q: q[3])
 
 
 def solve_layout():
-    """Lowest gutter start that keeps the whole floor above the spigot shoulder
-    (r - R_SI), with a lobe of the outline at the landing point."""
-    z_cs = 20.0
-    for _ in range(5):
-        phi_s = float(tw(z_cs)) - PSI_LAND
+    """Lowest gutter start that keeps the floor above the spigot shoulder in
+    the valleys; start angle so the first lobe port is PORT_GAP past the
+    landing drip."""
+    z_cs, phi_s = 20.0, 0.0
+    for _ in range(8):
         psi, z, r, arc = schedule(z_cs, phi_s)
-        need = float(np.max(r - R_SI + SHOULDER_CLR + SLOPE * arc))
-        z_cs = math.ceil(need * 10) / 10
-    phi_s = float(tw(z_cs)) - PSI_LAND
+        z_cs = math.ceil((R_TI - R_SI + SHOULDER_CLR + SLOPE * arc[-1]) * 10) / 10
+        ports = port_layout(phi_s, psi, z)
+        phi_s += ports[0][3] - (PSI_LAND + PORT_GAP)
     return (z_cs, phi_s) + schedule(z_cs, phi_s)
 
 
@@ -129,22 +166,7 @@ def rw_at(psi):
     return float(np.interp(psi, PSI, RW))
 
 
-def port_layout():
-    """(local angle, axis z at the inner wall, gutter floor z, psi) per port.
-    Ports sit on the flats (r = R_TI) and follow the gutter down."""
-    out = []
-    for j in range(N_PORT):
-        zp = Z_CS
-        for _ in range(5):
-            phi = 30.0 + 60.0 * j + float(tw(zp))
-            psi = phi - PHI_S
-            zc = zc_at(psi)
-            zp = zc + WIN_GAP + BORE_R * S2
-        out.append((phi, zp, zc, psi))
-    return out
-
-
-PORTS = port_layout()
+PORTS = port_layout(PHI_S, PSI, ZC)
 WIN_TOP = max(zp + BORE_R * S2 for _, zp, _, _ in PORTS)
 
 # top: the spray head jets hit the header wall above its gutter lip
@@ -164,7 +186,7 @@ def at(r, t, z, ang):
 
 def petal_cs(off, rot):
     th = np.radians(np.arange(SEG_PETAL) * 360.0 / SEG_PETAL)
-    r = R_TI + off + PETAL_A * (1 + np.cos(6 * th))
+    r = R_TI + off + LOBE_A * lobe(np.degrees(th))
     a = th + math.radians(rot)
     return m3d.CrossSection([list(zip(r * np.cos(a), r * np.sin(a)))])
 
@@ -199,10 +221,28 @@ def shell(h_top):
     return outer + spig, void
 
 
+def collar(z_seat):
+    """Lobe skirt above the rim that wraps the 45 deg neck of the part seated at
+    z_seat, so the lobes run on unbroken from tier to tier (COLLAR_G radial seam).
+    Its inside is a 45 deg cone opening upward: no support."""
+    top = z_seat + COLLAR_H
+    band = petal_prism(WALL, z_seat, top)
+    r0 = R_SO + COLLAR_G
+    return band - revolve([(0, z_seat - 1), (r0 - 1, z_seat - 1), (r0 + COLLAR_H + 1, top + 1),
+                           (0, top + 1)])
+
+
 def port_cyl(r, s0, s1, zp, phi, seg=96):
     c = m3d.Manifold.cylinder(s1 - s0, r, r, seg).rotate((0, gt.PORT_TILT, 0))
     a = math.radians(gt.PORT_TILT)
     return c.translate((R_TI + s0 * math.sin(a), 0, zp + s0 * math.cos(a))).rotate((0, 0, phi))
+
+
+def embed(r, z):
+    """Outer end of the flank plate (bottom, top) for a corner at (r, z): up to
+    2 mm into the wall, never past the middle of the bottom funnel."""
+    e = min(2.0, (R_SI + WALL / 2 - (r - z)) / 2)
+    return (r + e - GUT_T45 / 2, z - e - GUT_T45 / 2), (r + e, z - e)
 
 
 def gutter():
@@ -210,12 +250,11 @@ def gutter():
     corner, floor falling at SLOPE from psi = 0 to PSI_END."""
     psi = np.arange(0.0, PSI_END + 1e-9, 1.0)
     zc = np.interp(psi, PSI, ZC)
-    rw = r_in(PHI_S + psi, zc)
+    rw = r_corner(PHI_S + psi, zc)
     verts = []
     for p, z, r in zip(psi, zc, rw):
         a = math.radians(PHI_S + p)
-        for qr, qz in ((r + GUT_EMB, z - GUT_EMB - GUT_T45), (r + GUT_EMB, z - GUT_EMB),
-                       (r - GUT_W, z + GUT_W), (r - GUT_W, z + GUT_W - GUT_T45)):
+        for qr, qz in embed(r, z) + ((r - GUT_W, z + GUT_W), (r - GUT_W, z + GUT_W - GUT_T45)):
             verts.append((qr * math.cos(a), qr * math.sin(a), qz))
     n = len(psi)
     tris = [(0, 2, 1), (0, 3, 2)]
@@ -239,18 +278,19 @@ def dam():
     """Low end wall at the gutter start (keeps the landing drip from running
     back); DAM_H tall so it stays clear of the last port's net pot."""
     r, z = rw_at(0.0), zc_at(0.0)
+    zt = z + DAM_H
+    rt = min(float(r_in(PHI_S, zt)), R_SI + zt) + WALL / 2    # wall or funnel
     pts = []
     for t in (-DAM_T / 2, DAM_T / 2):
-        for qr, qz in ((r + GUT_EMB, z - GUT_EMB - GUT_T45), (r + GUT_EMB, z + DAM_H),
-                       (r - DAM_H, z + DAM_H), (r - DAM_H, z + DAM_H - GUT_T45)):
+        for qr, qz in embed(r, z) + ((rt, zt), (r - DAM_H, zt), (r - DAM_H, zt - GUT_T45)):
             pts.append(at(qr, t, qz, PHI_S))
     return m3d.Manifold.hull_points(pts)
 
 
 def tooth(zt):
-    """Key tooth in a socket on a lobe; zt = where the next spigot bottom sits.
-    Underside 45 deg into the lobe wall."""
-    ang = float(tw(zt))
+    """Key tooth in a socket on a lobe flank; zt = where the next spigot bottom
+    sits.  Underside 45 deg into the lobe roof."""
+    ang = float(tw(zt)) + TOOTH_OFF
     pts = []
     for t in (-TOOTH_HW, TOOTH_HW):
         for r, z in ((70.0, zt + 7), (70.0, zt - 0.6), (81.5, zt - 12.1), (81.5, zt + 7)):
@@ -266,9 +306,10 @@ def slot(ang, z_seat):
                      (SLOT_HW, -SPIG_L + 7.6), (0.0, -SPIG_L + 7.6 + SLOT_HW)):
             pts.append(at(r, t, z + z_seat, ang))
     return m3d.Manifold.hull_points(pts)
+TOOTH_ANG = float(tw(PITCH - SPIG_L)) + TOOTH_OFF
 
 
-TOOTH_ANG = float(tw(PITCH - SPIG_L))
+TOOTH_ANG = float(tw(PITCH - SPIG_L)) + TOOTH_OFF
 
 
 # ---- parts -------------------------------------------------------------------------
@@ -276,7 +317,8 @@ def make_tier():
     solid, void = shell(TIER_H)
     tubes = [port_cyl(PORT_RO, -30, PORT_L, zp, phi) for phi, zp, _, _ in PORTS]
     bores = [port_cyl(BORE_R, -30, PORT_L + 1, zp, phi) for phi, zp, _, _ in PORTS]
-    t = union([solid] + tubes) - union([void] + bores)
+    scoops = [port_cyl(SCOOP_R, PORT_L, PORT_L + 90, zp, phi) for phi, zp, _, _ in PORTS]
+    t = union([solid, collar(PITCH)] + tubes) - union([void] + bores + scoops)
     t = union([t, gutter(), dam(), tooth(PITCH - SPIG_L)[0]])
     return t - slot(TOOTH_ANG - TWIST, 0.0)
 
@@ -321,7 +363,7 @@ def clip(m, z0, z1):
 def report():
     print("-- helix vortex")
     print(f"  {N_TIERS} tiers x {N_PORT} ports = {N_TIERS * N_PORT} plants, pitch {PITCH:.0f}, "
-          f"twist {TWIST:.0f} deg/tier, soft hex r {R_TO:.0f}..{R_TO + 2 * PETAL_A:.0f}")
+          f"twist {TWIST:.0f} deg/tier, 6-lobe star r {R_TO:.0f}..{R_TO + 2 * LOBE_A:.0f}")
     print(f"  height      {CAP_Z + 7.8 + gt.HUB_T:.0f} mm on the stand (cap top z={CAP_Z + 7.8:.0f})")
     print(f"  pipe        1/2in PVC cut to {PIPE_LEN:.0f} mm, jets at z={SPRAY_Z + 6:.0f}")
     print(f"  gutter      floor z {ZC[0]:.1f} -> {ZC[-1]:.1f} over {ARC[-1]:.0f} mm "
@@ -420,7 +462,10 @@ def on_gutter(k, pos):
     if psi > PSI_END + 0.3:
         return False
     rw, zc = rw_at(psi), zc_at(psi)
-    return rw - GUT_W - 0.8 <= r <= rw + 0.5 and abs(zl - (zc + rw - r)) < 1.5
+    if rw - GUT_W - 0.8 <= r <= rw + 0.5:
+        return abs(zl - (zc + rw - r)) < 1.5
+    # past a corner that rides the funnel: the funnel drains straight into it
+    return r <= float(r_in(PHI_S + psi, zl)) + 0.5 and abs(zl - (r - R_SI)) < 1.5
 
 
 def fall(p, origin, ks):
@@ -466,17 +511,22 @@ def water_checks(p):
             if not hits:
                 continue
             hx, hy, _ = hits[0].position
-            rh = math.hypot(hx, hy) - 2.0          # sheet runs down the (leaning) wall
+            # the sheet runs down the twisted wall: where the lobe flank leans in
+            # below the hit it follows it, so drop from the innermost wall point
+            phl = math.degrees(th) - TWIST * N_TIERS
+            zs = np.arange(0.0, JET_LOCAL, 1.0)
+            rh = min(math.hypot(hx, hy), float(np.min(r_in(phl, zs)))) - 1.5
             res = fall(p, (rh * math.cos(th), rh * math.sin(th), jets), range(N_TIERS, -1, -1))
             r, psi, zl = to_local(N_TIERS, res[1]) if res and res[0] == N_TIERS else (0, 0, 0)
-            gap = res and res[0] == N_TIERS and psi > PSI_END and zl < zc_at(PSI_END)
+            gap = (res and res[0] == N_TIERS and psi > PSI_END
+                   and (zl < zc_at(PSI_END) or abs(zl - (r - R_SI)) < 1.5))   # funnel
             good += bool(res and res[0] == N_TIERS and (on_gutter(N_TIERS, res[1]) or gap))
     line(f"spray: {good}/{tot} jet hits run down the header wall into its gutter "
-         f"(or the 4 deg end gap -> shoulder -> spill path)", good == tot)
+         f"(or the {360 - PSI_END:.0f} deg end gap -> shoulder -> spill path)", good == tot)
     # gutter end -> own shoulder -> spigot drip -> next gutter down
     for k in range(N_TIERS, -1, -1):
         name = "header" if k == N_TIERS else f"tier_{k + 1}"
-        ang = PHI_S + PSI_END + TWIST * k
+        ang = PHI_S + PSI_END + 0.5 + TWIST * k      # just past the gutter end
         z0 = TIER_Z0 + k * PITCH
         r0 = rw_at(PSI_END) - 1.0
         o = (r0 * math.cos(math.radians(ang)), r0 * math.sin(math.radians(ang)),
@@ -501,24 +551,25 @@ def water_checks(p):
             line(f"{name:7s} spill: falls {dz:.1f} onto its shoulder, drips on the rotor "
                  f"funnel r={rr:.1f} -> tip r={tip:.1f} < drain {gt.R_DRAIN:.0f}",
                  dz < 3 and hit and tip < gt.R_DRAIN)
-    # roots: every port window opens right over its own gutter, fed from upstream
+    # roots: every pot base hangs right over its own gutter, fed from upstream
     good = 0
-    hmax = 0.0
+    drops = []
+    s = -(POT_L - PORT_L)
     for k in range(N_TIERS):
         for phi, zp, zc, psi in PORTS:
             z0 = TIER_Z0 + k * PITCH
             a = math.radians(phi + TWIST * k)
-            zw = zp - BORE_R * S2
-            o = ((R_TI - 0.5) * math.cos(a), (R_TI - 0.5) * math.sin(a), z0 + zw - 0.05)
+            rb = R_TI + (s + POT_R) / S2           # lowest rim point of the pot base
+            zb = zp + (s - POT_R) / S2
+            o = (rb * math.cos(a), rb * math.sin(a), z0 + zb - 0.05)
             h = stack_parts(p)[k].ray_cast(o, (o[0], o[1], z0 - 20))
             fed = PSI_LAND < psi < PSI_END
             if h and on_gutter(k, list(h[0].position)) and fed:
-                good += 1
-                hmax = max(hmax, o[2] - h[0].position[2])
-    s = -(POT_L - PORT_L)
-    pot_low = (PORTS[0][1] + s / S2 - POT_R / S2) - PORTS[0][2]
-    line(f"root zones: {good}/{N_TIERS * N_PORT} port windows open {hmax:.1f} mm over a fed "
-         f"gutter; pot base {pot_low:.0f} mm above the floor", good == N_TIERS * N_PORT)
+                drops.append(o[2] - h[0].position[2])
+                good += drops[-1] < 20.0
+    lo, hi = (min(drops), max(drops)) if drops else (0, 0)
+    line(f"root zones: {good}/{N_TIERS * N_PORT} pot bases hang {lo:.1f}..{hi:.1f} mm over a "
+         f"fed gutter", good == N_TIERS * N_PORT)
     # overflow when a gutter clogs: over the lip, straight down to the drain
     good = tot = 0
     worst = 0.0
@@ -626,11 +677,10 @@ def section_png(p):
     ax.annotate(f"spiral V-gutter, {100 * SLOPE:.0f} % fall,\n1 turn per tier "
                 f"(45 deg flank, no support)", (R_TI - 6, TIER_Z0 + 5 * PITCH + Z_CS),
                 (130, TIER_Z0 + 5 * PITCH + 40), arrowprops=dict(arrowstyle="->"), fontsize=9)
-    ax.annotate("gutter end pours on the shoulder,\nspigot drips 12 deg on = start\n"
+    ax.annotate(f"gutter end pours on the shoulder,\nspigot drips {TWIST:.0f} deg on = start\n"
                 "of the gutter below (blue)", (R_SI, TIER_Z0 + 3 * PITCH),
                 ((130, TIER_Z0 + 2 * PITCH)), arrowprops=dict(arrowstyle="->"), fontsize=9)
-    ax.annotate("2\" net pot window opens\n2 mm over the gutter floor",
-                (R_TI + 3, TIER_Z0 + k_cut * PITCH + PORTS[0][1] - 30),
+    ax.annotate("2\" net pot on a lobe,\nbase 5-15 mm over the gutter",
                 (150, TIER_Z0 + k_cut * PITCH + 20), arrowprops=dict(arrowstyle="->"),
                 fontsize=9)
     ax.annotate("overflow (clog): over the lip,\nstraight to the rotor funnel\n"

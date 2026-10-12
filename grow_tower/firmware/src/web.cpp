@@ -4,7 +4,7 @@
 //   GET  /api/status   live state
 //   GET  /api/config   settings
 //   POST /api/config   partial settings update (JSON), saved to NVS
-//   POST /api/manual   {"target":"pump|motor","state":"on|off|auto","minutes":N}
+//   POST /api/manual   {"target":"pump|motor|fog|fan","state":"on|off|auto","minutes":N}
 //                      {"action":"rotate","degrees":N} | {"action":"home"}
 //                      {"action":"clear_faults"}
 
@@ -49,6 +49,12 @@ fieldset{border:1px solid #ccd6cc;border-radius:6px;margin:.6em 0}
 <div class="row"><b style="width:4em">Pump</b>
 <button onclick="man('pump','on')">On</button><button onclick="man('pump','off')">Off</button>
 <button class="alt" onclick="man('pump','auto')">Auto</button></div>
+<div class="row"><b style="width:4em">Fogger</b>
+<button onclick="man('fog','on')">On</button><button onclick="man('fog','off')">Off</button>
+<button class="alt" onclick="man('fog','auto')">Auto</button></div>
+<div class="row"><b style="width:4em">Fan</b>
+<button onclick="man('fan','on')">On</button><button onclick="man('fan','off')">Off</button>
+<button class="alt" onclick="man('fan','auto')">Auto</button></div>
 <div class="row"><b style="width:4em">Tower</b>
 <button onclick="man('motor','on')">Turn</button><button onclick="man('motor','off')">Hold</button>
 <button class="alt" onclick="man('motor','auto')">Auto</button></div>
@@ -85,11 +91,27 @@ fieldset{border:1px solid #ccd6cc;border-radius:6px;margin:.6em 0}
 </select></label>
 <label id="tzrow" hidden>POSIX TZ <input name="tz" maxlength="63"></label>
 </fieldset>
-<fieldset><legend>Pump cycle (minutes)</legend>
+<fieldset><legend>Feed mode</legend>
+<label>Mode <select name="feed_mode">
+<option value="aero">Aeroponic (pump cycle)</option><option value="fog">Fog (fogger + fan, pump flushes)</option>
+</select></label>
+</fieldset>
+<fieldset><legend>Pump cycle, aero mode (minutes)</legend>
 <label>Day ON <input type="number" name="day_on_min" min="0" max="1440"></label>
 <label>Day OFF <input type="number" name="day_off_min" min="0" max="1440"></label>
 <label>Night ON <input type="number" name="night_on_min" min="0" max="1440"></label>
 <label>Night OFF <input type="number" name="night_off_min" min="0" max="1440"></label>
+</fieldset>
+<fieldset><legend>Fog mode</legend>
+<label>Fogger day ON (min) <input type="number" name="fog_day_on_min" min="0" max="1440"></label>
+<label>Fogger day OFF (min) <input type="number" name="fog_day_off_min" min="0" max="1440"></label>
+<label>Fogger night ON (min) <input type="number" name="fog_night_on_min" min="0" max="1440"></label>
+<label>Fogger night OFF (min) <input type="number" name="fog_night_off_min" min="0" max="1440"></label>
+<label>Fan run-on after fogger (s) <input type="number" name="fan_run_on_s" min="0" max="600"></label>
+<label>No fog above water temp (°C) <input type="number" name="fog_max_temp_c" min="15" max="40"></label>
+<label>Pump flush ON (min) <input type="number" name="flush_on_min" min="0" max="1440"></label>
+<label>Pump flush OFF (min) <input type="number" name="flush_off_min" min="0" max="1440"></label>
+<div class="hint">Fogger and fan only run in fog mode. The temperature limit needs the DS18B20.</div>
 </fieldset>
 <fieldset><legend>Rotation</legend>
 <label>Mode <select name="rot_mode">
@@ -122,6 +144,10 @@ function mode(o){return o.mode=='auto'?'':` (manual ${o.mode}, ${dur(o.manual_le
 function show(s){$('conn').textContent='';const m=s.motor;$('homeb').disabled=!s.revs.sensor;$('st').innerHTML=
 item('Pump',(s.pump.on?'ON':'off')+mode(s.pump),s.pump.on?'ok':'')+
 item('Pump phase left',dur(s.pump.phase_left_s))+
+(s.feed_mode=='fog'?item('Fogger',(s.fog.on?'ON':'off')+mode(s.fog)+(s.fog.temp_hold?' (water too warm)':''),s.fog.temp_hold?'bad':s.fog.on?'ok':'')+
+item('Fogger phase left',dur(s.fog.phase_left_s))+
+item('Fan',(s.fan.on?'ON':'off')+mode(s.fan)+(s.fan.run_on_left_s?' (run-on '+dur(s.fan.run_on_left_s)+')':''),s.fan.on?'ok':''):
+item('Feed mode','aero'))+
 item('Tower',(m.moving?'turning':'still')+mode(m)+(m.homing?' (homing)':''),m.moving?'ok':'')+
 item('Angle',m.angle_deg==null?'not homed':m.angle_deg.toFixed(1)+'°')+
 item('Water',s.water_low?'LOW':'ok',s.water_low?'bad':'ok')+
@@ -203,6 +229,20 @@ static void sendStatus() {
   p["manual_left_s"] = s.pumpManualLeftS;
   p["phase_left_s"] = s.pumpPhaseLeftS;
 
+  d["feed_mode"] = sched::feedModeName(c.feedMode);
+  JsonObject f = d["fog"].to<JsonObject>();
+  f["on"] = s.fogOn;
+  f["mode"] = manualName(s.fogManual);
+  f["manual_left_s"] = s.fogManualLeftS;
+  f["phase_left_s"] = s.fogPhaseLeftS;
+  f["temp_hold"] = s.fogTempHold;
+
+  JsonObject fn = d["fan"].to<JsonObject>();
+  fn["on"] = s.fanOn;
+  fn["mode"] = manualName(s.fanManual);
+  fn["manual_left_s"] = s.fanManualLeftS;
+  fn["run_on_left_s"] = s.fanRunOnLeftS;
+
   JsonObject m = d["motor"].to<JsonObject>();
   m["moving"] = app::tele.motorEnergised;
   m["mode"] = manualName(s.motorManual);
@@ -246,6 +286,15 @@ static void sendConfig() {
   d["day_off_min"] = c.dayOffMin;
   d["night_on_min"] = c.nightOnMin;
   d["night_off_min"] = c.nightOffMin;
+  d["feed_mode"] = sched::feedModeName(c.feedMode);
+  d["fog_day_on_min"] = c.fogDayOnMin;
+  d["fog_day_off_min"] = c.fogDayOffMin;
+  d["fog_night_on_min"] = c.fogNightOnMin;
+  d["fog_night_off_min"] = c.fogNightOffMin;
+  d["fan_run_on_s"] = c.fanRunOnS;
+  d["fog_max_temp_c"] = c.fogMaxTempC;
+  d["flush_on_min"] = c.flushOnMin;
+  d["flush_off_min"] = c.flushOffMin;
   hhmm(buf, sizeof(buf), c.dayStartMin);
   d["day_start"] = buf;
   hhmm(buf, sizeof(buf), c.dayEndMin);
@@ -288,6 +337,14 @@ static void handleConfigPost() {
   readNum(d, "stall_pct", c.stallPct);
   readNum(d, "motor_speed", c.motorSpeed);
   readNum(d, "manual_timeout_min", c.manualTimeoutMin);
+  readNum(d, "fog_day_on_min", c.fogDayOnMin);
+  readNum(d, "fog_day_off_min", c.fogDayOffMin);
+  readNum(d, "fog_night_on_min", c.fogNightOnMin);
+  readNum(d, "fog_night_off_min", c.fogNightOffMin);
+  readNum(d, "fan_run_on_s", c.fanRunOnS);
+  readNum(d, "fog_max_temp_c", c.fogMaxTempC);
+  readNum(d, "flush_on_min", c.flushOnMin);
+  readNum(d, "flush_off_min", c.flushOffMin);
   readBool(d, "rot_at_night", c.rotAtNight);
   readBool(d, "rev_sensor", c.revSensor);
 
@@ -297,6 +354,8 @@ static void handleConfigPost() {
     return sendError(400, "day_end must be HH:MM");
   if (!d["rot_mode"].isNull() && !sched::rotModeFromString(d["rot_mode"] | "", c.rotMode))
     return sendError(400, "rot_mode must be off|interval|continuous");
+  if (!d["feed_mode"].isNull() && !sched::feedModeFromString(d["feed_mode"] | "", c.feedMode))
+    return sendError(400, "feed_mode must be aero|fog");
 
   String tz = app::tz;
   if (!d["tz"].isNull()) {
@@ -352,8 +411,15 @@ static void handleManual() {
     app::scheduler.setManualPump(mode, app::nowS(), (uint16_t)minutes);
   else if (strcmp(target, "motor") == 0)
     app::scheduler.setManualMotor(mode, app::nowS(), (uint16_t)minutes);
-  else
-    return sendError(400, "target must be pump|motor");
+  else if (strcmp(target, "fog") == 0 || strcmp(target, "fan") == 0) {
+    if (mode == sched::MAN_ON && app::scheduler.config().feedMode != sched::FEED_FOG)
+      return sendError(409, "fogger/fan only run with feed_mode fog");
+    if (target[1] == 'o')
+      app::scheduler.setManualFog(mode, app::nowS(), (uint16_t)minutes);
+    else
+      app::scheduler.setManualFan(mode, app::nowS(), (uint16_t)minutes);
+  } else
+    return sendError(400, "target must be pump|motor|fog|fan");
   // the new state is applied on the next control step (<100 ms)
   sendStatus();
 }

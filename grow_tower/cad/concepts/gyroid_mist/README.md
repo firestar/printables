@@ -1,12 +1,27 @@
 # Gyroid Mist Shell (fogponic concept)
 
-Four identical pebble-shaped segments make the turning stack. Each one is the
-classic closed 3.4 mm tier wall wrapped in a cylindrical gyroid sheet lattice
-(2.4 mm sheet, 30 cells round, 3 to 13 mm thick). Each segment carries nine 2"
-net-pot pockets in a three-start helix (3 rows x 3, rows 40 deg apart), so
-4 x 9 = 36 plants. Height is 1260 mm on the stand. The lattice is relief
-**outside** the solid wall, so fog and drip stay in the chamber. The check
-script proves the wall is open only at the 36 bores.
+Four different pebble segments make the turning stack: fattest at the bottom,
+slimmer and more domed toward the top (240 / 236 / 225 / 216 mm footprints).
+The joints keep the classic spigot and socket, so the drop-in fit and the cap
+are unchanged. Each joint pinches to a deep notch, so the stack reads as
+stacked stones, not as a column.
+
+Between the joints the closed 3.4 mm chamber wall bulges out by 7-14 mm in a
+gently lobed plan. A log-polar gyroid sheet skin swells over it to the pebble
+envelope:
+- it rises at 44 deg or less off the notch,
+- then forms a 3-lobed, twisting, slightly lopsided belly (up to r 121),
+- then rounds off in a dome.
+
+The cells grow with the radius (coarser coral outside), and the sheets thin from
+2.6 to 2.1 mm. Each segment has nine 2" net-pot pockets (3 rows x 3) in the
+lobe valleys. The valleys twist 40 deg per row, so the pockets form a
+three-start helix (each segment twists the other way from the one below). Each
+pocket's tube flares into the gyroid with a smooth blend, and its mouth sits
+2 mm inside the local envelope as a cup. 4 x 9 = 36 plants. Height is 1260 mm
+on the stand. The lattice is relief **outside** the solid wall, so fog and drip
+stay in the chamber. The check script proves the wall is open only at the 36
+bores.
 
 Roots get **fog**. A 24 mm fogger sits in a printed float on the centre pipe.
 An 80 mm 12 V fan in a box under the lid pulls air from the tank headspace and
@@ -24,7 +39,7 @@ Viewer: `http://127.0.0.1:8766/viewer.html?concept=gyroid_mist`
 ## Parts (this folder `stl/`; base parts and the classic `cap.stl` come from `grow_tower/cad/stl/`)
 | part | qty | print orientation | ~ASA g | notes |
 |---|---|---|---|---|
-| segment | 4 | spigot down | 545 | 241 mm footprint, no supports |
+| seg_1 .. seg_4 | 1 each | spigot down | 920 / 845 / 756 / 643 | different shapes, no supports, 10-14 MB STL |
 | mist_head | 1 | stub down, **brim** | 65 | jets, stub for the classic cap, fog hood, duct socket |
 | duct_foot | 1 | skirt down | 22 | sits on the lid spokes (gable notches) |
 | fan_box | 1 | floor down | 54 | fan below the floor on 4 x M3x35 + nuts, M3 pipe clamp |
@@ -37,8 +52,8 @@ Bought parts: DN50 PVC drain pipe cut to 668 mm, an 80 mm 12 V fan (IP67, low
 rpm, ~1500), a 24 mm single-disc fogger with a **built-in low-water
 cut-off** (12 V or 24 V), and the 1/2" pipe at the classic length.
 
-Overhangs: all parts stay at 45 deg or less except these:
-- **Gyroid saddles.** 2.7 % of the segment area. The largest patch steeper than
+- **Gyroid saddles.** 7-9 % of the segment area is steeper than 45 deg. The largest
+  patch steeper than 60 deg is 51-95 mm², and these patches print like gyroid infill.
   60 deg is 7.5 mm², and these patches print like gyroid infill.
 - **fan_roof groove.** Its ceiling is a 3.2 mm bridge.
 - **Small horizontal holes.** These are the jets, the pins and the M3 holes.
@@ -63,7 +78,8 @@ The fan intake is at 402 mm, and rain can't reach it.
 ## Cleaning
 Algae grow on the wet, lit lattice. The segments only sit in their sockets:
 lift each one off and scrub it with a soft brush. You can also soak it in 3 %
-H2O2. The inside wall is smooth, like the classic wall. The duct slides off
+H2O2. The skin is now up to 40 mm deep, so a bottle brush helps. The inside
+wall bulges with the pebble but stays smooth. The duct slides off
 the pipe after the mist head is removed (one M3 pin). Then the fan box and
 float come off the pipe.
 
@@ -72,6 +88,10 @@ float come off the pipe.
 - The float can rotate on the pipe. If the cradle lands on the float-switch arm at low water, the fogger stops sooner. The fogger's own low-water cut-off covers this.
 - The fan and the plenum run wet. Condensate drains through 2 holes outside the fan's inlet lip.
 - The fog windows are 37 mm below the jets, so the top row of roots gets fog from the side.
+- The rotating ASA is 3.5 kg (torque 43 % planted, 66 % mature, under the 50 / 75 % limits). Don't make the bellies any fatter without dropping the infill.
+- Each segment is a long print, roughly 0.65-0.9 kg and 194 mm tall, and the bottom one fills 239 mm of the bed. Print it on a clean, level plate with a brim.
+- The lobes are near-symmetric (the stack's COM is 0.2 mm off the axis, a 0.5 g m imbalance), so they don't add wobble.
+- The outer gyroid sheets are only 2.1 mm, so the belly edges can chip. Lift the segments by the solid joint rims, not by the lattice.
 
 ## Base changes wanted
 - Make the lid gland bigger (PG9/M16) or add a second gland for the fogger and fan cables.

@@ -6,6 +6,8 @@
 // Avoids strapping pins (0, 2*, 5, 12, 15), flash pins (6-11) and the
 // input-only pins (34-39, no internal pull-ups).  *GPIO2 = onboard LED only.
 #define PIN_PUMP 25      // MOSFET module SIG -> 12 V pump, active HIGH
+#define PIN_FOG 26       // MOSFET module SIG -> ultrasonic fogger, active HIGH
+#define PIN_FAN 27       // MOSFET module SIG -> 12 V duct fan, active HIGH
 #define PIN_STEP_IN1 16  // ULN2003 IN1 (28BYJ-48 blue)
 #define PIN_STEP_IN2 17  // ULN2003 IN2 (pink)
 #define PIN_STEP_IN3 18  // ULN2003 IN3 (yellow)

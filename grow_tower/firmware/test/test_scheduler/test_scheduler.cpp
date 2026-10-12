@@ -371,6 +371,142 @@ void test_no_stall_without_sensor() {
   TEST_ASSERT_TRUE(sim.s.status().motorBusy);
 }
 
+// ---- fog mode ---------------------------------------------------------------
+static Config fogMode() {
+  Config c = noRotation();
+  c.feedMode = FEED_FOG;  // fog day 10/5, night 5/15, fan run-on 60 s, flush 2/118
+  return c;
+}
+
+void test_aero_mode_never_fogs() {
+  Sim sim(noRotation());
+  sim.s.setManualFog(MAN_ON, sim.in.nowS);
+  sim.run(3600);
+  TEST_ASSERT_FALSE(sim.out.fog);
+  TEST_ASSERT_FALSE(sim.s.status().fogOn);
+  TEST_ASSERT_FALSE(sim.out.fan);
+}
+
+void test_fog_day_cycle_and_fan_run_on() {
+  Sim sim(fogMode());
+  TEST_ASSERT_TRUE(sim.out.fog);
+  TEST_ASSERT_TRUE(sim.out.fan);
+  TEST_ASSERT_EQUAL_UINT32(10 * 60, sim.s.status().fogPhaseLeftS);
+  sim.run(10 * 60 - 1);
+  TEST_ASSERT_TRUE(sim.out.fog);
+  sim.run(1);  // fogger off, fan runs on 60 s
+  TEST_ASSERT_FALSE(sim.out.fog);
+  TEST_ASSERT_TRUE(sim.out.fan);
+  TEST_ASSERT_EQUAL_UINT32(60, sim.s.status().fanRunOnLeftS);
+  sim.run(59);
+  TEST_ASSERT_TRUE(sim.out.fan);
+  sim.run(1);
+  TEST_ASSERT_FALSE(sim.out.fan);
+  TEST_ASSERT_EQUAL_UINT32(0, sim.s.status().fanRunOnLeftS);
+  sim.run(5 * 60 - 61);
+  TEST_ASSERT_FALSE(sim.out.fog);
+  sim.run(1);
+  TEST_ASSERT_TRUE(sim.out.fog);
+  TEST_ASSERT_TRUE(sim.out.fan);
+}
+
+void test_fog_night_cycle() {
+  Sim sim(fogMode());
+  sim.in.minuteOfDay = 23 * 60;  // night: 5 on / 15 off, restarts with ON
+  sim.run(1);
+  TEST_ASSERT_TRUE(sim.out.fog);
+  sim.run(5 * 60 - 1);
+  TEST_ASSERT_TRUE(sim.out.fog);
+  sim.run(1);
+  TEST_ASSERT_FALSE(sim.out.fog);
+  sim.run(15 * 60 - 1);
+  TEST_ASSERT_FALSE(sim.out.fog);
+  sim.run(1);
+  TEST_ASSERT_TRUE(sim.out.fog);
+}
+
+void test_fog_mode_pump_flush() {
+  Sim sim(fogMode());  // 2 min every 2 h, day and night alike
+  TEST_ASSERT_TRUE(sim.out.pump);
+  sim.run(2 * 60 - 1);
+  TEST_ASSERT_TRUE(sim.out.pump);
+  sim.run(1);
+  TEST_ASSERT_FALSE(sim.out.pump);
+  sim.in.minuteOfDay = 23 * 60;  // night does not restart the flush cycle
+  sim.run(118 * 60 - 1);
+  TEST_ASSERT_FALSE(sim.out.pump);
+  sim.run(1);
+  TEST_ASSERT_TRUE(sim.out.pump);
+}
+
+void test_fog_low_water_stops_everything() {
+  Sim sim(fogMode());
+  TEST_ASSERT_TRUE(sim.out.fog && sim.out.fan && sim.out.pump);
+  sim.in.waterLowRaw = true;
+  sim.run(LOW_WATER_TRIP_S + 1);
+  TEST_ASSERT_FALSE(sim.out.fog);
+  TEST_ASSERT_FALSE(sim.out.fan);  // no run-on either
+  TEST_ASSERT_FALSE(sim.out.pump);
+  sim.s.setManualFog(MAN_ON, sim.in.nowS);
+  sim.s.setManualFan(MAN_ON, sim.in.nowS);
+  sim.run(1);
+  TEST_ASSERT_FALSE(sim.out.fog);
+  TEST_ASSERT_FALSE(sim.out.fan);
+  sim.in.waterLowRaw = false;
+  sim.run(LOW_WATER_CLEAR_S + 1);
+  TEST_ASSERT_TRUE(sim.out.fog);
+  TEST_ASSERT_TRUE(sim.out.fan);
+}
+
+void test_fog_over_temp_hold() {
+  Sim sim(fogMode());  // max 28 C, back on at <= 27 C
+  sim.in.tempValid = true;
+  sim.in.tempC = 28.0f;
+  sim.run(1);
+  TEST_ASSERT_TRUE(sim.out.fog);  // at the limit is fine
+  sim.in.tempC = 28.5f;
+  sim.run(1);
+  TEST_ASSERT_FALSE(sim.out.fog);
+  TEST_ASSERT_TRUE(sim.s.status().fogTempHold);
+  TEST_ASSERT_TRUE(sim.out.fan);  // run-on clears the duct
+  sim.s.setManualFog(MAN_ON, sim.in.nowS);  // manual can't override
+  sim.in.tempC = 27.5f;  // hysteresis
+  sim.run(1);
+  TEST_ASSERT_FALSE(sim.out.fog);
+  sim.in.tempC = 27.0f;
+  sim.run(1);
+  TEST_ASSERT_TRUE(sim.out.fog);
+  TEST_ASSERT_FALSE(sim.s.status().fogTempHold);
+  // no probe: no limit
+  sim.in.tempC = 35.0f;
+  sim.in.tempValid = false;
+  sim.run(1);
+  TEST_ASSERT_TRUE(sim.out.fog);
+}
+
+void test_fog_fan_manual_override_times_out() {
+  Config c = fogMode();
+  c.manualTimeoutMin = 10;
+  Sim sim(c);
+  sim.s.setManualFog(MAN_OFF, sim.in.nowS);
+  sim.s.setManualFan(MAN_OFF, sim.in.nowS, 2);
+  sim.run(1);
+  TEST_ASSERT_FALSE(sim.out.fog);
+  TEST_ASSERT_FALSE(sim.out.fan);
+  TEST_ASSERT_EQUAL_UINT8(MAN_OFF, sim.s.status().fogManual);
+  sim.run(2 * 60 - 1);  // fan override ends, run-on of the stopped fogger
+  TEST_ASSERT_EQUAL_UINT8(MAN_AUTO, sim.s.status().fanManual);
+  TEST_ASSERT_FALSE(sim.out.fog);
+  TEST_ASSERT_FALSE(sim.out.fan);  // run-on already expired
+  sim.s.setManualFan(MAN_ON, sim.in.nowS);  // fan alone, fogger off
+  sim.run(1);
+  TEST_ASSERT_TRUE(sim.out.fan);
+  TEST_ASSERT_FALSE(sim.out.fog);
+  sim.run(10 * 60 - 2 * 60 - 1);  // fogger override ends: auto cycle resumes
+  TEST_ASSERT_EQUAL_UINT8(MAN_AUTO, sim.s.status().fogManual);
+  TEST_ASSERT_EQUAL_UINT8(MAN_ON, sim.s.status().fanManual);
+}
+
 // ---- config -----------------------------------------------------------------
 void test_sanitize_and_names() {
   Config c;
@@ -392,6 +528,18 @@ void test_sanitize_and_names() {
   TEST_ASSERT_EQUAL_UINT8(ROT_CONTINUOUS, m);
   TEST_ASSERT_FALSE(rotModeFromString("revs", m));
   TEST_ASSERT_EQUAL_STRING("interval", rotModeName(ROT_INTERVAL));
+  TEST_ASSERT_TRUE(feedModeFromString("fog", m));
+  TEST_ASSERT_EQUAL_UINT8(FEED_FOG, m);
+  TEST_ASSERT_FALSE(feedModeFromString("mist", m));
+  TEST_ASSERT_EQUAL_STRING("aero", feedModeName(7));
+  Config f;
+  f.feedMode = 5;
+  f.fogMaxTempC = 90;
+  f.fanRunOnS = 5000;
+  sanitize(f);
+  TEST_ASSERT_EQUAL_UINT8(FEED_AERO, f.feedMode);
+  TEST_ASSERT_EQUAL_UINT16(40, f.fogMaxTempC);
+  TEST_ASSERT_EQUAL_UINT16(600, f.fanRunOnS);
 }
 
 int main(int, char **) {
@@ -419,6 +567,13 @@ int main(int, char **) {
   RUN_TEST(test_stall_counts_across_interval_moves);
   RUN_TEST(test_pulses_prevent_stall);
   RUN_TEST(test_no_stall_without_sensor);
+  RUN_TEST(test_aero_mode_never_fogs);
+  RUN_TEST(test_fog_day_cycle_and_fan_run_on);
+  RUN_TEST(test_fog_night_cycle);
+  RUN_TEST(test_fog_mode_pump_flush);
+  RUN_TEST(test_fog_low_water_stops_everything);
+  RUN_TEST(test_fog_over_temp_hold);
+  RUN_TEST(test_fog_fan_manual_override_times_out);
   RUN_TEST(test_sanitize_and_names);
   return UNITY_END();
 }

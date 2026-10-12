@@ -1,7 +1,8 @@
 // Rotating aeroponic grow tower - ESP32 firmware
 //
-// Cycles a 12 V pump on a day/night schedule and turns the tower with a
-// 28BYJ-48 stepper.  Stops the pump on low water and the stepper on a stall.
+// Cycles a 12 V pump (or, in fog mode, an ultrasonic fogger + duct fan with
+// short pump flushes) on a day/night schedule and turns the tower with a
+// 28BYJ-48 stepper.  Stops pump/fogger/fan on low water and the stepper on a stall.
 // Web UI + REST API on http://growtower.local/ (see web.cpp, README.md).
 // The schedule itself lives in scheduler.cpp (pure, unit-tested).
 
@@ -39,7 +40,7 @@ static bool servicesUp = false;
 static bool otaActive = false;  // forces all outputs off during an update
 static uint32_t lastWifiTry = 0, lastControl = 0, lastTempReq = 0;
 static bool tempPending = false;
-static bool lastPump = false;
+static bool lastPump = false, lastFog = false, lastFan = false;
 
 // ---------------------------------------------------------------------------
 // app helpers
@@ -74,6 +75,15 @@ void app::saveConfig() {
   prefs.putUShort("stallp", c.stallPct);
   prefs.putUShort("speed", c.motorSpeed);
   prefs.putUShort("mto", c.manualTimeoutMin);
+  prefs.putUChar("feed", c.feedMode);
+  prefs.putUShort("fdon", c.fogDayOnMin);
+  prefs.putUShort("fdoff", c.fogDayOffMin);
+  prefs.putUShort("fnon", c.fogNightOnMin);
+  prefs.putUShort("fnoff", c.fogNightOffMin);
+  prefs.putUShort("fanro", c.fanRunOnS);
+  prefs.putUShort("fmaxt", c.fogMaxTempC);
+  prefs.putUShort("flon", c.flushOnMin);
+  prefs.putUShort("floff", c.flushOffMin);
   prefs.putString("tz", tz);
   applyTz();
 }
@@ -95,6 +105,15 @@ static void loadConfig() {
   c.stallPct = prefs.getUShort("stallp", c.stallPct);
   c.motorSpeed = prefs.getUShort("speed", MOTOR_SPEED_DEFAULT);
   c.manualTimeoutMin = prefs.getUShort("mto", c.manualTimeoutMin);
+  c.feedMode = prefs.getUChar("feed", c.feedMode);
+  c.fogDayOnMin = prefs.getUShort("fdon", c.fogDayOnMin);
+  c.fogDayOffMin = prefs.getUShort("fdoff", c.fogDayOffMin);
+  c.fogNightOnMin = prefs.getUShort("fnon", c.fogNightOnMin);
+  c.fogNightOffMin = prefs.getUShort("fnoff", c.fogNightOffMin);
+  c.fanRunOnS = prefs.getUShort("fanro", c.fanRunOnS);
+  c.fogMaxTempC = prefs.getUShort("fmaxt", c.fogMaxTempC);
+  c.flushOnMin = prefs.getUShort("flon", c.flushOnMin);
+  c.flushOffMin = prefs.getUShort("floff", c.flushOffMin);
   c.motorStepsPerRev = STEPPER_HALF_STEPS_PER_REV;
   c.pinionTeeth = PINION_TEETH;
   c.ringTeeth = RING_TEETH;
@@ -115,6 +134,8 @@ static void IRAM_ATTR onRevPulse() {
 
 static void allOutputsOff() {
   digitalWrite(PIN_PUMP, LOW);
+  digitalWrite(PIN_FOG, LOW);
+  digitalWrite(PIN_FAN, LOW);
   motor::command(motor::position(), true, app::scheduler.config().motorSpeed);
 }
 
@@ -130,17 +151,25 @@ static void controlStep() {
   in.waterLowRaw = WATER_OK_WHEN_CLOSED ? !closed : closed;
   in.revCount = revCount;
   in.motorPos = motor::position();
+  in.tempValid = app::tele.tempValid;
+  in.tempC = app::tele.tempC;
   app::tele.revPulses = in.revCount;
 
   sched::Outputs o = app::scheduler.update(in);
   if (otaActive) {
-    o.pump = false;
+    o.pump = o.fog = o.fan = false;
     o.motorHalt = true;
   }
   if (o.pump != lastPump) Serial.printf("pump %s\n", o.pump ? "on" : "off");
+  if (o.fog != lastFog) Serial.printf("fogger %s\n", o.fog ? "on" : "off");
+  if (o.fan != lastFan) Serial.printf("fan %s\n", o.fan ? "on" : "off");
   lastPump = o.pump;
+  lastFog = o.fog;
+  lastFan = o.fan;
 
   digitalWrite(PIN_PUMP, o.pump ? HIGH : LOW);
+  digitalWrite(PIN_FOG, o.fog ? HIGH : LOW);
+  digitalWrite(PIN_FAN, o.fan ? HIGH : LOW);
   motor::command(o.motorTarget, o.motorHalt, app::scheduler.config().motorSpeed);
   app::tele.motorEnergised = motor::energised();
 }
@@ -153,7 +182,7 @@ static void updateLed() {
     on = (ms / 125) % 2;  // fast blink: needs attention
   else if (WiFi.status() != WL_CONNECTED)
     on = (ms / 500) % 2;  // slow blink: no Wi-Fi (schedule still runs)
-  else if (s.pumpOn)
+  else if (s.pumpOn || s.fogOn)
     on = true;
   else
     on = ms % 3000 < 60;  // heartbeat
@@ -240,8 +269,11 @@ static void wifiLoop() {
 // ---------------------------------------------------------------------------
 void setup() {
   // fail-safe: everything off before anything else
-  pinMode(PIN_PUMP, OUTPUT);
-  digitalWrite(PIN_PUMP, LOW);
+  const uint8_t switched[] = {PIN_PUMP, PIN_FOG, PIN_FAN};
+  for (uint8_t p : switched) {
+    pinMode(p, OUTPUT);
+    digitalWrite(p, LOW);
+  }
   const uint8_t coils[] = {PIN_STEP_IN1, PIN_STEP_IN2, PIN_STEP_IN3, PIN_STEP_IN4};
   for (uint8_t p : coils) {
     pinMode(p, OUTPUT);

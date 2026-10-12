@@ -18,6 +18,20 @@ bool rotModeFromString(const char *s, uint8_t &out) {
   return false;
 }
 
+static const char *const FEED_NAMES[] = {"aero", "fog"};
+
+const char *feedModeName(uint8_t m) { return m <= FEED_FOG ? FEED_NAMES[m] : "aero"; }
+
+bool feedModeFromString(const char *s, uint8_t &out) {
+  for (uint8_t i = 0; i <= FEED_FOG; i++) {
+    if (strcmp(s, FEED_NAMES[i]) == 0) {
+      out = i;
+      return true;
+    }
+  }
+  return false;
+}
+
 template <typename T>
 static void clampField(T &v, T lo, T hi) {
   if (v < lo) v = lo;
@@ -29,6 +43,15 @@ void sanitize(Config &c) {
   clampField<uint16_t>(c.dayOffMin, 0, 1440);
   clampField<uint16_t>(c.nightOnMin, 0, 1440);
   clampField<uint16_t>(c.nightOffMin, 0, 1440);
+  if (c.feedMode > FEED_FOG) c.feedMode = FEED_AERO;
+  clampField<uint16_t>(c.fogDayOnMin, 0, 1440);
+  clampField<uint16_t>(c.fogDayOffMin, 0, 1440);
+  clampField<uint16_t>(c.fogNightOnMin, 0, 1440);
+  clampField<uint16_t>(c.fogNightOffMin, 0, 1440);
+  clampField<uint16_t>(c.fanRunOnS, 0, 600);
+  clampField<uint16_t>(c.fogMaxTempC, 15, 40);
+  clampField<uint16_t>(c.flushOnMin, 0, 1440);
+  clampField<uint16_t>(c.flushOffMin, 0, 1440);
   clampField<uint16_t>(c.dayStartMin, 0, 1439);
   clampField<uint16_t>(c.dayEndMin, 0, 1439);
   if (c.rotMode > ROT_CONTINUOUS) c.rotMode = ROT_OFF;
@@ -64,26 +87,56 @@ uint32_t moveIntervalS(const Config &c) {
 
 static int32_t ahead(int32_t target, int32_t pos) { return (int32_t)((uint32_t)target - (uint32_t)pos); }
 
+bool Cycle::run(uint32_t nowS, bool p, uint32_t onS, uint32_t offS, uint32_t &leftS) {
+  if (!valid || p != period) {  // new cycle starts with an ON phase
+    valid = true;
+    period = p;
+    startS = nowS;
+  }
+  if (onS == 0 || offS == 0) {
+    leftS = 0;
+    return onS > 0;
+  }
+  uint32_t len = onS + offS;
+  uint32_t pos = (nowS - startS) % len;
+  if (pos < onS) {
+    leftS = onS - pos;
+    return true;
+  }
+  leftS = len - pos;
+  return false;
+}
+
 void Scheduler::setConfig(const Config &c) {
   cfg_ = c;
   sanitize(cfg_);
-  cycleValid_ = false;
+  pumpCycle_.reset();
+  fogCycle_.reset();
+}
+
+void Scheduler::setManual(uint8_t mode, uint32_t nowS, uint16_t minutes, uint8_t &st, uint32_t &until,
+                          uint32_t &left) {
+  if (mode > MAN_OFF) return;
+  uint32_t m = minutes ? minutes : cfg_.manualTimeoutMin;
+  st = mode;
+  until = nowS + m * 60;
+  left = mode == MAN_AUTO ? 0 : m * 60;
 }
 
 void Scheduler::setManualPump(uint8_t mode, uint32_t nowS, uint16_t minutes) {
-  if (mode > MAN_OFF) return;
-  uint32_t m = minutes ? minutes : cfg_.manualTimeoutMin;
-  st_.pumpManual = mode;
-  pumpManualUntil_ = nowS + m * 60;
-  st_.pumpManualLeftS = mode == MAN_AUTO ? 0 : m * 60;
+  setManual(mode, nowS, minutes, st_.pumpManual, pumpManualUntil_, st_.pumpManualLeftS);
 }
 
 void Scheduler::setManualMotor(uint8_t mode, uint32_t nowS, uint16_t minutes) {
-  if (mode > MAN_OFF) return;
-  uint32_t m = minutes ? minutes : cfg_.manualTimeoutMin;
-  st_.motorManual = mode;
-  motorManualUntil_ = nowS + m * 60;
-  st_.motorManualLeftS = mode == MAN_AUTO ? 0 : m * 60;
+  setManual(mode, nowS, minutes, st_.motorManual, motorManualUntil_, st_.motorManualLeftS);
+}
+
+void Scheduler::setManualFog(uint8_t mode, uint32_t nowS, uint16_t minutes) {
+  setManual(mode, nowS, minutes, st_.fogManual, fogManualUntil_, st_.fogManualLeftS);
+}
+
+void Scheduler::setManualFan(uint8_t mode, uint32_t nowS, uint16_t minutes) {
+  setManual(mode, nowS, minutes, st_.fanManual, fanManualUntil_, st_.fanManualLeftS);
 }
 
 bool Scheduler::rotate(uint16_t deg) {
@@ -114,25 +167,51 @@ void Scheduler::expireManual(uint8_t &mode, uint32_t until, uint32_t nowS, uint3
 }
 
 bool Scheduler::autoPump(const Inputs &in, bool day) {
-  if (!cycleValid_ || day != cycleDay_) {  // new cycle starts with an ON phase
-    cycleValid_ = true;
-    cycleDay_ = day;
-    cycleStartS_ = in.nowS;
-  }
+  if (cfg_.feedMode == FEED_FOG)  // flush only, same day and night
+    return pumpCycle_.run(in.nowS, true, (uint32_t)cfg_.flushOnMin * 60,
+                          (uint32_t)cfg_.flushOffMin * 60, st_.pumpPhaseLeftS);
   uint32_t onS = (uint32_t)(day ? cfg_.dayOnMin : cfg_.nightOnMin) * 60;
   uint32_t offS = (uint32_t)(day ? cfg_.dayOffMin : cfg_.nightOffMin) * 60;
-  if (onS == 0 || offS == 0) {
-    st_.pumpPhaseLeftS = 0;
-    return onS > 0;
+  return pumpCycle_.run(in.nowS, day, onS, offS, st_.pumpPhaseLeftS);
+}
+
+void Scheduler::planFog(const Inputs &in, bool day, bool &fog, bool &fan) {
+  const uint32_t now = in.nowS;
+  // fogging warms the water: hold off above the limit, with hysteresis
+  if (!in.tempValid)
+    st_.fogTempHold = false;  // no probe: no limit
+  else if (in.tempC > cfg_.fogMaxTempC)
+    st_.fogTempHold = true;
+  else if (in.tempC <= cfg_.fogMaxTempC - FOG_TEMP_HYST_C)
+    st_.fogTempHold = false;
+
+  fog = fan = false;
+  st_.fogPhaseLeftS = st_.fanRunOnLeftS = 0;
+  if (cfg_.feedMode != FEED_FOG) {
+    fogCycle_.reset();
+    fanUntilS_ = now;
+    fogWasOn_ = false;
+    return;
   }
-  uint32_t period = onS + offS;
-  uint32_t pos = (in.nowS - cycleStartS_) % period;
-  if (pos < onS) {
-    st_.pumpPhaseLeftS = onS - pos;
-    return true;
+  uint32_t onS = (uint32_t)(day ? cfg_.fogDayOnMin : cfg_.fogNightOnMin) * 60;
+  uint32_t offS = (uint32_t)(day ? cfg_.fogDayOffMin : cfg_.fogNightOffMin) * 60;
+  const bool af = fogCycle_.run(now, day, onS, offS, st_.fogPhaseLeftS);
+  fog = st_.fogManual == MAN_ON || (st_.fogManual == MAN_AUTO && af);
+  if (st_.fogTempHold || st_.waterLow) fog = false;
+
+  // fan follows the fogger, then runs on to clear the duct
+  if (fog) {
+    fogWasOn_ = true;
+  } else if (fogWasOn_) {  // fogger just stopped: start the run-on
+    fogWasOn_ = false;
+    fanUntilS_ = now + cfg_.fanRunOnS;
   }
-  st_.pumpPhaseLeftS = period - pos;
-  return false;
+  if (st_.waterLow) fanUntilS_ = now;
+  const int32_t runOn = (int32_t)(fanUntilS_ - now);
+  const bool autoFan = fog || runOn > 0;
+  if (!fog && runOn > 0) st_.fanRunOnLeftS = (uint32_t)runOn;
+  fan = st_.fanManual == MAN_ON || (st_.fanManual == MAN_AUTO && autoFan);
+  if (st_.waterLow) fan = false;
 }
 
 void Scheduler::planMotor(const Inputs &in, bool day, uint32_t dt) {
@@ -256,11 +335,17 @@ Outputs Scheduler::update(const Inputs &in) {
   st_.day = day;
   expireManual(st_.pumpManual, pumpManualUntil_, now, st_.pumpManualLeftS);
   expireManual(st_.motorManual, motorManualUntil_, now, st_.motorManualLeftS);
+  expireManual(st_.fogManual, fogManualUntil_, now, st_.fogManualLeftS);
+  expireManual(st_.fanManual, fanManualUntil_, now, st_.fanManualLeftS);
 
   // pump: manual beats schedule, low water beats everything
   const bool ap = autoPump(in, day);
   bool pump = st_.pumpManual == MAN_ON || (st_.pumpManual == MAN_AUTO && ap);
   if (st_.waterLow) pump = false;
+
+  // fogger + fan: fog mode only; low water and over-temp beat manual
+  bool fog, fan;
+  planFog(in, day, fog, fan);
 
   // motor: stall fault beats everything
   const uint32_t stallSteps = (uint32_t)rev * cfg_.stallPct / 100;
@@ -278,9 +363,13 @@ Outputs Scheduler::update(const Inputs &in) {
   }
 
   st_.pumpOn = pump;
+  st_.fogOn = fog;
+  st_.fanOn = fan;
   st_.stepsToGo = ahead(target_, in.motorPos);
   st_.motorBusy = st_.stepsToGo > 0;
   o.pump = pump;
+  o.fog = fog;
+  o.fan = fan;
   o.motorTarget = target_;
   return o;
 }

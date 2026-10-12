@@ -1,5 +1,5 @@
 {
- "title": "Hyperboloid Lattice: 12 tubes x 3 ports",
+ "title": "Hyperboloid Lattice: 9 tubes x 4 ports",
  "target_z": 760.0,
  "parts": [
   {
@@ -146,63 +146,70 @@
    "name": "segs_2",
    "file": "concepts/hyperboloid_lattice/preview/segs_2.stl",
    "color": "#d9d2bd",
-   "lvl": 6.4,
+   "lvl": 6.2,
    "spin": true
   },
   {
    "name": "segs_3",
    "file": "concepts/hyperboloid_lattice/preview/segs_3.stl",
    "color": "#e8e2d0",
-   "lvl": 7.4,
+   "lvl": 7.0,
+   "spin": true
+  },
+  {
+   "name": "segs_4",
+   "file": "concepts/hyperboloid_lattice/preview/segs_4.stl",
+   "color": "#d9d2bd",
+   "lvl": 7.800000000000001,
    "spin": true
   },
   {
    "name": "net_pots",
    "file": "concepts/hyperboloid_lattice/preview/net_pots.stl",
    "color": "#5a8f3a",
-   "lvl": 6.4,
+   "lvl": 6.6,
    "spin": true
   },
   {
    "name": "rods",
    "file": "concepts/hyperboloid_lattice/preview/rods.stl",
    "color": "#555555",
-   "lvl": 6.4,
+   "lvl": 6.6,
    "spin": true
   },
   {
    "name": "head_shoes",
    "file": "concepts/hyperboloid_lattice/preview/head_shoes.stl",
    "color": "#8c7b55",
-   "lvl": 8.2,
+   "lvl": 8.600000000000001,
    "spin": true
   },
   {
    "name": "rod_brackets",
    "file": "concepts/hyperboloid_lattice/preview/rod_brackets.stl",
    "color": "#8c7b55",
-   "lvl": 8.6,
+   "lvl": 9.000000000000002,
    "spin": true
   },
   {
    "name": "spray_head",
    "file": "concepts/hyperboloid_lattice/preview/spray_head.stl",
    "color": "#4a90c2",
-   "lvl": 9.0,
+   "lvl": 9.400000000000002,
    "spin": false
   },
   {
    "name": "crown_pan",
    "file": "concepts/hyperboloid_lattice/preview/crown_pan.stl",
    "color": "#cfc6aa",
-   "lvl": 9.6,
+   "lvl": 10.000000000000002,
    "spin": true
   },
   {
    "name": "crown_lid",
    "file": "concepts/hyperboloid_lattice/preview/crown_lid.stl",
    "color": "#a89c78",
-   "lvl": 10.4,
+   "lvl": 10.8,
    "spin": true
   }
  ]

@@ -1,22 +1,23 @@
-"""Hyperboloid Lattice: 12 straight, tilted NFT grow tubes between a bottom
-ring and a top crown, forming a ruled hyperboloid (cooling-tower hourglass).
+"""Hyperboloid Lattice: 9 straight NFT grow tubes, tilted 44 deg, between a
+bottom ring and a top crown, forming a ruled hyperboloid (cooling-tower
+hourglass: the tube ends sit at twice the waist radius).
 
 Only the turning stack changes; the tank, lid, drive, rotor and stand are the
 classic base (grow_tower.build_base).
 
-  rotor socket -- BOWL: classic spigot, 45 deg funnel, rim with 12 shoe seats
-                  12 x FOOT_SHOE: tilted socket + funnel + duct + drip spout,
+  rotor socket -- BOWL: classic spigot, 45 deg funnel, rim with 9 shoe seats
+                  9 x FOOT_SHOE: tilted socket + funnel + duct + drip spout,
                        screwed to the bowl rim (together they are the bottom ring)
-  lattice ------- 12 tubes x 3 identical SEGMENTs (one 2" net-pot port each),
+  lattice ------- 9 tubes x 4 identical SEGMENTs (one 2" net-pot port each),
                   O-ring socket/spigot joints with a bayonet lug that also sets
                   the port roll; the upper segment always sits INSIDE the lower
                   socket, so water runs over every joint downhill
-  top ----------- 12 x HEAD_SHOE: spigot into the top segment, closed cap, inlet
+  top ----------- 9 x HEAD_SHOE: O-ring push-fit into the top segment, closed cap, inlet
                        duct from a cup under the crown pan
-                  CROWN_PAN: flat distributor pan, 12 x 8 mm outlets (one per
+                  CROWN_PAN: flat distributor pan, 9 x 9.2 mm outlets (one per
                        tube), inner lip around the fixed spray head
                   CROWN_LID: rain roof + bushing on the spray-head stub
-  inside -------- 6 x 6 mm steel ROD, the opposite ruling (counter-twisted inner
+  inside -------- 9 x 6 mm aluminium ROD, the opposite ruling (counter-twisted inner
                   hyperboloid) from bosses on the bowl rim to ROD_BRACKETs
                   under the pan.  One ruling of straight bars alone is a
                   mechanism (its lines span only 3 of the 6 rigid-body
@@ -25,7 +26,7 @@ classic base (grow_tower.build_base).
   fixed --------- PIPE (1/2" PVC) + classic SPRAY_HEAD on top: the jets hit the
                   pan wall, so water crosses fixed -> turning without a seal
 
-Water: pump -> pipe -> jets -> pan -> 12 outlets -> head-shoe ducts -> film on
+Water: pump -> pipe -> jets -> pan -> 9 outlets -> head-shoe ducts -> film on
 the floor (low side) of each tilted tube -> foot-shoe duct -> drip into the
 bowl -> rotor bore -> lid drain.
 
@@ -49,12 +50,12 @@ NAME = "hyperboloid_lattice"
 ST = 72               # circle segments for the many tube parts
 
 # ---- lattice ---------------------------------------------------------------
-N_TUBE = 12
-RW = 120.0            # waist radius of the tube axes
-BETA = 20.0           # tube tilt from vertical
-S_HALF = 240.0        # tube axis length waist -> end joint (each side)
-N_SEG = 3
-SEG_L = 2 * S_HALF / N_SEG          # joint-to-joint segment length (160)
+N_TUBE = 9            # 9 tubes (not 12) so the waist can pinch in without collisions
+RW = 106.0            # waist radius of the tube axes
+BETA = 44.0           # tube tilt from vertical (steep tilt = bold hourglass)
+S_HALF = 262.0        # tube axis length waist -> end joint (each side): ends 2x the waist
+N_SEG = 4
+SEG_L = 2 * S_HALF / N_SEG          # joint-to-joint segment length (131)
 
 # ---- tube + joint (local z along the tube axis, 0 = spigot tip) -----------
 T_RI, T_RO = 20.0, 22.4             # 40 mm bore, 2.4 wall
@@ -72,14 +73,14 @@ TWIST = -15.0                       # bayonet twist after insertion (signed: the
                                     # port swings in from the floor side, away
                                     # from the neighbour)
 LUG_ANG = 180.0                     # lug angle in the segment frame
-D_ROLL = 10.0                       # roll step segment -> segment above
-ROLL0 = -25.0                       # bottom segment port roll (- = towards ceiling)
+D_ROLL = 5.0                        # roll step segment -> segment above
+ROLL0 = -20.0                       # bottom segment port roll (- = towards ceiling)
 ROLLS = [ROLL0 + k * D_ROLL for k in range(N_SEG)]
 SLOT_ANG = LUG_ANG + D_ROLL - TWIST  # axial slot angle in the lower frame
 
 # ---- port (2" net pot) -----------------------------------------------------
 ALPHA = 45.0          # port axis from the tube axis, leaning up-tube
-Z_P = 66.0            # port axis meets the tube axis here (segment local)
+Z_P = 50.0            # port axis meets the tube axis here (segment local)
 L_MOUTH = 62.0        # mouth centre distance from that point
 PORT_RI = gt.PORT_ID / 2
 PORT_RO = PORT_RI + gt.PORT_WALL
@@ -93,8 +94,8 @@ Z_RIM = 567.0
 R_O = 100.0                          # shoe drip spout radius
 DUCT_RI, DUCT_RO = 8.0, 10.4
 PAD_T = 5.0
-FUNNEL = 36.0                        # socket ledge -> funnel point along -u
-DUCT_SLOPE = 1.1                     # drop / run of the shoe ducts
+FUNNEL = 36.0                        # socket ledge centre -> funnel point, straight down
+DUCT_SLOPE = 1.05                    # drop / run of the shoe ducts
 
 # ---- top: head shoes, pan, lid ---------------------------------------------
 HB = J_D + 16.0                      # head body top (local)
@@ -103,7 +104,7 @@ H_RI, H_RO = 5.0, 7.4                # head duct
 R_C = 102.0                          # pan outlet / head cup radius
 CUP_H = 14.0
 HEAD_SLOPE = 1.05
-OUT_R = 4.0                          # pan outlet hole (8 mm)
+OUT_R = 4.6                          # pan outlet hole (9.2 mm; only 9 outlets share the flow)
 CUP_R = 8.0
 PAN_FLOOR = 3.0
 R_LIP = 16.0                         # pan lip inner radius (sleeve r15 + 1)
@@ -112,8 +113,9 @@ SCREW = 2.2                          # M4 clearance radius
 PILOT = 1.7                          # M4 self-tap pilot radius
 
 # ---- inner counter-rods (opposite ruling) -----------------------------------
-N_ROD = 6
-ROD_R = 3.0                          # 6 mm steel rod (or GRP / aluminium)
+N_ROD = N_TUBE                       # one counter-rod per tube gap
+ROD_TWIST = 120.0                    # approx. rod twist (snapped so both ends sit in gaps)
+ROD_R = 3.0                          # 6 mm aluminium rod (6061; steel works, 3x heavier)
 R_RA = 117.0                         # rod anchor radius (bowl rim / under the pan)
 ROD_SOCK = 21.0                      # blind socket depth in each anchor
 ROD_END = 4.0                        # socket bottom above the anchor face
@@ -133,9 +135,9 @@ def az(p):
     return math.degrees(math.atan2(p[1], p[0]))
 
 
-_pd = xy_of(-S_HALF - FUNNEL)
+_pd = xy_of(-S_HALF)
 Z_OT = Z_RIM + 12.0                                  # top of the drip spout
-Z_A = Z_OT + DUCT_SLOPE * (np.hypot(*_pd) - R_O) + FUNNEL * U[2]
+Z_A = Z_OT + DUCT_SLOPE * (np.hypot(*_pd) - R_O) + FUNNEL
 ZW = Z_A + S_HALF * U[2]                             # waist height
 
 
@@ -294,14 +296,15 @@ def make_head_shoe():
     fr = lambda m: m.transform(frame(roll, S_HALF))
     spig = revolve([(T_RI, 0), (SP_RO - gt.EF, 0), (SP_RO, gt.EF), (SP_RO, J_D),
                     (T_RO, J_D + 2.0), (T_RO, HB + 0.01), (T_RI, HB + 0.01)], ST)
-    spig = spig + lug() - spigot_cuts()
+    spig = spig - spigot_cuts()            # no lug: plain O-ring push-fit, the pan screws hold it
     body = fr(spig)
     # cap: hull of the tilted rim and a point straight above (world), 45 deg+ all round
     c_top = axis_pt(S_HALF + HB)
+    h_o = T_RO * (1 + math.sin(B_)) + 1.5                 # apex high enough for 45 deg
     cap_o = m3d.Manifold.batch_hull([fr(cyl(0.01, T_RO, z=HB, seg=ST)),
-                                     ball(c_top + [0, 0, 29.0], 1.0, 24)])
+                                     ball(c_top + [0, 0, h_o], 1.0, 24)])
     cap_i = m3d.Manifold.batch_hull([fr(cyl(0.01, T_RI, z=HB - 0.01, seg=ST)),
-                                     ball(c_top + [0, 0, 25.6 - 1.0], 1.0, 24)])
+                                     ball(c_top + [0, 0, h_o - 4.4], 1.0, 24)])
     blk = radial_box(a, R_C - 14, R_FL, -13, 13, Z_PB - CUP_H, Z_PB)
     d2 = i_pt + 0.35 * (q - i_pt)
     house = m3d.Manifold.batch_hull([blk, ball(d2, H_RO)])
@@ -321,7 +324,7 @@ def make_head_shoe():
 # ---- foot shoe (tube-0 world) ------------------------------------------------------
 def foot_points():
     roll = ROLLS[0] - D_ROLL
-    pd = axis_pt(-S_HALF - FUNNEL)
+    pd = axis_pt(-S_HALF) - np.array([0.0, 0.0, FUNNEL])   # funnel point straight below
     a = az(pd)
     o_top = np.array([R_O * math.cos(math.radians(a)), R_O * math.sin(math.radians(a)), Z_OT])
     return roll, pd, o_top, a
@@ -416,10 +419,12 @@ def rod_lines():
     halfway between two shoes."""
     a_o = foot_points()[3]
     a_q = head_points()[3]
-    phi = (a_o - a_q) % 30.0 + 90.0
+    sp = 360.0 / N_TUBE
+    base = (a_o - a_q) % sp
+    phi = base + sp * round((ROD_TWIST - base) / sp)
     out = []
     for j in range(N_ROD):
-        ab = a_o + 15.0 + 360.0 / N_ROD * j
+        ab = a_o + sp / 2 + 360.0 / N_ROD * j
         at = ab - phi
         pb = np.array([R_RA * math.cos(math.radians(ab)), R_RA * math.sin(math.radians(ab)), Z_RIM])
         pt = np.array([R_RA * math.cos(math.radians(at)), R_RA * math.sin(math.radians(at)), Z_PB])
@@ -527,7 +532,7 @@ def checks(p, single):
     print(f"  foot_shoe -> bowl rim    path {path:.4f} seated {seat:7.1f} wiggle {w:.4f} "
           f"-> {rep(path < 1e-3 and seat > 1e-3 and w < 1e-3)}")
     t0 = tube0(single)
-    # assembly goes layer by layer: all 12 bottom segments, then the middle ones ...
+    # assembly goes layer by layer: all bottom segments, then the next layer ...
     nb = lambda m: spin(m, 1) + spin(m, -1)
     layer = foot
     lower = foot
@@ -544,15 +549,12 @@ def checks(p, single):
               f"twist {tw:.4f} locked {lock:5.1f} "
               f"-> {rep(path < 1e-3 and seat > 1e-3 and w < 1e-3 and tw < 1e-3 and lock > 1e-3)}")
         lower = fin
-    # head insertion: same shape rolled back by TWIST about the tube axis
-    rot = lambda m, d: (m.transform(inv_frame(0.0, S_HALF)).rotate((0, 0, d))
-                        .transform(frame(0.0, S_HALF)))
-    ins = rot(head, -TWIST)
-    path, seat, w, lock = axial_check(ins, head, lower + nb(layer + head), travel=J_D + 2)
-    tw = max(vol(rot(head, -TWIST + d) ^ lower) for d in np.linspace(0, TWIST, 6))
-    print(f"  head_shoe -> segment 3   path {path:.4f} seated {seat:6.1f} wiggle {w:.4f} "
-          f"twist {tw:.4f} locked {lock:5.1f} "
-          f"-> {rep(path < 1e-3 and seat > 1e-3 and w < 1e-3 and tw < 1e-3 and lock > 1e-3)}")
+    # head shoe: plain push-fit straight down the tube axis (no lug, no twist: the
+    # long inlet duct would sweep into the neighbour); the pan screws hold it
+    path, seat, w, _ = axial_check(head, head, lower + nb(layer + head), travel=J_D + 2)
+    print(f"  head_shoe -> segment {N_SEG}   path {path:.4f} seated {seat:6.1f} wiggle {w:.4f} "
+          f"(push-fit, held by the pan screws) "
+          f"-> {rep(path < 1e-3 and seat > 1e-3 and w < 1e-3)}")
     # rod brackets slide down the rod tops first, then the pan drops on everything
     lines, _ = rod_lines()
     _, pt, d = lines[0]
@@ -567,7 +569,8 @@ def checks(p, single):
     print(f"  crown_lid -> pan         path {path:.4f} seated {seat:7.1f} wiggle {w:.4f} "
           f"-> {rep(path < 1e-3 and seat > 1e-3 and w < 1e-3)}")
 
-    print("-- 2. turning vs fixed, min gap over one 60 deg period (mm)")
+    per = 360 // N_TUBE
+    print(f"-- 2. turning vs fixed, min gap over one {per} deg period (mm)")
     pp = pipe()
     pod = p["pod_base"] + p["pod_roof"]
     fixed = {"lid": p["lid"], "pod": pod, "pinion": p["pinion"], "pipe": pp,
@@ -575,7 +578,7 @@ def checks(p, single):
     turning = {"bowl": bowl, "foot_shoes": p["foot_shoes"], "segs_1": p["segs_1"],
                "rods": p["rods"], "crown_pan": p["crown_pan"], "crown_lid": p["crown_lid"]}
     worst = {}
-    for ang in range(0, 60, 5):
+    for ang in range(0, per, 5):
         for tn, tm in turning.items():
             mv = tm.rotate((0, 0, ang))
             for sn, sm in fixed.items():
@@ -589,7 +592,7 @@ def checks(p, single):
     print("-- 2b. turning parts among themselves")
     g = t0.min_gap(spin(t0, 1), 20.0)
     print(f"  tube vs neighbour tube (with pots)  {g:6.2f} (>= 3) -> {rep(g >= 3.0)}")
-    lattice = p["segs_1"] + p["segs_2"] + p["segs_3"] + p["net_pots"] + p["foot_shoes"] \
+    lattice = union([p[f"segs_{k + 1}"] for k in range(N_SEG)]) + p["net_pots"] + p["foot_shoes"] \
         + p["head_shoes"] + p["crown_pan"]
     g = p["rods"].min_gap(lattice, 20.0)
     print(f"  counter-rods vs tubes / pots / shoes / pan {g:6.2f} (>= 3) -> {rep(g >= 3.0)}")
@@ -642,7 +645,7 @@ def checks(p, single):
     r_tip = gt.R_TI - (gt.Z_RT - gt.SOCK_D - zt)
     print(f"  bowl funnel -> spigot bore r={gt.R_SI:.1f} -> rotor drip lip r={r_tip:.1f} "
           f"< drain r={gt.R_DRAIN:.0f} -> {rep(r_tip < gt.R_DRAIN)}")
-    print(f"  pan outlet r={OUT_R:.0f} + drip groove {OUT_R + 2.2:.1f} inside head cup r={CUP_R:.0f}, "
+    print(f"  pan outlet r={OUT_R:.1f} + drip groove {OUT_R + 2.2:.1f} inside head cup r={CUP_R:.0f}, "
           f"outlets r={R_C:.0f} inside pan wall r={R_PWI:.0f} -> "
           f"{rep(OUT_R + 2.2 < CUP_R and R_C + OUT_R < R_PWI)}")
     jet = SPRAY_Z + 6.0
@@ -660,6 +663,146 @@ def checks(p, single):
     return allok, t0
 
 
+FOL_GROW = 80.0       # mature foliage: each pot shadow grown by this (lettuce head ~d210)
+FOL_OPAC = 0.5        # foliage porosity: half of that envelope blocks the wind
+CD = 1.1              # tubes / leaves; the tank is a smooth cylinder (0.8)
+RHO_AIR = 1.2
+VIEW = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, -1, 0, 0]], float)   # wind along +y
+
+
+def shadow(ms, az_deg):
+    """Silhouette seen along +y after spinning the parts by az (x, z plane)."""
+    cs = [m.rotate((0, 0, az_deg)).transform(VIEW).project() for m in ms]
+    out = cs[0]
+    for c in cs[1:]:
+        out = out + c
+    return out
+
+
+def area_c(cs):
+    """Area (m2) and centroid (x, z mm) of a cross-section (holes are clockwise)."""
+    a = cx = cz = 0.0
+    for poly in cs.to_polygons():
+        pt = np.asarray(poly)
+        q = np.roll(pt, -1, axis=0)
+        cr = pt[:, 0] * q[:, 1] - q[:, 0] * pt[:, 1]
+        a += cr.sum() / 2
+        cx += ((pt[:, 0] + q[:, 0]) * cr).sum() / 6
+        cz += ((pt[:, 1] + q[:, 1]) * cr).sum() / 6
+    return a / 1e6, cx / a, cz / a
+
+
+def pot_centres():
+    """Centroids of the 36 pots (mm), tube by tube."""
+    c0 = [gt.to_trimesh(place(pot(), ROLLS[k], -S_HALF + k * SEG_L)).center_mass
+          for k in range(N_SEG)]
+    out = []
+    for i in range(N_TUBE):
+        a = math.radians(360.0 / N_TUBE * i)
+        rz = np.array([[math.cos(a), -math.sin(a), 0], [math.sin(a), math.cos(a), 0], [0, 0, 1]])
+        out += [rz @ c for c in c0]
+    return np.array(out)
+
+
+def wind(p):
+    """Projected areas of the real assembly + yaw sources (worst azimuth of the 40 deg period)."""
+    turn = [m for n, m in p.items() if n.startswith(("segs_", "foot_shoes", "head_shoes",
+                                                      "crown_", "bowl", "rod_brackets"))]
+    base = [m for n, m in p.items() if n.startswith(("tank_", "lid", "pod_", "hub", "leg_"))]
+    z0 = min(m.bounding_box()[2] for m in base)
+    best = None
+    for az_ in np.arange(0.0, 360.0 / N_TUBE, 5.0):
+        st = shadow(turn + [p["net_pots"]], az_)
+        env = shadow([p["net_pots"]], az_).offset(FOL_GROW, m3d.JoinType.Round) - st
+        a_s, _, z_s = area_c(st)
+        a_f, _, z_f = area_c(env)
+        half = env ^ m3d.CrossSection.square((2000, 3000)).translate((0, -500))
+        a_h, x_h, _ = area_c(half)
+        r = dict(a_stack=a_s, a_fol=FOL_OPAC * a_f, a_half=FOL_OPAC * a_h, x_half=x_h,
+                 z_c=(a_s * z_s + FOL_OPAC * a_f * z_f) / (a_s + FOL_OPAC * a_f) - z0)
+        if best is None or r["a_stack"] + r["a_fol"] > best["a_stack"] + best["a_fol"]:
+            best = r
+    a_b, _, z_b = area_c(shadow(base, 0.0))
+    best.update(a_base=a_b, z_base=z_b - z0, z0=z0)
+    # chiral lattice: drag on a yawed cylinder acts normal to its axis (cross-flow
+    # principle), so the tilted tubes push sideways; summed round the ring it is a
+    # pure yaw torque.  No shielding of the lee tubes (worst case).  N m per (m/s)^2
+    k = 0.0
+    for az_ in np.arange(0.0, 360.0 / N_TUBE, 2.0):
+        tz = 0.0
+        for i in range(N_TUBE):
+            a = math.radians(360.0 / N_TUBE * i + az_)
+            rz = np.array([[math.cos(a), -math.sin(a), 0], [math.sin(a), math.cos(a), 0], [0, 0, 1]])
+            u = rz @ U
+            vn = np.array([0, 1.0, 0]) - u[1] * u                # unit wind, normal part
+            for s in np.linspace(-S_HALF, S_HALF, 41):
+                x = rz @ axis_pt(s) / 1000
+                f = 0.5 * RHO_AIR * CD * 2 * T_RO / 1000 * np.linalg.norm(vn) * vn
+                tz += (x[0] * f[1] - x[1] * f[0]) * 2 * S_HALF / 1000 / 41
+        k = max(k, abs(tz))
+    best["k_chiral"] = k
+    return best
+
+
+def drag(wd, v, base=False):
+    q = 0.5 * RHO_AIR * v * v
+    return q * CD * (wd["a_stack"] + wd["a_fol"]) + (q * 0.8 * wd["a_base"] if base else 0.0)
+
+
+def yaw(wd, v):
+    """Chiral lattice torque + all foliage on one half (other side harvested)."""
+    q = 0.5 * RHO_AIR * v * v
+    return wd["k_chiral"] * v * v + q * CD * wd["a_half"] * wd["x_half"] / 1000
+
+
+def tip_over(p, stack_g, plant_g, wd):
+    """Overturning vs restoring moment about the edge between two feet (+y side)."""
+    print("-- 6. tip-over (whole tower on its 4 legs, wind + plants towards the weak edge)")
+    rho, fill = 1.07e-3, 0.85
+    base_g = sum(vol(m) for n, m in p.items() if n.startswith(
+        ("tank_", "lid", "fill_plug", "pod_", "pinion", "pipe_foot", "float_bracket", "hub",
+         "leg_"))) * rho * fill + 300.0 + 150.0          # + pump, 1/2in PVC pipe
+    full = math.pi * gt.R_IN ** 2 * (gt.Z_LID0 - gt.TANK_FLOOR - 10) / 1e3   # g
+    d = gt.LEG_R_END * math.cos(math.radians(45))      # axis -> edge, mm
+    arm_s = d + gt.STAKE_R * math.cos(math.radians(45))   # far stakes -> edge
+    stake_n = 150.0                                    # pull-out per 30 cm stake, soil
+    m_stake = 2 * stake_n * arm_s / 1000
+    pc = pot_centres()
+    print(f"  edge {d:.0f} mm from the axis (feet r={gt.LEG_R_END:.0f} at 45/135 deg); base "
+          f"{base_g / 1000:.2f} kg, turning stack {stack_g / 1000:.2f} kg, tank water "
+          f"{full / 1000:.1f} L full / 2.0 L near-empty; 2 far stakes x {stake_n:.0f} N at "
+          f"{arm_s:.0f} mm = +{m_stake:.0f} N m")
+    print(f"  wind on {wd['a_stack'] + wd['a_fol']:.3f} m2 at {wd['z_c']:.0f} mm + tank/stand "
+          f"{wd['a_base']:.3f} m2 (Cd 0.8) at {wd['z_base']:.0f} mm above ground")
+    worst = {}
+    for wname, w_g in (("full", full), ("near-empty", 2000.0)):
+        for pname, mode in (("even 36x150", 0), ("one side only", 1), ("2x one side", 2)):
+            m_r = math.inf
+            for az_ in np.arange(0.0, 360.0 / N_TUBE, 5.0):
+                a = math.radians(az_)
+                y = pc[:, 0] * math.sin(a) + pc[:, 1] * math.cos(a)
+                g = np.full(len(y), plant_g)
+                if mode == 1:
+                    g[y < 0] = 0.0
+                elif mode == 2:
+                    g[y > 0] *= 2
+                m_r = min(m_r, 9.81 / 1e6 * ((base_g + stack_g + w_g) * d + (g * (d - y)).sum()))
+            for v in (10.0, 15.0):
+                q = 0.5 * RHO_AIR * v * v
+                m_o = (q * CD * (wd["a_stack"] + wd["a_fol"]) * wd["z_c"]
+                       + q * 0.8 * wd["a_base"] * wd["z_base"]) / 1000
+                sf, sf_s = m_r / m_o, (m_r + m_stake) / m_o
+                worst[(v, "u")] = min(worst.get((v, "u"), 99), sf)
+                worst[(v, "s")] = min(worst.get((v, "s"), 99), sf_s)
+                print(f"  water {wname:10s} plants {pname:13s} {v:2.0f} m/s: overturn {m_o:5.1f} "
+                      f"N m, restore {m_r:5.1f} N m -> SF {sf:4.2f} unstaked, {sf_s:4.2f} staked")
+    su, ss = worst[(10.0, "u")], worst[(15.0, "s")]
+    print(f"  criterion: SF >= 1.5 unstaked at 10 m/s, else stakes required and SF >= 1.5 "
+          f"staked at 15 m/s: worst unstaked {su:.2f} -> {ok(su >= 1.5)}"
+          + ("" if su >= 1.5 else f"; STAKES REQUIRED, worst staked 15 m/s {ss:.2f} "
+             f"-> {ok(ss >= 1.5)}"))
+
+
 def mass_torque(single, p):
     print("-- 5. mass / torque budget")
     rho, fill = 1.07e-3, 0.85                       # g/mm3, walls are mostly perimeters
@@ -667,9 +810,9 @@ def mass_torque(single, p):
          [("segment", single["segment"]), ("foot_shoe", single["foot_shoe"]),
           ("head_shoe", single["head_shoe"]), ("rod_bracket", single["rod_bracket"]),
           ("bowl", p["bowl"]), ("crown_pan", p["crown_pan"]), ("crown_lid", p["crown_lid"])]}
-    g["steel rods"] = vol(p["rods"]) * 7.85e-3 / N_ROD
+    g["alu rods"] = vol(p["rods"]) * 2.7e-3 / N_ROD
     qty = {"segment": N_TUBE * N_SEG, "foot_shoe": N_TUBE, "head_shoe": N_TUBE,
-           "rod_bracket": N_ROD, "steel rods": N_ROD}
+           "rod_bracket": N_ROD, "alu rods": N_ROD}
     stack = sum(g[n] * qty.get(n, 1) for n in g)
     rotor = vol(p["rotor"]) * rho * fill
     for n in g:
@@ -683,24 +826,33 @@ def mass_torque(single, p):
           f"{hw / 1000:.2f} = {w_kg:.1f} kg")
     n = w_kg * 9.81
     t_race = [c * n * gt.RACE_R / 1000 for c in (0.005, 0.01)]
-    # bushing: side load from 1 kg plant imbalance at r=150 + 10 N wind, mu 0.3
+    # bushing: side load from 1 kg plant imbalance at r=220 (flared ends) + half the
+    # 10 m/s drag (the other half goes to the ball race), mu 0.3
+    wd = wind(p)
     h_lever = (STUB_TOP - gt.Z_RB) / 1000
-    f_side = (1.0 * 9.81 * 0.15) / h_lever + 10.0 / 2
+    f_side = (1.0 * 9.81 * 0.22) / h_lever + drag(wd, 10.0) / 2
     t_bush = 0.3 * f_side * (gt.STUB_D / 2) / 1000
     tot = t_race[1] + t_bush
     print(f"  ball race {t_race[0]:.3f}-{t_race[1]:.3f} N m, bushing {t_bush:.3f} N m "
           f"(side load {f_side:.1f} N) -> worst {tot:.3f} N m = {tot / 0.2 * 100:.0f} % of 0.2 "
           f"-> {ok(tot < 0.1)}")
-    # wind: frontal area of the lattice + foliage
-    a_lat = (2 * RW + 2 * T_RO) / 1000 * (S_HALF * 2 * U[2]) / 1000 * 0.45
-    a_fol = 0.12
-    for v in (5.0, 10.0):
-        f = 0.5 * 1.2 * v * v * 1.1 * (a_lat + a_fol)
-        print(f"  wind {v:.0f} m/s: drag {f:5.1f} N on {a_lat + a_fol:.2f} m2; yaw torque if 10 % "
-              f"of it acts at r=0.15 m: {0.1 * f * 0.15:.2f} N m")
+    a_tot = wd["a_stack"] + wd["a_fol"]
+    print(f"  frontal area (silhouette, worst azimuth): lattice + pots + shoes + crown "
+          f"{wd['a_stack']:.3f} m2 + foliage {wd['a_fol']:.3f} m2 (pot shadows grown "
+          f"{FOL_GROW:.0f} mm, {FOL_OPAC * 100:.0f} % opaque) = {a_tot:.3f} m2, centroid "
+          f"{wd['z_c']:.0f} mm above ground; base (tank/stand) {wd['a_base']:.3f} m2")
+    print(f"  yaw sources: chiral tube cross-flow {wd['k_chiral']:.4f} N m/(m/s)^2, foliage on "
+          f"one half only {wd['a_half']:.3f} m2 at x={wd['x_half']:.0f} mm")
+    hold = 0.05 * gt.N_GEAR / gt.N_PIN + t_race[0]
+    for v in (5.0, 10.0, 15.0):
+        f = drag(wd, v)
+        t = yaw(wd, v)
+        print(f"  wind {v:.0f} m/s: drag {f:5.1f} N, worst yaw {t:.2f} N m vs drive 0.2 "
+              f"(free spin) / ~{hold:.2f} back-drive (coils off) -> "
+              f"{'OK' if t < 0.2 - tot else 'STALLS' if t < hold else 'BACK-DRIVES'}")
     # lattice stiffness: pin-jointed bars from the fixed bottom ring to a rigid crown
     ea_t = 2000.0 * math.pi * (T_RO ** 2 - T_RI ** 2)     # ASA tube, E ~2 GPa
-    ea_r = 200000.0 * math.pi * ROD_R ** 2              # steel rod
+    ea_r = 70000.0 * math.pi * ROD_R ** 2               # aluminium rod
     c = np.array([0, 0, Z_PB])
     bars = []
     for i in range(N_TUBE):
@@ -725,8 +877,8 @@ def mass_torque(single, p):
     r_t = np.linalg.matrix_rank(K, tol=1e-9 * np.abs(K).max())
     K, js = solve(("tube", "rod"))
     r_all = np.linalg.matrix_rank(K, tol=1e-9 * np.abs(K).max())
-    w_top = 9.81 * (plants / 3 + g["crown_pan"] + g["crown_lid"] + 12 * g["head_shoe"]) / 1000
-    f_w = 12.0                                         # half the 10 m/s drag, at the crown
+    w_top = 9.81 * (plants / 3 + g["crown_pan"] + g["crown_lid"] + N_TUBE * g["head_shoe"]) / 1000
+    f_w = drag(wd, 10.0) / 2                           # half the 10 m/s drag, at the crown
     load = np.array([f_w, 0, -w_top, 0, 0, 0])
     dsp = np.linalg.solve(K, load)
     ft = [k * (j @ dsp) for kind, j, k in js if kind == "tube"]
@@ -735,7 +887,7 @@ def mass_torque(single, p):
           f"counter-rods {r_all}/6; {f_w:.0f} N wind + {w_top:.0f} N crown load: sway "
           f"{1000 * math.hypot(dsp[0], dsp[1]):.0f} um, tube force {min(ft):.0f}..{max(ft):.0f} N, "
           f"rod force {min(fr):.0f}..{max(fr):.0f} N -> {ok(r_all == 6)}")
-    return stack, w_kg
+    return stack + rotor + water + hw, plants / (N_TUBE * N_SEG), wd
 
 
 def overhang(tm):
@@ -796,7 +948,7 @@ def section(parts):
     for s in (1, -1):
         ax.annotate("", (s * (R_PWI - 2), SPRAY_Z + 4), (s * 16, SPRAY_Z + 6), arrowprops=blue)
         ax.annotate("", (s * 75, ZS - 25), (s * 100, Z_RIM - 5), arrowprops=blue)
-    ax.annotate("pan: 12 outlets -> head shoes", (R_C, Z_PB), (40, Z_PT + 80),
+    ax.annotate(f"pan: {N_TUBE} outlets -> head shoes", (R_C, Z_PB), (40, Z_PT + 80),
                 arrowprops=dict(arrowstyle="->"), fontsize=9)
     ax.annotate("bowl -> rotor bore -> lid drain", (80, ZS + 5), (130, ZS - 90),
                 arrowprops=dict(arrowstyle="->"), fontsize=9)
@@ -809,8 +961,9 @@ def section(parts):
     ax.annotate("", (f1[1], f1[2]), (f0[1], f0[2]), arrowprops=blue)
     _, pd, o_top, _ = foot_points()
     _, q, i_pt, _ = head_points()
-    ax.annotate("film on the tube floor\n(low side), roots hang into it", (f1[1] + 40, f1[2] + 200),
-                (f1[1] + 120, f1[2] + 260), arrowprops=dict(arrowstyle="->"), fontsize=9)
+    fm = f1 + 0.3 * (f0 - f1)
+    ax.annotate("film on the tube floor\n(low side), roots hang into it", (fm[1], fm[2]),
+                (fm[1] + 60, fm[2] - 90), arrowprops=dict(arrowstyle="->"), fontsize=9)
     ax.annotate("O-ring bayonet joint:\nupper spigot inside lower socket",
                 tuple(axis_pt(-S_HALF + SEG_L)[1:]), (-260, axis_pt(-S_HALF + SEG_L)[2] + 40),
                 arrowprops=dict(arrowstyle="->"), fontsize=9)
@@ -844,17 +997,19 @@ def export(parts, single):
                 "leg_1", "leg_2", "leg_3", "leg_4")}
     meta = {n: gt.base_meta(n) for n in preview}
     mine = {"pipe": (pipe(), ("#9fb7c9", 2)), "bowl": (parts["bowl"], ("#b0a27a", 4, True)),
-            "foot_shoes": (parts["foot_shoes"], ("#8c7b55", 4.6, True)),
-            "segs_1": (parts["segs_1"], ("#e8e2d0", 5.4, True)),
-            "segs_2": (parts["segs_2"], ("#d9d2bd", 6.4, True)),
-            "segs_3": (parts["segs_3"], ("#e8e2d0", 7.4, True)),
-            "net_pots": (parts["net_pots"], ("#5a8f3a", 6.4, True)),
-            "rods": (parts["rods"], ("#555555", 6.4, True)),
-            "head_shoes": (parts["head_shoes"], ("#8c7b55", 8.2, True)),
-            "rod_brackets": (parts["rod_brackets"], ("#8c7b55", 8.6, True)),
-            "spray_head": (parts["spray_head"], ("#4a90c2", 9.0)),
-            "crown_pan": (parts["crown_pan"], ("#cfc6aa", 9.6, True)),
-            "crown_lid": (parts["crown_lid"], ("#a89c78", 10.4, True))}
+            "foot_shoes": (parts["foot_shoes"], ("#8c7b55", 4.6, True))}
+    for k in range(N_SEG):
+        mine[f"segs_{k + 1}"] = (parts[f"segs_{k + 1}"],
+                                 (("#e8e2d0", "#d9d2bd")[k % 2], 5.4 + 0.8 * k, True))
+    top = 5.4 + 0.8 * N_SEG
+    mine.update({
+        "net_pots": (parts["net_pots"], ("#5a8f3a", 6.6, True)),
+        "rods": (parts["rods"], ("#555555", 6.6, True)),
+        "head_shoes": (parts["head_shoes"], ("#8c7b55", top, True)),
+        "rod_brackets": (parts["rod_brackets"], ("#8c7b55", top + 0.4, True)),
+        "spray_head": (parts["spray_head"], ("#4a90c2", top + 0.8)),
+        "crown_pan": (parts["crown_pan"], ("#cfc6aa", top + 1.4, True)),
+        "crown_lid": (parts["crown_lid"], ("#a89c78", top + 2.2, True))})
     for n, (m, c) in mine.items():
         preview[n] = m
         meta[n] = c
@@ -902,7 +1057,7 @@ def main():
     print(f"  checks 1-3 all -> {ok(allok)}")
     print("-- 4. bed fit + watertight")
     export(parts, single)
-    mass_torque(single, parts)
+    tip_over(parts, *mass_torque(single, parts))
     sec = {n: m for n, m in parts.items() if n not in ("net_pots",)}
     sec["pipe"] = pipe()
     sec["net_pots"] = parts["net_pots"]
