@@ -1,0 +1,33 @@
+{
+ "title": "120 mm fan -> 2 x Tesla V100 PCIe duct",
+ "parts": [
+  {
+   "name": "duct",
+   "file": "preview/duct.stl",
+   "color": "#4a7fb5",
+   "lvl": 0,
+   "ctx": false
+  },
+  {
+   "name": "fan",
+   "file": "preview/fan.stl",
+   "color": "#333333",
+   "lvl": -1,
+   "ctx": true
+  },
+  {
+   "name": "v100_1",
+   "file": "preview/v100_1.stl",
+   "color": "#b9a66b",
+   "lvl": 1,
+   "ctx": true
+  },
+  {
+   "name": "v100_2",
+   "file": "preview/v100_2.stl",
+   "color": "#b9a66b",
+   "lvl": 1,
+   "ctx": true
+  }
+ ]
+}

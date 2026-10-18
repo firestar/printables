@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>GPU fan duct viewer</title>
+<style>
+  body { margin: 0; background: #f4f4f4; font: 14px sans-serif; overflow: hidden; }
+  #ui { position: absolute; top: 8px; left: 8px; background: #fffd; padding: 8px; border-radius: 6px; }
+  #ui label { display: block; }
+  #title { position: absolute; bottom: 10px; width: 100%; text-align: center; font-size: 18px; color: #333; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="ui">
+  <label>View <select id="view">
+    <option value="iso">Iso</option>
+    <option value="fan">Fan side</option>
+    <option value="cards">Card side</option>
+    <option value="side">Side</option>
+  </select></label>
+  <label><input type="checkbox" id="ctx" checked> Fan + V100s</label>
+  <label><input type="checkbox" id="section"> Cross-section</label>
+  <label>Explode <input type="range" id="explode" min="0" max="100" value="0"></label>
+</div>
+<div id="title"></div>
+<script type="module">
+import * as THREE from 'three';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// URL params: view=iso|fan|cards|side, section=1, ctx=0, explode=0..100, hideui=1.
+// Parts come from preview/manifest.json (gpu_duct.export).
+const q = new URLSearchParams(location.search);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(innerWidth, innerHeight);
+renderer.localClippingEnabled = true;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xf4f4f4);
+const camera = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 1, 10000);
+camera.up.set(0, 0, 1);
+const controls = new OrbitControls(camera, renderer.domElement);
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x666666, 1.6));
+const sun = new THREE.DirectionalLight(0xffffff, 2.0);
+sun.position.set(400, -600, 800);
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0xffffff, 0.6);
+fill.position.set(-600, 400, -300);
+scene.add(fill);
+
+const clip = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);   // section: keep y >= 0
+const meshes = {};
+const man = await fetch('preview/manifest.json').then(r => r.json());
+document.getElementById('title').textContent = man.title;
+const loader = new STLLoader();
+await Promise.all(man.parts.map(p => new Promise(res => loader.load(p.file, geo => {
+  geo.computeVertexNormals();
+  const mat = new THREE.MeshStandardMaterial({
+    color: new THREE.Color(p.color), roughness: 0.7, metalness: 0.0, side: THREE.DoubleSide,
+  });
+  const m = new THREE.Mesh(geo, mat);
+  m.userData = p;
+  meshes[p.name] = m;
+  scene.add(m);
+  res();
+}, undefined, () => res()))));
+
+const el = id => document.getElementById(id);
+if (q.get('section') === '1') el('section').checked = true;
+if (q.get('ctx') === '0') el('ctx').checked = false;
+if (q.get('explode')) el('explode').value = q.get('explode');
+if (q.get('view')) el('view').value = q.get('view');
+if (q.get('hideui') === '1') el('ui').style.display = 'none';
+for (const id of ['section', 'ctx']) el(id).onchange = apply;
+el('explode').oninput = apply;
+el('view').onchange = () => setView(el('view').value);
+
+function apply() {
+  const e = el('explode').value / 100;
+  for (const m of Object.values(meshes)) {
+    const p = m.userData;
+    m.visible = !p.ctx || el('ctx').checked;
+    m.position.set(0, 0, e * 80 * p.lvl);
+    m.material.clippingPlanes = el('section').checked ? [clip] : [];
+    m.material.needsUpdate = true;
+  }
+}
+
+const views = {
+  iso:   [[650, -800, 520], [0, 0, 150]],
+  fan:   [[300, -380, -480], [0, 0, 40]],
+  cards: [[300, -380, 640], [0, 0, 150]],
+  side:  [[0, -1000, 150], [0, 0, 150]],
+};
+function setView(name) {
+  const [p, t] = views[name] || views.iso;
+  controls.target.set(...t);
+  camera.position.set(...p);
+  controls.update();
+}
+setView(el('view').value);
+apply();
+window.ready = true;
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+</script>
+</body>
+</html>
