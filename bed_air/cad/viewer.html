@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Bed air duct viewer</title>
+<style>
+  body { margin: 0; background: #f4f4f4; font: 14px sans-serif; overflow: hidden; }
+  #ui { position: absolute; top: 8px; left: 8px; background: #fffd; padding: 8px; border-radius: 6px; }
+  #ui label { display: block; }
+  #title { position: absolute; bottom: 10px; width: 100%; text-align: center; font-size: 18px; color: #333; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="ui">
+  <label>View <select id="view">
+    <option value="iso">Whole bed</option>
+    <option value="foot">Foot end (hose, elbow)</option>
+    <option value="head">Head end (diffuser)</option>
+    <option value="top">Top</option>
+  </select></label>
+  <label><input type="checkbox" id="mattress" checked> Mattress</label>
+  <label><input type="checkbox" id="section"> Cross-section (y = 0)</label>
+  <label><input type="checkbox" id="shut"> Vent sliders closed</label>
+  <label>Explode <input type="range" id="explode" min="0" max="100" value="0"></label>
+</div>
+<div id="title"></div>
+<script type="module">
+import * as THREE from 'three';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// URL params: view=iso|foot|head|top, section=1, mattress=0, shut=1, explode=0..100,
+// hideui=1.  Parts come from preview/manifest.json (bed_air.export).
+const q = new URLSearchParams(location.search);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(innerWidth, innerHeight);
+renderer.localClippingEnabled = true;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xf4f4f4);
+const camera = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 1, 30000);
+camera.up.set(0, 0, 1);
+const controls = new OrbitControls(camera, renderer.domElement);
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x666666, 1.6));
+const sun = new THREE.DirectionalLight(0xffffff, 2.0);
+sun.position.set(-800, -1500, 2000);
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0xffffff, 0.6);
+fill.position.set(2500, 1200, -400);
+scene.add(fill);
+const clip = new THREE.Plane(new THREE.Vector3(0, 1, 0), 20);  // section: keep y >= -20 (centre web)
+const meshes = {};
+const man = await fetch('preview/manifest.json').then(r => r.json());
+document.getElementById('title').textContent = man.title;
+const loader = new STLLoader();
+await Promise.all(man.parts.map(p => new Promise(res => loader.load(p.file, geo => {
+  geo.computeVertexNormals();
+  const mat = new THREE.MeshStandardMaterial({
+    color: new THREE.Color(p.color), roughness: 0.75, metalness: 0.0, side: THREE.DoubleSide,
+    transparent: p.opacity < 1, opacity: p.opacity, depthWrite: p.opacity >= 1,
+  });
+  const m = new THREE.Mesh(geo, mat);
+  m.userData = p;
+  meshes[p.name] = m;
+  scene.add(m);
+  res();
+}))));
+
+const el = id => document.getElementById(id);
+if (q.get('section') === '1') el('section').checked = true;
+if (q.get('mattress') === '0') el('mattress').checked = false;
+if (q.get('shut') === '1') el('shut').checked = true;
+if (q.get('explode')) el('explode').value = q.get('explode');
+if (q.get('view')) el('view').value = q.get('view');
+if (q.get('hideui') === '1') el('ui').style.display = 'none';
+for (const id of ['section', 'mattress', 'shut']) el(id).onchange = apply;
+el('explode').oninput = apply;
+el('view').onchange = () => setView(el('view').value);
+
+function apply() {
+  const e = el('explode').value / 100;
+  for (const m of Object.values(meshes)) {
+    const p = m.userData;
+    const ctx = p.lvl < -50;
+    m.visible = !ctx || el('mattress').checked || p.name === 'hose';
+    // explode: duct parts spread along the bed, sliders also lift off the flanks
+    m.position.set(ctx ? 0 : e * 60 * p.lvl, 0, 0);
+    if (p.name.startsWith('slider')) {
+      m.position.x += el('shut').checked ? 10 : 0;
+      m.position.y = e * 120 * (p.name.endsWith('a') ? 1 : -1);
+    }
+    if (p.name.startsWith('elbow')) m.position.y = e * 80 * (p.name.endsWith('a') ? 1 : -1);
+    m.material.clippingPlanes = el('section').checked && !ctx ? [clip] : [];
+    m.material.needsUpdate = true;
+  }
+}
+
+const views = {
+  iso:  [[-1400, -2600, 1900], [1000, 0, -100]],
+  foot: [[-700, -700, 350], [60, 0, -80]],
+  head: [[1150, -900, 550], [1700, 0, 30]],
+  top:  [[1000, -10, 3600], [1000, 0, 0]],
+};
+function setView(name) {
+  const [p, t] = views[name] || views.iso;
+  controls.target.set(...t);
+  camera.position.set(...p);
+  controls.update();
+}
+setView(el('view').value);
+apply();
+window.ready = true;
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+</script>
+</body>
+</html>

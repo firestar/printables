@@ -1,0 +1,152 @@
+{
+ "title": "Bed air duct: 6in hose -> 320 x 70 mm flat duct, king bed",
+ "parts": [
+  {
+   "name": "adapter",
+   "file": "preview/adapter.stl",
+   "color": "#5b7fa6",
+   "lvl": 0,
+   "opacity": 1.0
+  },
+  {
+   "name": "elbow_a",
+   "file": "preview/elbow_a.stl",
+   "color": "#4a6d94",
+   "lvl": 1,
+   "opacity": 1.0
+  },
+  {
+   "name": "elbow_b",
+   "file": "preview/elbow_b.stl",
+   "color": "#4a6d94",
+   "lvl": 1,
+   "opacity": 1.0
+  },
+  {
+   "name": "seg_1",
+   "file": "preview/seg_1.stl",
+   "color": "#e9e4d8",
+   "lvl": 3,
+   "opacity": 1.0
+  },
+  {
+   "name": "seg_2",
+   "file": "preview/seg_2.stl",
+   "color": "#dcd5c4",
+   "lvl": 4,
+   "opacity": 1.0
+  },
+  {
+   "name": "seg_3",
+   "file": "preview/seg_3.stl",
+   "color": "#e9e4d8",
+   "lvl": 5,
+   "opacity": 1.0
+  },
+  {
+   "name": "seg_4",
+   "file": "preview/seg_4.stl",
+   "color": "#dcd5c4",
+   "lvl": 6,
+   "opacity": 1.0
+  },
+  {
+   "name": "slider_4a",
+   "file": "preview/slider_4a.stl",
+   "color": "#d0763a",
+   "lvl": 6,
+   "opacity": 1.0
+  },
+  {
+   "name": "slider_4b",
+   "file": "preview/slider_4b.stl",
+   "color": "#d0763a",
+   "lvl": 6,
+   "opacity": 1.0
+  },
+  {
+   "name": "seg_5",
+   "file": "preview/seg_5.stl",
+   "color": "#e9e4d8",
+   "lvl": 7,
+   "opacity": 1.0
+  },
+  {
+   "name": "slider_5a",
+   "file": "preview/slider_5a.stl",
+   "color": "#d0763a",
+   "lvl": 7,
+   "opacity": 1.0
+  },
+  {
+   "name": "slider_5b",
+   "file": "preview/slider_5b.stl",
+   "color": "#d0763a",
+   "lvl": 7,
+   "opacity": 1.0
+  },
+  {
+   "name": "seg_6",
+   "file": "preview/seg_6.stl",
+   "color": "#dcd5c4",
+   "lvl": 8,
+   "opacity": 1.0
+  },
+  {
+   "name": "slider_6a",
+   "file": "preview/slider_6a.stl",
+   "color": "#d0763a",
+   "lvl": 8,
+   "opacity": 1.0
+  },
+  {
+   "name": "slider_6b",
+   "file": "preview/slider_6b.stl",
+   "color": "#d0763a",
+   "lvl": 8,
+   "opacity": 1.0
+  },
+  {
+   "name": "seg_7",
+   "file": "preview/seg_7.stl",
+   "color": "#e9e4d8",
+   "lvl": 9,
+   "opacity": 1.0
+  },
+  {
+   "name": "slider_7a",
+   "file": "preview/slider_7a.stl",
+   "color": "#d0763a",
+   "lvl": 9,
+   "opacity": 1.0
+  },
+  {
+   "name": "slider_7b",
+   "file": "preview/slider_7b.stl",
+   "color": "#d0763a",
+   "lvl": 9,
+   "opacity": 1.0
+  },
+  {
+   "name": "diffuser",
+   "file": "preview/diffuser.stl",
+   "color": "#5b7fa6",
+   "lvl": 10,
+   "opacity": 1.0
+  },
+  {
+   "name": "mattress",
+   "file": "preview/mattress.stl",
+   "color": "#cfd8e3",
+   "lvl": -99,
+   "opacity": 0.35
+  },
+  {
+   "name": "hose",
+   "file": "preview/hose.stl",
+   "color": "#555555",
+   "lvl": -99,
+   "opacity": 1.0
+  }
+ ]
+}
