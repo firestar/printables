@@ -1,0 +1,167 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>MagicBand reader – indoor viewer</title>
+<style>
+  body { margin: 0; background: #eef0f2; font: 14px sans-serif; overflow: hidden; }
+  #ui { position: absolute; top: 8px; left: 8px; background: #fffd; padding: 8px; border-radius: 6px; }
+  #ui label { display: block; margin: 2px 0; }
+  #title { position: absolute; bottom: 10px; width: 100%; text-align: center; font-size: 18px; color: #333; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="ui">
+  <label>Arm <select id="arm"></select></label>
+  <label>Mount <select id="mount"></select></label>
+  <label>Electronics <select id="mode"></select></label>
+  <label>View <select id="view">
+    <option value="iso">Iso</option>
+    <option value="front">Front / face</option>
+    <option value="side">Side</option>
+    <option value="section">Section (y = ball axis)</option>
+  </select></label>
+  <label>Explode <input type="range" id="explode" min="0" max="100" value="0"></label>
+  <label><input type="checkbox" id="context" checked> Context (wall / table / floor, MagicBand)</label>
+  <label><input type="checkbox" id="hardware" checked> Hardware (pipe core, ballast)</label>
+  <label><input type="checkbox" id="comps" checked> Electronics dummies</label>
+  <label><input type="checkbox" id="light"> Light: access granted (green)</label>
+</div>
+<div id="title"></div>
+<script type="module">
+import * as THREE from 'three';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// URL params: arm=fp|blank|ball, mount=wall|table|post, mode=split|aio,
+// view=iso|front|side|section, explode=0..100, context=0, hardware=0, comps=0,
+// light=1, hideui=1.  Parts come from preview/manifest.json (indoor.export):
+// each entry lists the arms / mounts / modes it belongs to and its frame
+// (ball / arm parts are moved by the mount offset, ball parts also by
+// ball_only_shift when the arm is "ball").
+const q = new URLSearchParams(location.search);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(innerWidth, innerHeight);
+renderer.localClippingEnabled = true;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xeef0f2);
+const camera = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 1, 30000);
+camera.up.set(0, 0, 1);
+const controls = new OrbitControls(camera, renderer.domElement);
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x777777, 1.5));
+const sun = new THREE.DirectionalLight(0xffffff, 2.0);
+sun.position.set(-400, 900, 1600);
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0xffffff, 0.7);
+fill.position.set(900, 300, -200);
+scene.add(fill);
+
+const man = await fetch('preview/manifest.json').then(r => r.json());
+const el = id => document.getElementById(id);
+for (const [id, key] of [['arm', 'arms'], ['mount', 'mounts'], ['mode', 'modes']])
+  for (const [v, label] of Object.entries(man[key])) el(id).add(new Option(label, v));
+
+const clipY = new THREE.Plane(new THREE.Vector3(0, -1, 0), man.section_y);   // keep y <= ball axis
+const GREEN = new THREE.Color(0x2bff6a);
+const meshes = [];
+const loader = new STLLoader();
+const METAL = new Set(['ball_front_in', 'ball_rear', 'rear_hatch_in', 'post_pipe']);
+await Promise.all(man.parts.map(p => new Promise(res => loader.load(p.file, geo => {
+  geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  const metal = METAL.has(p.name);
+  const mat = new THREE.MeshStandardMaterial({
+    color: new THREE.Color(p.color), roughness: metal ? 0.38 : 0.7, metalness: metal ? 0.55 : 0.0,
+    side: THREE.DoubleSide, transparent: p.opacity < 1, opacity: p.opacity, depthWrite: p.opacity >= 1,
+  });
+  const m = new THREE.Mesh(geo, mat);
+  m.userData = p;
+  meshes.push(m);
+  scene.add(m);
+  res();
+}))));
+
+for (const id of ['arm', 'mount', 'mode', 'view', 'explode']) if (q.get(id)) el(id).value = q.get(id);
+for (const id of ['context', 'hardware', 'comps']) if (q.get(id) === '0') el(id).checked = false;
+if (q.get('light') === '1') el('light').checked = true;
+if (q.get('hideui') === '1') el('ui').style.display = 'none';
+for (const id of ['context', 'hardware', 'comps', 'light']) el(id).onchange = apply;
+el('explode').oninput = apply;
+for (const id of ['arm', 'mount', 'mode', 'view']) el(id).onchange = () => { apply(); frame(); };
+
+function offset(p, arm, mount) {
+  if (p.frame === 'mount') return [0, 0, 0];
+  const o = [...man.offsets[mount]];
+  if (p.frame === 'ball' && arm === 'ball') for (let i = 0; i < 3; i++) o[i] += man.ball_only_shift[i];
+  return o;
+}
+
+function apply() {
+  const arm = el('arm').value, mount = el('mount').value, mode = el('mode').value;
+  const e = el('explode').value / 100;
+  const sec = el('view').value === 'section';
+  const lit = el('light').checked;
+  for (const m of meshes) {
+    const p = m.userData;
+    m.visible = p.arms.includes(arm) && p.mounts.includes(mount) && p.modes.includes(mode) &&
+                (p.group !== 'context' || el('context').checked) && !(sec && p.name === 'magicband') &&
+                (p.group !== 'hardware' || el('hardware').checked) &&
+                (p.group !== 'component' || el('comps').checked);
+    const o = offset(p, arm, mount);
+    m.position.set(o[0] + e * p.explode[0], o[1] + e * p.explode[1], o[2] + e * p.explode[2]);
+    m.material.clippingPlanes = sec && p.group !== 'context' ? [clipY] : [];
+    if (p.glow) {
+      m.material.emissive = lit ? GREEN : new THREE.Color(0x000000);
+      m.material.emissiveIntensity = lit ? 1.3 : 0;
+      m.material.color = lit ? new THREE.Color(0x9dffbf) : new THREE.Color(p.color);
+    }
+    m.material.needsUpdate = true;
+  }
+}
+
+// Frame the visible non-context parts (the post is ~1.2 m tall, the wall head ~0.3 m).
+const DIRS = { iso: [-0.55, 1, 0.5], front: [0, 1, 0.06], side: [-1, 0.12, 0.1], section: [0.25, 1, 0.12] };
+function frame() {
+  const box = new THREE.Box3();
+  for (const m of meshes) {
+    if (!m.visible || m.userData.group === 'context') continue;
+    box.union(m.geometry.boundingBox.clone().translate(m.position));
+  }
+  if (box.isEmpty()) return;
+  const sphere = box.getBoundingSphere(new THREE.Sphere());
+  const d = new THREE.Vector3(...(DIRS[el('view').value] || DIRS.iso)).normalize();
+  const fov = THREE.MathUtils.degToRad(camera.fov);
+  const fit = Math.min(fov, 2 * Math.atan(Math.tan(fov / 2) * camera.aspect));
+  const dist = sphere.radius / Math.sin(fit / 2) * 1.02;
+  controls.target.copy(sphere.center);
+  camera.position.copy(sphere.center).addScaledVector(d, dist);
+  camera.near = dist / 50;
+  camera.far = dist * 20;
+  camera.updateProjectionMatrix();
+  controls.update();
+}
+apply();
+frame();
+document.getElementById('title').textContent = man.title;
+window.ready = true;
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+</script>
+</body>
+</html>

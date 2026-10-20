@@ -1,0 +1,536 @@
+{
+ "title": "MagicBand reader: 150 mm ball on neck + arm + fingerprint pod, wall mount",
+ "ball": [
+  0,
+  53.0,
+  146.2841614740048
+ ],
+ "pod": [
+  165.0,
+  53.0,
+  95.0
+ ],
+ "face_y": 103.0,
+ "parts": [
+  {
+   "name": "ball_front",
+   "file": "preview/ball_front.stl",
+   "color": "#c3c8ce",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    110.0,
+    110.0
+   ],
+   "group": "part",
+   "glow": false
+  },
+  {
+   "name": "ball_rear",
+   "file": "preview/ball_rear.stl",
+   "color": "#b8bdc3",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    0.0,
+    110.0
+   ],
+   "group": "part",
+   "glow": false
+  },
+  {
+   "name": "rear_hatch",
+   "file": "preview/rear_hatch.stl",
+   "color": "#9fa5ab",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    -110.0,
+    110.0
+   ],
+   "group": "part",
+   "glow": false
+  },
+  {
+   "name": "face_carrier",
+   "file": "preview/face_carrier.stl",
+   "color": "#f4f4f2",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    150.0,
+    110.0
+   ],
+   "group": "part",
+   "glow": false
+  },
+  {
+   "name": "electronics_tray",
+   "file": "preview/electronics_tray.stl",
+   "color": "#e2e2dc",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    -60.0,
+    70.0
+   ],
+   "group": "part",
+   "glow": false
+  },
+  {
+   "name": "halo_ring",
+   "file": "preview/halo_ring.stl",
+   "color": "#e9f6ff",
+   "opacity": 0.8,
+   "explode": [
+    0.0,
+    220.0,
+    110.0
+   ],
+   "group": "part",
+   "glow": true
+  },
+  {
+   "name": "face_disc",
+   "file": "preview/face_disc.stl",
+   "color": "#18191b",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    260.0,
+    110.0
+   ],
+   "group": "part",
+   "glow": false
+  },
+  {
+   "name": "mickey_inlay",
+   "file": "preview/mickey_inlay.stl",
+   "color": "#f6f7f2",
+   "opacity": 0.92,
+   "explode": [
+    0.0,
+    300.0,
+    110.0
+   ],
+   "group": "part",
+   "glow": true
+  },
+  {
+   "name": "neck",
+   "file": "preview/neck.stl",
+   "color": "#4a4f55",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    0.0,
+    55.0
+   ],
+   "group": "part",
+   "glow": false
+  },
+  {
+   "name": "arm_base",
+   "file": "preview/arm_base.stl",
+   "color": "#4a4f55",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "group": "part",
+   "glow": false
+  },
+  {
+   "name": "pod_cap",
+   "file": "preview/pod_cap.stl",
+   "color": "#5a6066",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    45.0,
+    77.9
+   ],
+   "group": "part",
+   "glow": false
+  },
+  {
+   "name": "wall_bracket",
+   "file": "preview/wall_bracket.stl",
+   "color": "#4a4f55",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    0.0,
+    -90.0
+   ],
+   "group": "part",
+   "glow": false
+  },
+  {
+   "name": "controller_box",
+   "file": "preview/controller_box.stl",
+   "color": "#3d6fa8",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "group": "part",
+   "glow": false
+  },
+  {
+   "name": "controller_lid",
+   "file": "preview/controller_lid.stl",
+   "color": "#5b8bc4",
+   "opacity": 0.9,
+   "explode": [
+    0.0,
+    -70.0,
+    0.0
+   ],
+   "group": "part",
+   "glow": false
+  },
+  {
+   "name": "face_gasket",
+   "file": "preview/face_gasket.stl",
+   "color": "#222222",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    190.0,
+    110.0
+   ],
+   "group": "gasket",
+   "glow": false
+  },
+  {
+   "name": "seam_gasket",
+   "file": "preview/seam_gasket.stl",
+   "color": "#222222",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    70.0,
+    110.0
+   ],
+   "group": "gasket",
+   "glow": false
+  },
+  {
+   "name": "hatch_gasket",
+   "file": "preview/hatch_gasket.stl",
+   "color": "#222222",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    -70.0,
+    110.0
+   ],
+   "group": "gasket",
+   "glow": false
+  },
+  {
+   "name": "neck_gasket",
+   "file": "preview/neck_gasket.stl",
+   "color": "#222222",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    0.0,
+    190.0
+   ],
+   "group": "gasket",
+   "glow": false
+  },
+  {
+   "name": "neck_base_gasket",
+   "file": "preview/neck_base_gasket.stl",
+   "color": "#222222",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    0.0,
+    25.0
+   ],
+   "group": "gasket",
+   "glow": false
+  },
+  {
+   "name": "pod_gasket",
+   "file": "preview/pod_gasket.stl",
+   "color": "#222222",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    22.5,
+    39.0
+   ],
+   "group": "gasket",
+   "glow": false
+  },
+  {
+   "name": "r503_washer",
+   "file": "preview/r503_washer.stl",
+   "color": "#222222",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    30.0,
+    52.0
+   ],
+   "group": "gasket",
+   "glow": false
+  },
+  {
+   "name": "bracket_gasket",
+   "file": "preview/bracket_gasket.stl",
+   "color": "#222222",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    -20.0,
+    -90.0
+   ],
+   "group": "gasket",
+   "glow": false
+  },
+  {
+   "name": "pn532",
+   "file": "preview/pn532.stl",
+   "color": "#c0392b",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    175.0,
+    110.0
+   ],
+   "group": "component",
+   "glow": false
+  },
+  {
+   "name": "speaker",
+   "file": "preview/speaker.stl",
+   "color": "#333333",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    130.0,
+    110.0
+   ],
+   "group": "component",
+   "glow": false
+  },
+  {
+   "name": "led_strip",
+   "file": "preview/led_strip.stl",
+   "color": "#f0f0f0",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    165.0,
+    110.0
+   ],
+   "group": "component",
+   "glow": true
+  },
+  {
+   "name": "esp32s3",
+   "file": "preview/esp32s3.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    -60.0,
+    70.0
+   ],
+   "group": "component",
+   "glow": false
+  },
+  {
+   "name": "max98357a",
+   "file": "preview/max98357a.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    -60.0,
+    70.0
+   ],
+   "group": "component",
+   "glow": false
+  },
+  {
+   "name": "buck",
+   "file": "preview/buck.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    -60.0,
+    70.0
+   ],
+   "group": "component",
+   "glow": false
+  },
+  {
+   "name": "max3485",
+   "file": "preview/max3485.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    -60.0,
+    70.0
+   ],
+   "group": "component",
+   "glow": false
+  },
+  {
+   "name": "buck3v3",
+   "file": "preview/buck3v3.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    -60.0,
+    70.0
+   ],
+   "group": "component",
+   "glow": false
+  },
+  {
+   "name": "protect",
+   "file": "preview/protect.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    -60.0,
+    70.0
+   ],
+   "group": "component",
+   "glow": false
+  },
+  {
+   "name": "tamper_switch",
+   "file": "preview/tamper_switch.stl",
+   "color": "#222222",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    -40.0,
+    110.0
+   ],
+   "group": "component",
+   "glow": false
+  },
+  {
+   "name": "r503",
+   "file": "preview/r503.stl",
+   "color": "#202020",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    65.0,
+    112.6
+   ],
+   "group": "component",
+   "glow": false
+  },
+  {
+   "name": "ctl_devkit",
+   "file": "preview/ctl_devkit.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "group": "component",
+   "glow": false
+  },
+  {
+   "name": "ctl_relay",
+   "file": "preview/ctl_relay.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "group": "component",
+   "glow": false
+  },
+  {
+   "name": "ctl_max3485",
+   "file": "preview/ctl_max3485.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "group": "component",
+   "glow": false
+  },
+  {
+   "name": "ctl_buck",
+   "file": "preview/ctl_buck.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "group": "component",
+   "glow": false
+  },
+  {
+   "name": "ctl_terminal",
+   "file": "preview/ctl_terminal.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "explode": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "group": "component",
+   "glow": false
+  },
+  {
+   "name": "wall",
+   "file": "preview/wall.stl",
+   "color": "#d9d4c7",
+   "opacity": 0.55,
+   "explode": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "group": "context",
+   "glow": false
+  },
+  {
+   "name": "magicband",
+   "file": "preview/magicband.stl",
+   "color": "#2c7be5",
+   "opacity": 0.45,
+   "explode": [
+    0.0,
+    120.0,
+    0.0
+   ],
+   "group": "context",
+   "glow": false
+  }
+ ]
+}

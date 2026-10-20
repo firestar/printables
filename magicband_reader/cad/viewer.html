@@ -1,0 +1,147 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>MagicBand reader viewer</title>
+<style>
+  body { margin: 0; background: #eef0f2; font: 14px sans-serif; overflow: hidden; }
+  #ui { position: absolute; top: 8px; left: 8px; background: #fffd; padding: 8px; border-radius: 6px; }
+  #ui label { display: block; margin: 2px 0; }
+  #title { position: absolute; bottom: 10px; width: 100%; text-align: center; font-size: 18px; color: #333; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="ui">
+  <label>View <select id="view">
+    <option value="iso">Iso</option>
+    <option value="face">Front / face</option>
+    <option value="pod">Pod (fingerprint)</option>
+    <option value="side">Wall / side</option>
+  </select></label>
+  <label>Section <select id="section">
+    <option value="off">Off</option>
+    <option value="x">x = 0 (face stack, ball, neck)</option>
+    <option value="y">y = ball axis (ball, neck, arm, pod)</option>
+  </select></label>
+  <label>Explode <input type="range" id="explode" min="0" max="100" value="0"></label>
+  <label><input type="checkbox" id="context" checked> Context (wall, MagicBand)</label>
+  <label><input type="checkbox" id="comps" checked> Electronics dummies</label>
+  <label><input type="checkbox" id="light"> Light: access granted (green)</label>
+</div>
+<div id="title"></div>
+<script type="module">
+import * as THREE from 'three';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// URL params: view=iso|face|pod|side, section=off|x|y, explode=0..100, context=0,
+// comps=0, light=1, hideui=1.  Parts come from preview/manifest.json (magicband.export).
+const q = new URLSearchParams(location.search);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(innerWidth, innerHeight);
+renderer.localClippingEnabled = true;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xeef0f2);
+const camera = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 1, 20000);
+camera.up.set(0, 0, 1);
+const controls = new OrbitControls(camera, renderer.domElement);
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x777777, 1.5));
+const sun = new THREE.DirectionalLight(0xffffff, 2.0);
+sun.position.set(-400, 900, 1200);
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0xffffff, 0.7);
+fill.position.set(900, 300, -200);
+scene.add(fill);
+
+const man = await fetch('preview/manifest.json').then(r => r.json());
+document.getElementById('title').textContent = man.title;
+const [bx, by, bz] = man.ball;
+const [px, py, pz] = man.pod;
+const clipX = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0);        // keep x >= 0
+const clipY = new THREE.Plane(new THREE.Vector3(0, -1, 0), by);      // keep y <= ball axis
+const GREEN = new THREE.Color(0x2bff6a);
+const meshes = {};
+const loader = new STLLoader();
+const METAL = new Set(['ball_front', 'ball_rear', 'rear_hatch']);
+await Promise.all(man.parts.map(p => new Promise(res => loader.load(p.file, geo => {
+  geo.computeVertexNormals();
+  const metal = METAL.has(p.name);
+  const mat = new THREE.MeshStandardMaterial({
+    color: new THREE.Color(p.color), roughness: metal ? 0.38 : 0.7, metalness: metal ? 0.55 : 0.0,
+    side: THREE.DoubleSide, transparent: p.opacity < 1, opacity: p.opacity, depthWrite: p.opacity >= 1,
+  });
+  const m = new THREE.Mesh(geo, mat);
+  m.userData = p;
+  meshes[p.name] = m;
+  scene.add(m);
+  res();
+}))));
+
+const el = id => document.getElementById(id);
+if (q.get('view')) el('view').value = q.get('view');
+if (q.get('section')) el('section').value = q.get('section');
+if (q.get('explode')) el('explode').value = q.get('explode');
+if (q.get('context') === '0') el('context').checked = false;
+if (q.get('comps') === '0') el('comps').checked = false;
+if (q.get('light') === '1') el('light').checked = true;
+if (q.get('hideui') === '1') el('ui').style.display = 'none';
+for (const id of ['section', 'context', 'comps', 'light']) el(id).onchange = apply;
+el('explode').oninput = apply;
+el('view').onchange = () => setView(el('view').value);
+
+function apply() {
+  const e = el('explode').value / 100;
+  const sec = el('section').value;
+  const lit = el('light').checked;
+  for (const m of Object.values(meshes)) {
+    const p = m.userData;
+    m.visible = (p.group !== 'context' || el('context').checked) &&
+                (p.group !== 'component' || el('comps').checked);
+    m.position.set(e * p.explode[0], e * p.explode[1], e * p.explode[2]);
+    const clip = p.group === 'context' ? [] : sec === 'x' ? [clipX] : sec === 'y' ? [clipY] : [];
+    m.material.clippingPlanes = clip;
+    if (p.glow) {
+      m.material.emissive = lit ? GREEN : new THREE.Color(0x000000);
+      m.material.emissiveIntensity = lit ? 1.3 : 0;
+      m.material.color = lit ? new THREE.Color(0x9dffbf) : new THREE.Color(p.color);
+    }
+    m.material.needsUpdate = true;
+  }
+}
+
+const views = {
+  iso:  [[-330, 760, 430], [75, 50, 95]],
+  face: [[0, 720, bz], [0, by, bz - 10]],
+  pod:  [[px + 170, py + 330, pz + 260], [px, py, pz - 10]],
+  side: [[-760, 140, 110], [60, 50, 80]],
+};
+function setView(name) {
+  const [p, t] = views[name] || views.iso;
+  controls.target.set(...t);
+  camera.position.set(...p);
+  controls.update();
+}
+setView(el('view').value);
+apply();
+window.ready = true;
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+</script>
+</body>
+</html>
