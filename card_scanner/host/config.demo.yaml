@@ -1,0 +1,51 @@
+# No-hardware demo: mock controller + fake cameras + synthetic index.
+#   python -m cardscanner -c config.demo.yaml demo
+#   python -m cardscanner -c config.demo.yaml run
+# Note: saving rules in the UI rewrites this file with every key expanded.
+
+serial:
+  mock: true
+  mock_options:
+    hopper: 14
+    magazine: 100
+    delays: true
+    faults:
+      feed: {4: double_feed}
+      sleeve: {6: [sleeve_open_fail]}
+
+cameras:
+  backend: fake
+  fake_dir: data/demo/photos
+
+paths:
+  data_dir: data/demo
+  index_db: data/demo/index.sqlite
+  inventory_db: data/demo/inventory.sqlite
+  image_cache: data/demo/cache/images
+  backs_dir: data/demo/backs
+
+recognition:
+  review_below: 0.6
+  ocr: false
+  orb_rerank: true
+
+prices:
+  offline: true
+
+bins:
+  - {id: 0, name: Valuable}
+  - {id: 1, name: Bulk}
+  - {id: 2, name: Unknown / review}
+
+rules:
+  - name: Valuable
+    bin: 0
+    when: {min_price: 2.0, min_confidence: 0.6}
+  - name: Recognized bulk
+    bin: 1
+    when: {recognized: true}
+default_bin: 2
+
+web:
+  host: 127.0.0.1
+  port: 8089

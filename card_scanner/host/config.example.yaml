@@ -1,0 +1,79 @@
+# Card scanner host config (copy to config.yaml).  Paths are relative to this file.
+
+serial:
+  port: /dev/ttyACM0        # ESP32-S3 USB-CDC
+  baud: 115200
+  timeout_s: 15.0
+  mock: false               # true = in-process simulated controller (no hardware)
+  mock_options:
+    hopper: 30
+    magazine: 100
+    delays: true
+    faults:                 # scripted faults for the mock, see cardscanner/mock_mcu.py
+      feed: {4: double_feed}
+      sleeve: {6: [sleeve_open_fail]}
+
+cameras:
+  backend: picamera2        # picamera2 | fake
+  front_index: 0            # CAM0 = top camera (card front)
+  back_index: 1             # CAM1 = bottom camera (card back, through the glass)
+  size: [2304, 1296]
+  settle_ms: 120            # wait after lights-on before capture
+  fake_dir: data/demo/photos
+
+lights:                     # 0-255 PWM sent with the `lights` command
+  top: 220
+  bottom: 180
+
+paths:
+  data_dir: data
+  index_db: data/index.sqlite
+  inventory_db: data/inventory.sqlite
+  image_cache: data/cache/images
+  backs_dir: data/backs
+
+recognition:
+  review_below: 0.6         # below this confidence the card goes to the review queue
+  top_k: 5
+  orb_rerank: true          # ORB feature re-rank of the hash top-k (needs the image cache)
+  ocr: true                 # tesseract fallback on the name line
+  ocr_below: 0.75           # run OCR when hash confidence is below this
+  max_distance: 24.0        # weighted Hamming distance that maps to confidence 0
+  verify_back: true         # use the bottom camera to identify the game from the card back
+
+prices:
+  ttl_hours: 24
+  pokemon_api_key: ""       # optional, raises the Pokémon TCG API rate limit
+  offline: false            # true = never hit the APIs at scan time, use the index snapshot
+
+bins:
+  - {id: 0, name: Valuable}
+  - {id: 1, name: Bulk}
+  - {id: 2, name: Unknown / review}
+
+# Ordered rules; first match wins, else default_bin.
+# when: game (mtg|pokemon|ygo or list), rarity (list), foil (bool), min_price, max_price,
+#       recognized (bool), min_confidence, max_confidence
+rules:
+  - name: Valuable
+    bin: 0
+    when: {min_price: 2.0, min_confidence: 0.6}
+  - name: Foil rares
+    bin: 0
+    when: {foil: true, rarity: [rare, mythic], min_confidence: 0.6}
+  - name: Recognized bulk
+    bin: 1
+    when: {recognized: true}
+default_bin: 2
+
+tunables:                   # keys offered on the Tunables page (set/get on the controller)
+  - feed_speed
+  - feed_retries
+  - sleeve_open_ms
+  - sleeve_push_mm
+  - sort_dwell_ms
+  - light_warmup_ms
+
+web:
+  host: 0.0.0.0
+  port: 8080

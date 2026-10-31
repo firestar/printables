@@ -1,0 +1,12 @@
+numpy
+opencv-python-headless>=4.8
+pyyaml
+pyserial
+httpx
+fastapi
+uvicorn
+pydantic>=2
+python-multipart
+pytesseract
+pytest
+# On the Pi, picamera2 comes from apt (python3-picamera2), not pip.

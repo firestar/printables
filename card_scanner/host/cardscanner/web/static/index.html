@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Card Scanner</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">Card Scanner <span id="state-badge" class="badge">idle</span></div>
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-tab="dashboard" role="tab">Dashboard</button>
+    <button class="tab" data-tab="review" role="tab">Review <span id="review-count" class="pill">0</span></button>
+    <button class="tab" data-tab="rules" role="tab">Bin rules</button>
+    <button class="tab" data-tab="tunables" role="tab">Tunables</button>
+  </nav>
+</header>
+
+<div id="banner" class="banner hidden" role="alert"></div>
+<div id="warning" class="banner warn hidden"></div>
+
+<main>
+<!-- ============================ DASHBOARD ============================ -->
+<section id="tab-dashboard" class="tab-panel">
+  <div class="controls card">
+    <div class="row">
+      <button id="btn-start" class="primary">Start</button>
+      <button id="btn-pause">Pause</button>
+      <button id="btn-resume">Resume</button>
+      <button id="btn-stop" class="danger">Stop</button>
+      <button id="btn-reset" class="ghost">Reset / home</button>
+    </div>
+    <div class="row small">
+      <label><input type="checkbox" id="opt-foil"> Batch is foil</label>
+      <label>Condition
+        <select id="opt-condition">
+          <option value="NM">Near Mint</option><option value="LP">Lightly Played</option>
+          <option value="MP">Moderately Played</option><option value="HP">Heavily Played</option>
+          <option value="DMG">Damaged</option>
+        </select></label>
+      <label>Notes <input type="text" id="opt-notes" placeholder="box 3, commons"></label>
+      <span id="session-label" class="muted"></span>
+    </div>
+    <div id="mock-controls" class="row small hidden">
+      <span class="muted">Mock controller:</span>
+      <button class="ghost" data-mock="refill">Refill hopper</button>
+      <button class="ghost" data-mock="lid">Open lid</button>
+      <button class="ghost" data-mock="estop">Trip e-stop</button>
+    </div>
+  </div>
+
+  <div class="grid stats">
+    <div class="stat"><div class="label">Processed</div><div class="value" id="st-processed">0</div></div>
+    <div class="stat"><div class="label">Cards / min</div><div class="value" id="st-rate">0</div></div>
+    <div class="stat"><div class="label">Recognized</div><div class="value" id="st-ok">0</div></div>
+    <div class="stat"><div class="label">Review</div><div class="value" id="st-review">0</div></div>
+    <div class="stat"><div class="label">Rejected</div><div class="value" id="st-rejected">0</div></div>
+    <div class="stat"><div class="label">Errors</div><div class="value" id="st-errors">0</div></div>
+    <div class="stat"><div class="label">Hopper</div><div class="value" id="st-hopper">–</div></div>
+    <div class="stat"><div class="label">Elapsed</div><div class="value" id="st-elapsed">0:00</div></div>
+  </div>
+
+  <div class="grid two">
+    <div class="card last-card">
+      <h2>Last card</h2>
+      <div class="thumbs">
+        <figure><img id="lc-front" alt="front" src=""><figcaption>Front</figcaption></figure>
+        <figure><img id="lc-back" alt="back" src=""><figcaption>Back</figcaption></figure>
+      </div>
+      <div class="lc-meta">
+        <div class="lc-name" id="lc-name">—</div>
+        <div class="muted" id="lc-set"></div>
+        <div class="lc-row"><span>Price</span><strong id="lc-price">—</strong></div>
+        <div class="lc-row"><span>Confidence</span><strong id="lc-conf">—</strong></div>
+        <div class="lc-row"><span>Bin</span><strong id="lc-bin">—</strong></div>
+        <div class="lc-row"><span>Status</span><strong id="lc-status">—</strong></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Bins</h2>
+      <div id="bins" class="bins"></div>
+      <h2>Recent</h2>
+      <table class="table" id="recent"><thead><tr><th>#</th><th>Card</th><th>Price</th><th>Conf</th><th>Bin</th></tr></thead><tbody></tbody></table>
+      <div class="row small">
+        <a class="button ghost" id="exp-mox" href="/api/export.csv?format=moxfield">Export Moxfield CSV</a>
+        <a class="button ghost" id="exp-tcg" href="/api/export.csv?format=tcgplayer">Export TCGplayer CSV</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ REVIEW ============================ -->
+<section id="tab-review" class="tab-panel hidden">
+  <div class="card">
+    <h2>Review queue <span class="muted">low-confidence or unrecognized cards</span></h2>
+    <div id="review-list" class="review-list"></div>
+    <p id="review-empty" class="muted hidden">Nothing to review.</p>
+  </div>
+</section>
+
+<!-- ============================ RULES ============================ -->
+<section id="tab-rules" class="tab-panel hidden">
+  <div class="card">
+    <h2>Bin rules <span class="muted">first match wins</span></h2>
+    <div class="table-wrap">
+    <table class="table rules" id="rules-table">
+      <thead><tr><th></th><th>Name</th><th>Game</th><th>Rarity</th><th>Foil</th><th>Recognized</th>
+        <th>Min $</th><th>Max $</th><th>Min conf</th><th>Bin</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+    </div>
+    <div class="row">
+      <button id="rule-add" class="ghost">+ Add rule</button>
+      <label>Default bin <select id="default-bin"></select></label>
+      <button id="rules-save" class="primary">Save rules</button>
+      <span id="rules-msg" class="muted"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ TUNABLES ============================ -->
+<section id="tab-tunables" class="tab-panel hidden">
+  <div class="card">
+    <h2>Controller tunables <span class="muted">set / get over serial</span></h2>
+    <table class="table" id="tunables-table"><thead><tr><th>Key</th><th>Current</th><th>New value</th><th></th></tr></thead><tbody></tbody></table>
+    <div class="row small">
+      <input type="text" id="tun-key" placeholder="custom key"> <input type="text" id="tun-val" placeholder="value">
+      <button id="tun-set" class="ghost">Set</button>
+      <button id="tun-refresh" class="ghost">Refresh</button>
+      <span id="tun-msg" class="muted"></span>
+    </div>
+  </div>
+</section>
+</main>
+
+<template id="tpl-review">
+  <div class="review-item">
+    <img class="rv-front" alt="front">
+    <div class="rv-body">
+      <div class="rv-head"><strong class="rv-seq"></strong> <span class="rv-guess muted"></span></div>
+      <div class="rv-cands"></div>
+      <div class="combo">
+        <input type="text" class="combo-input" role="combobox" aria-autocomplete="list" aria-expanded="false" placeholder="Search card name or number…" autocomplete="off">
+        <ul class="combo-list hidden" role="listbox"></ul>
+      </div>
+      <div class="row small">
+        <select class="rv-game"><option value="">Any game</option><option value="mtg">MTG</option><option value="pokemon">Pokémon</option><option value="ygo">Yu-Gi-Oh!</option></select>
+        <button class="primary rv-assign" disabled>Assign</button>
+        <button class="ghost rv-skip">Skip</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

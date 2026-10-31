@@ -1,0 +1,147 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Card scanner viewer</title>
+<style>
+  body { margin: 0; background: #eef0f2; font: 14px sans-serif; overflow: hidden; }
+  #ui { position: absolute; top: 8px; left: 8px; background: #fffd; padding: 8px; border-radius: 6px; }
+  #ui label { display: block; margin: 2px 0; }
+  #title { position: absolute; bottom: 10px; width: 100%; text-align: center; font-size: 18px; color: #333; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="ui">
+  <label>View <select id="view">
+    <option value="iso">Iso</option>
+    <option value="side">Side (card path)</option>
+    <option value="top">Top</option>
+    <option value="hopper">Hopper</option>
+    <option value="scan">Scan station</option>
+    <option value="sleeve">Sleeve station</option>
+    <option value="diverter">Diverter + bins</option>
+  </select></label>
+  <label>Section <select id="section">
+    <option value="off">Off</option>
+    <option value="y">y = 0 (along the card path)</option>
+    <option value="x">x = camera axis (scan station)</option>
+  </select></label>
+  <label>Station <select id="station">
+    <option value="all">All</option>
+    <option value="hopper">Hopper</option>
+    <option value="feed">Feed</option>
+    <option value="scan">Scan</option>
+    <option value="xfer">Transfer</option>
+    <option value="sleeve">Sleeve (phase-1 rig)</option>
+    <option value="diverter">Diverter + bins</option>
+  </select></label>
+  <label><input type="checkbox" id="frame" checked> 2020 frame</label>
+  <label><input type="checkbox" id="comps" checked> Hardware stand-ins</label>
+  <label><input type="checkbox" id="hood" checked> Scan hood</label>
+</div>
+<div id="title"></div>
+<script type="module">
+import * as THREE from 'three';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// URL params: view=iso|side|top|hopper|scan|sleeve|diverter, section=off|y|x,
+// station=all|hopper|feed|scan|xfer|sleeve|diverter, frame=0, comps=0, hood=0, hideui=1.
+// Parts come from preview/manifest.json (card_scanner.export).
+const q = new URLSearchParams(location.search);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(innerWidth, innerHeight);
+renderer.localClippingEnabled = true;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xeef0f2);
+const camera = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 1, 20000);
+camera.up.set(0, 0, 1);
+const controls = new OrbitControls(camera, renderer.domElement);
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x777777, 1.5));
+const sun = new THREE.DirectionalLight(0xffffff, 2.0);
+sun.position.set(-600, -900, 1400);
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0xffffff, 0.7);
+fill.position.set(900, 600, -200);
+scene.add(fill);
+
+const man = await fetch('preview/manifest.json').then(r => r.json());
+document.getElementById('title').textContent = man.title;
+const st = man.stations, zt = man.z_track;
+const clipY = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);          // keep y >= 0
+const clipX = new THREE.Plane(new THREE.Vector3(-1, 0, 0), st.scan);   // keep x <= camera axis
+const meshes = {};
+const loader = new STLLoader();
+await Promise.all(man.parts.map(p => new Promise(res => loader.load(p.file, geo => {
+  geo.computeVertexNormals();
+  const glassy = p.name.startsWith('glass');
+  const mat = new THREE.MeshStandardMaterial({
+    color: new THREE.Color(p.color), roughness: glassy ? 0.1 : 0.7, metalness: p.name.includes('shim') ? 0.6 : 0.0,
+    side: THREE.DoubleSide, transparent: p.opacity < 1, opacity: p.opacity, depthWrite: p.opacity >= 1,
+  });
+  const m = new THREE.Mesh(geo, mat);
+  m.userData = p;
+  meshes[p.name] = m;
+  scene.add(m);
+  res();
+}))));
+
+const el = id => document.getElementById(id);
+for (const id of ['view', 'section', 'station']) if (q.get(id)) el(id).value = q.get(id);
+for (const id of ['frame', 'comps', 'hood']) if (q.get(id) === '0') el(id).checked = false;
+if (q.get('hideui') === '1') el('ui').style.display = 'none';
+for (const id of ['section', 'station', 'frame', 'comps', 'hood']) el(id).onchange = apply;
+el('view').onchange = () => setView(el('view').value);
+
+function apply() {
+  const sec = el('section').value, sta = el('station').value;
+  for (const m of Object.values(meshes)) {
+    const p = m.userData;
+    m.visible = (p.group !== 'frame' || el('frame').checked) &&
+                (p.group !== 'component' || el('comps').checked) &&
+                (p.name !== 'hood' || el('hood').checked) &&
+                (sta === 'all' || p.station === sta);
+    m.material.clippingPlanes = p.group === 'frame' ? [] : sec === 'y' ? [clipY] : sec === 'x' ? [clipX] : [];
+    m.material.needsUpdate = true;
+  }
+}
+
+const views = {
+  iso:      [[-500, -1100, 800], [330, 0, 90]],
+  side:     [[330, -1700, 120], [330, 0, 110]],
+  top:      [[330, -1, 1800], [330, -40, 0]],
+  hopper:   [[-260, -380, 330], [0, 0, 110]],
+  scan:     [[st.scan - 260, -420, 330], [st.scan, 0, zt]],
+  sleeve:   [[st.sleeve - 150, -330, 300], [st.sleeve + 40, 0, zt]],
+  diverter: [[st.diverter - 150, -500, 450], [st.diverter + 120, 0, 50]],
+};
+function setView(name) {
+  const [p, t] = views[name] || views.iso;
+  controls.target.set(...t);
+  camera.position.set(...p);
+  controls.update();
+}
+setView(el('view').value);
+apply();
+window.ready = true;
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+</script>
+</body>
+</html>

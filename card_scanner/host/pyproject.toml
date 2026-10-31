@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cardscanner"
+version = "0.1.0"
+description = "Raspberry Pi 5 host for the trading-card scanner / sleever / sorter"
+requires-python = ">=3.11"
+dependencies = [
+  "numpy",
+  "opencv-python-headless>=4.8",
+  "pyyaml",
+  "pyserial",
+  "httpx",
+  "fastapi",
+  "uvicorn",
+  "pydantic>=2",
+  "python-multipart",
+]
+
+[project.optional-dependencies]
+ocr = ["pytesseract"]
+dev = ["pytest", "httpx"]
+
+[project.scripts]
+cardscanner = "cardscanner.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["cardscanner*"]
+
+[tool.setuptools.package-data]
+"cardscanner.web" = ["static/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"

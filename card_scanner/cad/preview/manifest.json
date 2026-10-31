@@ -1,0 +1,1583 @@
+{
+ "title": "Card scanner + penny sleever + 3-bin sorter (standard 63x88)",
+ "stations": {
+  "hopper": 0.0,
+  "feed": 66.0,
+  "scan": 200.0,
+  "xfer": 308.0,
+  "sleeve": 406.0,
+  "exit": 526.0,
+  "diverter": 576.0
+ },
+ "z_track": 125.0,
+ "parts": [
+  {
+   "name": "hopper_base",
+   "file": "preview/hopper_base.stl",
+   "color": "#3d6fa8",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "hopper"
+  },
+  {
+   "name": "hopper_guide_p",
+   "file": "preview/hopper_guide_p.stl",
+   "color": "#3d6fa8",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "hopper"
+  },
+  {
+   "name": "hopper_guide_m",
+   "file": "preview/hopper_guide_m.stl",
+   "color": "#3d6fa8",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "hopper"
+  },
+  {
+   "name": "hopper_back",
+   "file": "preview/hopper_back.stl",
+   "color": "#3d6fa8",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "hopper"
+  },
+  {
+   "name": "hopper_front",
+   "file": "preview/hopper_front.stl",
+   "color": "#3d6fa8",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "hopper"
+  },
+  {
+   "name": "elevator_platform",
+   "file": "preview/elevator_platform.stl",
+   "color": "#5b8bc4",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "hopper"
+  },
+  {
+   "name": "elev_switch_post",
+   "file": "preview/elev_switch_post.stl",
+   "color": "#e76f51",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "hopper"
+  },
+  {
+   "name": "pick_bridge",
+   "file": "preview/pick_bridge.stl",
+   "color": "#2a9d8f",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "hopper"
+  },
+  {
+   "name": "pick_carriage",
+   "file": "preview/pick_carriage.stl",
+   "color": "#2a9d8f",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "hopper"
+  },
+  {
+   "name": "roller_block_feed_p",
+   "file": "preview/roller_block_feed_p.stl",
+   "color": "#555b61",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "feed"
+  },
+  {
+   "name": "roller_block_feed_m",
+   "file": "preview/roller_block_feed_m.stl",
+   "color": "#555b61",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "feed"
+  },
+  {
+   "name": "roller_block_scan_in_p",
+   "file": "preview/roller_block_scan_in_p.stl",
+   "color": "#555b61",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "scan"
+  },
+  {
+   "name": "roller_block_scan_in_m",
+   "file": "preview/roller_block_scan_in_m.stl",
+   "color": "#555b61",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "scan"
+  },
+  {
+   "name": "roller_block_scan_out_p",
+   "file": "preview/roller_block_scan_out_p.stl",
+   "color": "#555b61",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "scan"
+  },
+  {
+   "name": "roller_block_scan_out_m",
+   "file": "preview/roller_block_scan_out_m.stl",
+   "color": "#555b61",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "scan"
+  },
+  {
+   "name": "roller_block_xfer_p",
+   "file": "preview/roller_block_xfer_p.stl",
+   "color": "#555b61",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "xfer"
+  },
+  {
+   "name": "roller_block_xfer_m",
+   "file": "preview/roller_block_xfer_m.stl",
+   "color": "#555b61",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "xfer"
+  },
+  {
+   "name": "roller_block_exit_p",
+   "file": "preview/roller_block_exit_p.stl",
+   "color": "#555b61",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "roller_block_exit_m",
+   "file": "preview/roller_block_exit_m.stl",
+   "color": "#555b61",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "roller_block_entry_p",
+   "file": "preview/roller_block_entry_p.stl",
+   "color": "#555b61",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "roller_block_entry_m",
+   "file": "preview/roller_block_entry_m.stl",
+   "color": "#555b61",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "track_feed",
+   "file": "preview/track_feed.stl",
+   "color": "#8d99a6",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "feed"
+  },
+  {
+   "name": "guide_rail_40_track_feed_p",
+   "file": "preview/guide_rail_40_track_feed_p.stl",
+   "color": "#e9c46a",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "feed"
+  },
+  {
+   "name": "guide_rail_40_track_feed_m",
+   "file": "preview/guide_rail_40_track_feed_m.stl",
+   "color": "#e9c46a",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "feed"
+  },
+  {
+   "name": "track_scan_out",
+   "file": "preview/track_scan_out.stl",
+   "color": "#8d99a6",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "xfer"
+  },
+  {
+   "name": "guide_rail_40_track_scan_out_p",
+   "file": "preview/guide_rail_40_track_scan_out_p.stl",
+   "color": "#e9c46a",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "xfer"
+  },
+  {
+   "name": "guide_rail_40_track_scan_out_m",
+   "file": "preview/guide_rail_40_track_scan_out_m.stl",
+   "color": "#e9c46a",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "xfer"
+  },
+  {
+   "name": "track_xfer",
+   "file": "preview/track_xfer.stl",
+   "color": "#8d99a6",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "xfer"
+  },
+  {
+   "name": "guide_rail_18_track_xfer_p",
+   "file": "preview/guide_rail_18_track_xfer_p.stl",
+   "color": "#e9c46a",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "xfer"
+  },
+  {
+   "name": "guide_rail_18_track_xfer_m",
+   "file": "preview/guide_rail_18_track_xfer_m.stl",
+   "color": "#e9c46a",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "xfer"
+  },
+  {
+   "name": "hood",
+   "file": "preview/hood.stl",
+   "color": "#1d1f22",
+   "opacity": 0.6,
+   "group": "part",
+   "station": "scan"
+  },
+  {
+   "name": "lower_shroud",
+   "file": "preview/lower_shroud.stl",
+   "color": "#1d1f22",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "scan"
+  },
+  {
+   "name": "led_frame_top",
+   "file": "preview/led_frame_top.stl",
+   "color": "#f4f4f2",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "scan"
+  },
+  {
+   "name": "led_frame_bot",
+   "file": "preview/led_frame_bot.stl",
+   "color": "#f4f4f2",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "scan"
+  },
+  {
+   "name": "cam_mount_top",
+   "file": "preview/cam_mount_top.stl",
+   "color": "#c0392b",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "scan"
+  },
+  {
+   "name": "cam_mount_bot",
+   "file": "preview/cam_mount_bot.stl",
+   "color": "#c0392b",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "scan"
+  },
+  {
+   "name": "stop_mount",
+   "file": "preview/stop_mount.stl",
+   "color": "#e76f51",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "scan"
+  },
+  {
+   "name": "stop_flag",
+   "file": "preview/stop_flag.stl",
+   "color": "#e76f51",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "scan"
+  },
+  {
+   "name": "sleeve_deck",
+   "file": "preview/sleeve_deck.stl",
+   "color": "#6c757d",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "platen",
+   "file": "preview/platen.stl",
+   "color": "#264653",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "sleeve_fence",
+   "file": "preview/sleeve_fence.stl",
+   "color": "#f4a261",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "sleeve_magazine",
+   "file": "preview/sleeve_magazine.stl",
+   "color": "#f4a261",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "sleeve_gate",
+   "file": "preview/sleeve_gate.stl",
+   "color": "#f4a261",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "tongue_carriage",
+   "file": "preview/tongue_carriage.stl",
+   "color": "#8338ec",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "tongue_keeper_lo",
+   "file": "preview/tongue_keeper_lo.stl",
+   "color": "#8338ec",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "tongue_keeper_hi",
+   "file": "preview/tongue_keeper_hi.stl",
+   "color": "#8338ec",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "tongue_keeper_hi_m",
+   "file": "preview/tongue_keeper_hi_m.stl",
+   "color": "#8338ec",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "tongue_rod_block_sw_0p",
+   "file": "preview/tongue_rod_block_sw_0p.stl",
+   "color": "#8338ec",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "xfer"
+  },
+  {
+   "name": "tongue_rod_block_0m",
+   "file": "preview/tongue_rod_block_0m.stl",
+   "color": "#8338ec",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "xfer"
+  },
+  {
+   "name": "tongue_rod_block_1p",
+   "file": "preview/tongue_rod_block_1p.stl",
+   "color": "#8338ec",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "tongue_rod_block_1m",
+   "file": "preview/tongue_rod_block_1m.stl",
+   "color": "#8338ec",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "air_jet",
+   "file": "preview/air_jet.stl",
+   "color": "#00b4d8",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "lift_mount",
+   "file": "preview/lift_mount.stl",
+   "color": "#2a9d8f",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "lift_arm",
+   "file": "preview/lift_arm.stl",
+   "color": "#2a9d8f",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "pusher_bracket",
+   "file": "preview/pusher_bracket.stl",
+   "color": "#ef476f",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "pusher_slider",
+   "file": "preview/pusher_slider.stl",
+   "color": "#ef476f",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "pusher_flap",
+   "file": "preview/pusher_flap.stl",
+   "color": "#ef476f",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "pusher_crank",
+   "file": "preview/pusher_crank.stl",
+   "color": "#ef476f",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "pusher_link",
+   "file": "preview/pusher_link.stl",
+   "color": "#ef476f",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "mag_sensor_mount",
+   "file": "preview/mag_sensor_mount.stl",
+   "color": "#f4a261",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "diverter_base",
+   "file": "preview/diverter_base.stl",
+   "color": "#06d6a0",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "diverter"
+  },
+  {
+   "name": "diverter_tray",
+   "file": "preview/diverter_tray.stl",
+   "color": "#06d6a0",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "diverter"
+  },
+  {
+   "name": "bin_a",
+   "file": "preview/bin_a.stl",
+   "color": "#ffd166",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "diverter"
+  },
+  {
+   "name": "bin_b",
+   "file": "preview/bin_b.stl",
+   "color": "#ffd166",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "diverter"
+  },
+  {
+   "name": "bin_c",
+   "file": "preview/bin_c.stl",
+   "color": "#ffd166",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "diverter"
+  },
+  {
+   "name": "corner_bracket_0m",
+   "file": "preview/corner_bracket_0m.stl",
+   "color": "#777777",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "feed"
+  },
+  {
+   "name": "corner_bracket_0p",
+   "file": "preview/corner_bracket_0p.stl",
+   "color": "#777777",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "feed"
+  },
+  {
+   "name": "corner_bracket_1m",
+   "file": "preview/corner_bracket_1m.stl",
+   "color": "#777777",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "xfer"
+  },
+  {
+   "name": "corner_bracket_1p",
+   "file": "preview/corner_bracket_1p.stl",
+   "color": "#777777",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "xfer"
+  },
+  {
+   "name": "corner_bracket_2m",
+   "file": "preview/corner_bracket_2m.stl",
+   "color": "#777777",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "diverter"
+  },
+  {
+   "name": "corner_bracket_2p",
+   "file": "preview/corner_bracket_2p.stl",
+   "color": "#777777",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "diverter"
+  },
+  {
+   "name": "frame_foot_0",
+   "file": "preview/frame_foot_0.stl",
+   "color": "#777777",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "hopper"
+  },
+  {
+   "name": "frame_foot_1",
+   "file": "preview/frame_foot_1.stl",
+   "color": "#777777",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "hopper"
+  },
+  {
+   "name": "frame_foot_2",
+   "file": "preview/frame_foot_2.stl",
+   "color": "#777777",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "diverter"
+  },
+  {
+   "name": "frame_foot_3",
+   "file": "preview/frame_foot_3.stl",
+   "color": "#777777",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "diverter"
+  },
+  {
+   "name": "frame_foot_4",
+   "file": "preview/frame_foot_4.stl",
+   "color": "#777777",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "frame_foot_5",
+   "file": "preview/frame_foot_5.stl",
+   "color": "#777777",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "feed_motor_mount",
+   "file": "preview/feed_motor_mount.stl",
+   "color": "#777777",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "xfer"
+  },
+  {
+   "name": "elec_plate_a",
+   "file": "preview/elec_plate_a.stl",
+   "color": "#3a5a40",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "scan"
+  },
+  {
+   "name": "elec_plate_b",
+   "file": "preview/elec_plate_b.stl",
+   "color": "#3a5a40",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "lid_switch_mount",
+   "file": "preview/lid_switch_mount.stl",
+   "color": "#d62828",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "sleeve"
+  },
+  {
+   "name": "estop_panel",
+   "file": "preview/estop_panel.stl",
+   "color": "#d62828",
+   "opacity": 1.0,
+   "group": "part",
+   "station": "hopper"
+  },
+  {
+   "name": "nema_elevator",
+   "file": "preview/nema_elevator.stl",
+   "color": "#202020",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "hopper"
+  },
+  {
+   "name": "rods_elevator",
+   "file": "preview/rods_elevator.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "hopper"
+  },
+  {
+   "name": "lm8uu",
+   "file": "preview/lm8uu.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "hopper"
+  },
+  {
+   "name": "card_stack",
+   "file": "preview/card_stack.stl",
+   "color": "#f6f1e7",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "hopper"
+  },
+  {
+   "name": "cup_pick",
+   "file": "preview/cup_pick.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "hopper"
+  },
+  {
+   "name": "rods_pick",
+   "file": "preview/rods_pick.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "hopper"
+  },
+  {
+   "name": "nema_pick",
+   "file": "preview/nema_pick.stl",
+   "color": "#202020",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "hopper"
+  },
+  {
+   "name": "ir_stack_top",
+   "file": "preview/ir_stack_top.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "hopper"
+  },
+  {
+   "name": "slot_double_feed",
+   "file": "preview/slot_double_feed.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "hopper"
+  },
+  {
+   "name": "sw_elev_home",
+   "file": "preview/sw_elev_home.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "hopper"
+  },
+  {
+   "name": "sw_elev_limit",
+   "file": "preview/sw_elev_limit.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "hopper"
+  },
+  {
+   "name": "sw_pick_home",
+   "file": "preview/sw_pick_home.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "hopper"
+  },
+  {
+   "name": "feed_shaft_lo",
+   "file": "preview/feed_shaft_lo.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "feed"
+  },
+  {
+   "name": "feed_wheels_lo",
+   "file": "preview/feed_wheels_lo.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "feed"
+  },
+  {
+   "name": "feed_b608_lo",
+   "file": "preview/feed_b608_lo.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "feed"
+  },
+  {
+   "name": "feed_shaft_up",
+   "file": "preview/feed_shaft_up.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "feed"
+  },
+  {
+   "name": "feed_wheels_up",
+   "file": "preview/feed_wheels_up.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "feed"
+  },
+  {
+   "name": "feed_b608_up",
+   "file": "preview/feed_b608_up.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "feed"
+  },
+  {
+   "name": "scan_in_shaft_lo",
+   "file": "preview/scan_in_shaft_lo.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "scan"
+  },
+  {
+   "name": "scan_in_wheels_lo",
+   "file": "preview/scan_in_wheels_lo.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "scan"
+  },
+  {
+   "name": "scan_in_b608_lo",
+   "file": "preview/scan_in_b608_lo.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "scan"
+  },
+  {
+   "name": "scan_in_shaft_up",
+   "file": "preview/scan_in_shaft_up.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "scan"
+  },
+  {
+   "name": "scan_in_wheels_up",
+   "file": "preview/scan_in_wheels_up.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "scan"
+  },
+  {
+   "name": "scan_in_b608_up",
+   "file": "preview/scan_in_b608_up.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "scan"
+  },
+  {
+   "name": "scan_out_shaft_lo",
+   "file": "preview/scan_out_shaft_lo.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "scan"
+  },
+  {
+   "name": "scan_out_wheels_lo",
+   "file": "preview/scan_out_wheels_lo.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "scan"
+  },
+  {
+   "name": "scan_out_b608_lo",
+   "file": "preview/scan_out_b608_lo.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "scan"
+  },
+  {
+   "name": "scan_out_shaft_up",
+   "file": "preview/scan_out_shaft_up.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "scan"
+  },
+  {
+   "name": "scan_out_wheels_up",
+   "file": "preview/scan_out_wheels_up.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "scan"
+  },
+  {
+   "name": "scan_out_b608_up",
+   "file": "preview/scan_out_b608_up.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "scan"
+  },
+  {
+   "name": "xfer_shaft_lo",
+   "file": "preview/xfer_shaft_lo.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "xfer"
+  },
+  {
+   "name": "xfer_wheels_lo",
+   "file": "preview/xfer_wheels_lo.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "xfer"
+  },
+  {
+   "name": "xfer_b608_lo",
+   "file": "preview/xfer_b608_lo.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "xfer"
+  },
+  {
+   "name": "xfer_shaft_up",
+   "file": "preview/xfer_shaft_up.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "xfer"
+  },
+  {
+   "name": "xfer_wheels_up",
+   "file": "preview/xfer_wheels_up.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "xfer"
+  },
+  {
+   "name": "xfer_b608_up",
+   "file": "preview/xfer_b608_up.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "xfer"
+  },
+  {
+   "name": "entry_shaft_lo",
+   "file": "preview/entry_shaft_lo.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "entry_wheels_lo",
+   "file": "preview/entry_wheels_lo.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "entry_b608_lo",
+   "file": "preview/entry_b608_lo.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "entry_shaft_up",
+   "file": "preview/entry_shaft_up.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "entry_wheels_up",
+   "file": "preview/entry_wheels_up.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "entry_b608_up",
+   "file": "preview/entry_b608_up.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "exit_shaft_lo",
+   "file": "preview/exit_shaft_lo.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "exit_wheels_lo",
+   "file": "preview/exit_wheels_lo.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "exit_b608_lo",
+   "file": "preview/exit_b608_lo.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "exit_shaft_up",
+   "file": "preview/exit_shaft_up.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "exit_wheels_up",
+   "file": "preview/exit_wheels_up.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "exit_b608_up",
+   "file": "preview/exit_b608_up.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "nema_feed",
+   "file": "preview/nema_feed.stl",
+   "color": "#202020",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "xfer"
+  },
+  {
+   "name": "glass_lower",
+   "file": "preview/glass_lower.stl",
+   "color": "#bfe3ff",
+   "opacity": 0.35,
+   "group": "component",
+   "station": "scan"
+  },
+  {
+   "name": "glass_upper",
+   "file": "preview/glass_upper.stl",
+   "color": "#bfe3ff",
+   "opacity": 0.35,
+   "group": "component",
+   "station": "scan"
+  },
+  {
+   "name": "card_scan",
+   "file": "preview/card_scan.stl",
+   "color": "#f6f1e7",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "scan"
+  },
+  {
+   "name": "cm3_top",
+   "file": "preview/cm3_top.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "scan"
+  },
+  {
+   "name": "cm3_bot",
+   "file": "preview/cm3_bot.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "scan"
+  },
+  {
+   "name": "microswitch_stop",
+   "file": "preview/microswitch_stop.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "scan"
+  },
+  {
+   "name": "shim_lower",
+   "file": "preview/shim_lower.stl",
+   "color": "#c8ccd0",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "shim_upper",
+   "file": "preview/shim_upper.stl",
+   "color": "#c8ccd0",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "rods_tongue",
+   "file": "preview/rods_tongue.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "lm6uu_tongue",
+   "file": "preview/lm6uu_tongue.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "nema_tongue",
+   "file": "preview/nema_tongue.stl",
+   "color": "#202020",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "gt2_pulley",
+   "file": "preview/gt2_pulley.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "sleeve",
+   "file": "preview/sleeve.stl",
+   "color": "#f6f1e7",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "sleeve_stack",
+   "file": "preview/sleeve_stack.stl",
+   "color": "#f6f1e7",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "cup_lift",
+   "file": "preview/cup_lift.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "servo_lift",
+   "file": "preview/servo_lift.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "servo_pusher",
+   "file": "preview/servo_pusher.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "n20_pick",
+   "file": "preview/n20_pick.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "pick_wheels",
+   "file": "preview/pick_wheels.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "tcrt_mouth",
+   "file": "preview/tcrt_mouth.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "tcrt_present",
+   "file": "preview/tcrt_present.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "sw_tongue_home",
+   "file": "preview/sw_tongue_home.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "xfer"
+  },
+  {
+   "name": "tcrt_mag_empty",
+   "file": "preview/tcrt_mag_empty.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "tcrt_mag_low",
+   "file": "preview/tcrt_mag_low.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "servo_diverter",
+   "file": "preview/servo_diverter.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "diverter"
+  },
+  {
+   "name": "sleeved_card",
+   "file": "preview/sleeved_card.stl",
+   "color": "#f6f1e7",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "diverter"
+  },
+  {
+   "name": "estop",
+   "file": "preview/estop.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "hopper"
+  },
+  {
+   "name": "lid_switch",
+   "file": "preview/lid_switch.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "pi5",
+   "file": "preview/pi5.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "hopper"
+  },
+  {
+   "name": "esp32s3",
+   "file": "preview/esp32s3.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "scan"
+  },
+  {
+   "name": "tmc_carrier",
+   "file": "preview/tmc_carrier.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "hopper"
+  },
+  {
+   "name": "buck_5v",
+   "file": "preview/buck_5v.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "scan"
+  },
+  {
+   "name": "mcp23017_out",
+   "file": "preview/mcp23017_out.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "scan"
+  },
+  {
+   "name": "mcp23017_in",
+   "file": "preview/mcp23017_in.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "scan"
+  },
+  {
+   "name": "drv8833",
+   "file": "preview/drv8833.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "scan"
+  },
+  {
+   "name": "relay_k1",
+   "file": "preview/relay_k1.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "scan"
+  },
+  {
+   "name": "psu_24v",
+   "file": "preview/psu_24v.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "xfer"
+  },
+  {
+   "name": "vac_pump",
+   "file": "preview/vac_pump.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "air_pump",
+   "file": "preview/air_pump.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "valve_pick_cup",
+   "file": "preview/valve_pick_cup.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "xfer"
+  },
+  {
+   "name": "valve_platen",
+   "file": "preview/valve_platen.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "xfer"
+  },
+  {
+   "name": "valve_lift_cup",
+   "file": "preview/valve_lift_cup.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "valve_stack_puff",
+   "file": "preview/valve_stack_puff.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "valve_mouth_jet",
+   "file": "preview/valve_mouth_jet.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "vac_manifold",
+   "file": "preview/vac_manifold.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "vac_sensor",
+   "file": "preview/vac_sensor.stl",
+   "color": "#1f6f43",
+   "opacity": 1.0,
+   "group": "component",
+   "station": "sleeve"
+  },
+  {
+   "name": "ext_base_x0",
+   "file": "preview/ext_base_x0.stl",
+   "color": "#b0b4b8",
+   "opacity": 1.0,
+   "group": "frame",
+   "station": "xfer"
+  },
+  {
+   "name": "ext_base_x1",
+   "file": "preview/ext_base_x1.stl",
+   "color": "#b0b4b8",
+   "opacity": 1.0,
+   "group": "frame",
+   "station": "xfer"
+  },
+  {
+   "name": "ext_cross_0",
+   "file": "preview/ext_cross_0.stl",
+   "color": "#b0b4b8",
+   "opacity": 1.0,
+   "group": "frame",
+   "station": "hopper"
+  },
+  {
+   "name": "ext_cross_1",
+   "file": "preview/ext_cross_1.stl",
+   "color": "#b0b4b8",
+   "opacity": 1.0,
+   "group": "frame",
+   "station": "hopper"
+  },
+  {
+   "name": "ext_cross_2",
+   "file": "preview/ext_cross_2.stl",
+   "color": "#b0b4b8",
+   "opacity": 1.0,
+   "group": "frame",
+   "station": "feed"
+  },
+  {
+   "name": "ext_cross_3",
+   "file": "preview/ext_cross_3.stl",
+   "color": "#b0b4b8",
+   "opacity": 1.0,
+   "group": "frame",
+   "station": "xfer"
+  },
+  {
+   "name": "ext_cross_4",
+   "file": "preview/ext_cross_4.stl",
+   "color": "#b0b4b8",
+   "opacity": 1.0,
+   "group": "frame",
+   "station": "diverter"
+  },
+  {
+   "name": "ext_cross_5",
+   "file": "preview/ext_cross_5.stl",
+   "color": "#b0b4b8",
+   "opacity": 1.0,
+   "group": "frame",
+   "station": "diverter"
+  },
+  {
+   "name": "ext_elec_0",
+   "file": "preview/ext_elec_0.stl",
+   "color": "#b0b4b8",
+   "opacity": 1.0,
+   "group": "frame",
+   "station": "scan"
+  },
+  {
+   "name": "ext_elec_1",
+   "file": "preview/ext_elec_1.stl",
+   "color": "#b0b4b8",
+   "opacity": 1.0,
+   "group": "frame",
+   "station": "scan"
+  },
+  {
+   "name": "ext_deck_m",
+   "file": "preview/ext_deck_m.stl",
+   "color": "#b0b4b8",
+   "opacity": 1.0,
+   "group": "frame",
+   "station": "xfer"
+  },
+  {
+   "name": "ext_post_m0",
+   "file": "preview/ext_post_m0.stl",
+   "color": "#b0b4b8",
+   "opacity": 1.0,
+   "group": "frame",
+   "station": "feed"
+  },
+  {
+   "name": "ext_post_m1",
+   "file": "preview/ext_post_m1.stl",
+   "color": "#b0b4b8",
+   "opacity": 1.0,
+   "group": "frame",
+   "station": "xfer"
+  },
+  {
+   "name": "ext_post_m2",
+   "file": "preview/ext_post_m2.stl",
+   "color": "#b0b4b8",
+   "opacity": 1.0,
+   "group": "frame",
+   "station": "diverter"
+  },
+  {
+   "name": "ext_deck_p",
+   "file": "preview/ext_deck_p.stl",
+   "color": "#b0b4b8",
+   "opacity": 1.0,
+   "group": "frame",
+   "station": "xfer"
+  },
+  {
+   "name": "ext_post_p0",
+   "file": "preview/ext_post_p0.stl",
+   "color": "#b0b4b8",
+   "opacity": 1.0,
+   "group": "frame",
+   "station": "feed"
+  },
+  {
+   "name": "ext_post_p1",
+   "file": "preview/ext_post_p1.stl",
+   "color": "#b0b4b8",
+   "opacity": 1.0,
+   "group": "frame",
+   "station": "xfer"
+  },
+  {
+   "name": "ext_post_p2",
+   "file": "preview/ext_post_p2.stl",
+   "color": "#b0b4b8",
+   "opacity": 1.0,
+   "group": "frame",
+   "station": "diverter"
+  },
+  {
+   "name": "bin_board",
+   "file": "preview/bin_board.stl",
+   "color": "#b0b4b8",
+   "opacity": 1.0,
+   "group": "frame",
+   "station": "diverter"
+  }
+ ]
+}

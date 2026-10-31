@@ -1,0 +1,396 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1580" viewBox="0 0 1600 1580">
+<rect width="1600" height="1580" fill="#fff"/>
+<text x="40" y="40" font-size="26" text-anchor="start" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">Card scanner / sleever / sorter - motion controller wiring</text>
+<text x="40" y="64" font-size="14" text-anchor="start" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">ESP32-S3-DevKitC-1 (host link: native USB to the Raspberry Pi 5)  |  4x TMC2209 (UART addr 0-3)  |  2x MCP23017  |  9x logic MOSFET  |  DRV8833 + N20  |  3x MG90S  |  pins = firmware/include/config.h</text>
+<rect x="640" y="110" width="220" height="690" rx="10" fill="#e8f0fe" stroke="#444" stroke-width="2"/>
+<text x="750.0" y="132" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">ESP32-S3-DevKitC-1</text>
+<text x="750.0" y="150" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">N8R8, 3.3 V flash</text>
+<text x="750.0" y="165" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">powered by the Pi's USB</text>
+<rect x="290" y="130" width="180" height="120" rx="10" fill="#f3f3f3" stroke="#444" stroke-width="2"/>
+<text x="380.0" y="152" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">TMC2209 ELEVATOR</text>
+<text x="380.0" y="170" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">#0  MS1=L MS2=L</text>
+<rect x="465" y="189" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="460" y="199" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">STEP</text>
+<rect x="465" y="207" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="460" y="217" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">DIR</text>
+<rect x="465" y="225" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="460" y="235" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">EN</text>
+<rect x="465" y="241" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="460" y="251" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">PDN_UART</text>
+<polyline points="470,194 640,194" fill="none" stroke="#1f77b4" stroke-width="2.5" stroke-linejoin="round"/>
+<polyline points="470,212 640,212" fill="none" stroke="#2ca02c" stroke-width="2.5" stroke-linejoin="round"/>
+<rect x="635" y="189" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="650" y="199" font-size="13" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPIO4</text>
+<rect x="635" y="207" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="650" y="217" font-size="13" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPIO5</text>
+<polyline points="470,230 540,230" fill="none" stroke="#9467bd" stroke-width="2.5" stroke-linejoin="round"/>
+<circle cx="540" cy="230" r="4.5" fill="#9467bd"/>
+<polyline points="470,246 575,246" fill="none" stroke="#8c564b" stroke-width="2.5" stroke-linejoin="round"/>
+<circle cx="575" cy="246" r="4.5" fill="#8c564b"/>
+<rect x="70" y="150" width="160" height="80" rx="10" fill="#fff7e6" stroke="#444" stroke-width="2"/>
+<text x="150.0" y="172" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">Elevator</text>
+<text x="150.0" y="190" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">NEMA17 + T8x8 leadscrew</text>
+<polyline points="230,190 290,190" fill="none" stroke="#222" stroke-width="4" stroke-linejoin="round"/>
+<text x="260" y="182" font-size="11" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">A1A2B1B2</text>
+<rect x="290" y="270" width="180" height="120" rx="10" fill="#f3f3f3" stroke="#444" stroke-width="2"/>
+<text x="380.0" y="292" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">TMC2209 PICK</text>
+<text x="380.0" y="310" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">#1  MS1=H MS2=L</text>
+<rect x="465" y="329" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="460" y="339" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">STEP</text>
+<rect x="465" y="347" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="460" y="357" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">DIR</text>
+<rect x="465" y="365" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="460" y="375" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">EN</text>
+<rect x="465" y="381" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="460" y="391" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">PDN_UART</text>
+<polyline points="470,334 640,334" fill="none" stroke="#1f77b4" stroke-width="2.5" stroke-linejoin="round"/>
+<polyline points="470,352 640,352" fill="none" stroke="#2ca02c" stroke-width="2.5" stroke-linejoin="round"/>
+<rect x="635" y="329" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="650" y="339" font-size="13" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPIO6</text>
+<rect x="635" y="347" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="650" y="357" font-size="13" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPIO7</text>
+<polyline points="470,370 540,370" fill="none" stroke="#9467bd" stroke-width="2.5" stroke-linejoin="round"/>
+<circle cx="540" cy="370" r="4.5" fill="#9467bd"/>
+<polyline points="470,386 575,386" fill="none" stroke="#8c564b" stroke-width="2.5" stroke-linejoin="round"/>
+<circle cx="575" cy="386" r="4.5" fill="#8c564b"/>
+<rect x="70" y="290" width="160" height="80" rx="10" fill="#fff7e6" stroke="#444" stroke-width="2"/>
+<text x="150.0" y="312" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">Pick</text>
+<text x="150.0" y="330" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">NEMA17 + GT2 20T</text>
+<polyline points="230,330 290,330" fill="none" stroke="#222" stroke-width="4" stroke-linejoin="round"/>
+<text x="260" y="322" font-size="11" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">A1A2B1B2</text>
+<rect x="290" y="410" width="180" height="120" rx="10" fill="#f3f3f3" stroke="#444" stroke-width="2"/>
+<text x="380.0" y="432" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">TMC2209 FEED</text>
+<text x="380.0" y="450" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">#2  MS1=L MS2=H</text>
+<rect x="465" y="469" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="460" y="479" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">STEP</text>
+<rect x="465" y="487" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="460" y="497" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">DIR</text>
+<rect x="465" y="505" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="460" y="515" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">EN</text>
+<rect x="465" y="521" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="460" y="531" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">PDN_UART</text>
+<polyline points="470,474 640,474" fill="none" stroke="#1f77b4" stroke-width="2.5" stroke-linejoin="round"/>
+<polyline points="470,492 640,492" fill="none" stroke="#2ca02c" stroke-width="2.5" stroke-linejoin="round"/>
+<rect x="635" y="469" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="650" y="479" font-size="13" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPIO15</text>
+<rect x="635" y="487" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="650" y="497" font-size="13" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPIO16</text>
+<polyline points="470,510 540,510" fill="none" stroke="#9467bd" stroke-width="2.5" stroke-linejoin="round"/>
+<circle cx="540" cy="510" r="4.5" fill="#9467bd"/>
+<polyline points="470,526 575,526" fill="none" stroke="#8c564b" stroke-width="2.5" stroke-linejoin="round"/>
+<circle cx="575" cy="526" r="4.5" fill="#8c564b"/>
+<rect x="70" y="430" width="160" height="80" rx="10" fill="#fff7e6" stroke="#444" stroke-width="2"/>
+<text x="150.0" y="452" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">Feed</text>
+<text x="150.0" y="470" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">NEMA17 + O-ring rollers</text>
+<polyline points="230,470 290,470" fill="none" stroke="#222" stroke-width="4" stroke-linejoin="round"/>
+<text x="260" y="462" font-size="11" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">A1A2B1B2</text>
+<rect x="290" y="550" width="180" height="120" rx="10" fill="#f3f3f3" stroke="#444" stroke-width="2"/>
+<text x="380.0" y="572" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">TMC2209 TONGUE</text>
+<text x="380.0" y="590" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">#3  MS1=H MS2=H</text>
+<rect x="465" y="609" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="460" y="619" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">STEP</text>
+<rect x="465" y="627" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="460" y="637" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">DIR</text>
+<rect x="465" y="645" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="460" y="655" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">EN</text>
+<rect x="465" y="661" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="460" y="671" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">PDN_UART</text>
+<polyline points="470,614 640,614" fill="none" stroke="#1f77b4" stroke-width="2.5" stroke-linejoin="round"/>
+<polyline points="470,632 640,632" fill="none" stroke="#2ca02c" stroke-width="2.5" stroke-linejoin="round"/>
+<rect x="635" y="609" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="650" y="619" font-size="13" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPIO17</text>
+<rect x="635" y="627" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="650" y="637" font-size="13" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPIO18</text>
+<polyline points="470,650 540,650" fill="none" stroke="#9467bd" stroke-width="2.5" stroke-linejoin="round"/>
+<circle cx="540" cy="650" r="4.5" fill="#9467bd"/>
+<polyline points="470,666 575,666" fill="none" stroke="#8c564b" stroke-width="2.5" stroke-linejoin="round"/>
+<circle cx="575" cy="666" r="4.5" fill="#8c564b"/>
+<rect x="70" y="570" width="160" height="80" rx="10" fill="#fff7e6" stroke="#444" stroke-width="2"/>
+<text x="150.0" y="592" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">Tongue</text>
+<text x="150.0" y="610" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">NEMA17 pancake + GT2</text>
+<polyline points="230,610 290,610" fill="none" stroke="#222" stroke-width="4" stroke-linejoin="round"/>
+<text x="260" y="602" font-size="11" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">A1A2B1B2</text>
+<polyline points="540,230 540,700 640,700" fill="none" stroke="#9467bd" stroke-width="2.5" stroke-linejoin="round"/>
+<rect x="635" y="695" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="650" y="705" font-size="13" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPIO8 EN</text>
+<text x="534" y="692" font-size="11" text-anchor="end" font-weight="normal" fill="#9467bd" font-family="Helvetica, Arial, sans-serif">10k to 3V3</text>
+<polyline points="575,246 575,760 640,760" fill="none" stroke="#8c564b" stroke-width="2.5" stroke-linejoin="round"/>
+<rect x="635" y="755" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="650" y="765" font-size="13" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPIO10 RX</text>
+<circle cx="575" cy="730" r="4.5" fill="#8c564b"/>
+<polyline points="575,730 590,730" fill="none" stroke="#8c564b" stroke-width="2.5" stroke-linejoin="round"/>
+<polyline points="590,730 595,724 601,736 607,724 613,736 619,724 625,730 640,730" fill="none" stroke="#8c564b" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="607" y="718" font-size="11" text-anchor="middle" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">1k</text>
+<rect x="635" y="725" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="650" y="735" font-size="13" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPIO9 TX</text>
+<text x="290" y="700" font-size="12" text-anchor="start" font-weight="normal" fill="#d62728" font-family="Helvetica, Arial, sans-serif">VM = 24V_SW via F2 4 A,</text>
+<text x="290" y="716" font-size="12" text-anchor="start" font-weight="normal" fill="#d62728" font-family="Helvetica, Arial, sans-serif">100 uF 35 V at each module.</text>
+<text x="290" y="736" font-size="12" text-anchor="start" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">VIO = 3V3.  Current: UART</text>
+<text x="290" y="752" font-size="12" text-anchor="start" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">(cur_* settings); Vref = fallback</text>
+<rect x="855" y="135" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="850" y="145" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPIO11 SDA</text>
+<rect x="855" y="160" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="850" y="170" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPIO12 SCL</text>
+<polyline points="860,140 920,140 920,520" fill="none" stroke="#17becf" stroke-width="2.5" stroke-linejoin="round"/>
+<polyline points="860,165 945,165 945,545" fill="none" stroke="#17becf" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="932" y="128" font-size="11" text-anchor="middle" font-weight="normal" fill="#17becf" font-family="Helvetica, Arial, sans-serif">4.7k pull-ups</text>
+<rect x="1000" y="110" width="170" height="370" rx="10" fill="#f3f3f3" stroke="#444" stroke-width="2"/>
+<text x="1085.0" y="132" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">MCP23017 0x20</text>
+<text x="1085.0" y="150" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">outputs</text>
+<rect x="995" y="135" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="1010" y="145" font-size="13" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">SDA</text>
+<rect x="995" y="160" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="1010" y="170" font-size="13" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">SCL</text>
+<polyline points="920,140 1000,140" fill="none" stroke="#17becf" stroke-width="2.5" stroke-linejoin="round"/>
+<polyline points="945,165 1000,165" fill="none" stroke="#17becf" stroke-width="2.5" stroke-linejoin="round"/>
+<circle cx="920" cy="140" r="4.5" fill="#17becf"/>
+<circle cx="945" cy="165" r="4.5" fill="#17becf"/>
+<rect x="1230" y="110" width="100" height="290" rx="10" fill="#fdecea" stroke="#444" stroke-width="2"/>
+<text x="1280.0" y="132" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">MOSFETs</text>
+<text x="1280.0" y="150" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">IRLB8721</text>
+<text x="1280.0" y="165" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">100R / 10k</text>
+<text x="1280.0" y="180" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">SS34 flyback</text>
+<rect x="1165" y="191" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="1160" y="201" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPA0</text>
+<polyline points="1170,196 1230,196" fill="none" stroke="#ff7f0e" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="1280" y="201" font-size="13" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">Q1</text>
+<polyline points="1330,196 1350,196" fill="none" stroke="#ff7f0e" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="1356" y="201" font-size="12" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">vacuum pump 12 V</text>
+<rect x="1165" y="215" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="1160" y="225" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPA1</text>
+<polyline points="1170,220 1230,220" fill="none" stroke="#ff7f0e" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="1280" y="225" font-size="13" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">Q2</text>
+<polyline points="1330,220 1350,220" fill="none" stroke="#ff7f0e" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="1356" y="225" font-size="12" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">valve pick_cup NC</text>
+<rect x="1165" y="239" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="1160" y="249" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPA2</text>
+<polyline points="1170,244 1230,244" fill="none" stroke="#ff7f0e" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="1280" y="249" font-size="13" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">Q3</text>
+<polyline points="1330,244 1350,244" fill="none" stroke="#ff7f0e" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="1356" y="249" font-size="12" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">valve platen NC</text>
+<rect x="1165" y="263" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="1160" y="273" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPA3</text>
+<polyline points="1170,268 1230,268" fill="none" stroke="#ff7f0e" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="1280" y="273" font-size="13" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">Q4</text>
+<polyline points="1330,268 1350,268" fill="none" stroke="#ff7f0e" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="1356" y="273" font-size="12" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">valve lift_cup NC</text>
+<rect x="1165" y="287" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="1160" y="297" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPA4</text>
+<polyline points="1170,292 1230,292" fill="none" stroke="#ff7f0e" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="1280" y="297" font-size="13" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">Q5</text>
+<polyline points="1330,292 1350,292" fill="none" stroke="#ff7f0e" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="1356" y="297" font-size="12" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">air pump 12 V</text>
+<rect x="1165" y="311" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="1160" y="321" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPA5</text>
+<polyline points="1170,316 1230,316" fill="none" stroke="#ff7f0e" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="1280" y="321" font-size="13" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">Q6</text>
+<polyline points="1330,316 1350,316" fill="none" stroke="#ff7f0e" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="1356" y="321" font-size="12" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">valve stack_puff NC</text>
+<rect x="1165" y="335" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="1160" y="345" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPA6</text>
+<polyline points="1170,340 1230,340" fill="none" stroke="#ff7f0e" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="1280" y="345" font-size="13" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">Q7</text>
+<polyline points="1330,340 1350,340" fill="none" stroke="#ff7f0e" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="1356" y="345" font-size="12" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">valve mouth_jet NC</text>
+<polyline points="1200,364 1230,364" fill="none" stroke="#ff7f0e" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="1196" y="368" font-size="11" text-anchor="end" font-weight="normal" fill="#ff7f0e" font-family="Helvetica, Arial, sans-serif">GPIO39 PWM</text>
+<text x="1280" y="369" font-size="13" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">Q8</text>
+<polyline points="1330,364 1350,364" fill="none" stroke="#ff7f0e" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="1356" y="369" font-size="12" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">LED ring top 12 V</text>
+<polyline points="1200,388 1230,388" fill="none" stroke="#ff7f0e" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="1196" y="392" font-size="11" text-anchor="end" font-weight="normal" fill="#ff7f0e" font-family="Helvetica, Arial, sans-serif">GPIO40 PWM</text>
+<text x="1280" y="393" font-size="13" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">Q9</text>
+<polyline points="1330,388 1350,388" fill="none" stroke="#ff7f0e" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="1356" y="393" font-size="12" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">LED ring bottom 12 V</text>
+<rect x="1230" y="410" width="100" height="70" rx="10" fill="#fdecea" stroke="#444" stroke-width="2"/>
+<text x="1280.0" y="432" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">DRV8833</text>
+<text x="1280.0" y="450" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">VM 5V_SERVO</text>
+<rect x="1165" y="443" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="1160" y="453" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPA7</text>
+<polyline points="1170,448 1230,448" fill="none" stroke="#ff7f0e" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="1238" y="452" font-size="11" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">AIN1</text>
+<rect x="1165" y="463" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="1160" y="473" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPB0</text>
+<polyline points="1170,468 1230,468" fill="none" stroke="#ff7f0e" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="1238" y="472" font-size="11" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">AIN2</text>
+<polyline points="1330,458 1350,458" fill="none" stroke="#222" stroke-width="4" stroke-linejoin="round"/>
+<text x="1356" y="452" font-size="12" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">N20 6 V sleeve_pick</text>
+<text x="1356" y="468" font-size="11" text-anchor="start" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">fwd 1/0, brake 1/1</text>
+<rect x="1000" y="500" width="170" height="290" rx="10" fill="#f3f3f3" stroke="#444" stroke-width="2"/>
+<text x="1085.0" y="522" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">MCP23017 0x21</text>
+<rect x="995" y="515" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="1010" y="525" font-size="13" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">SDA</text>
+<rect x="995" y="540" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="1010" y="550" font-size="13" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">SCL</text>
+<polyline points="920,520 1000,520" fill="none" stroke="#17becf" stroke-width="2.5" stroke-linejoin="round"/>
+<polyline points="945,545 1000,545" fill="none" stroke="#17becf" stroke-width="2.5" stroke-linejoin="round"/>
+<text x="1085.0" y="562" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">inputs, pull-ups on</text>
+<rect x="1165" y="587" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="1160" y="597" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPA0</text>
+<polyline points="1170,592 1200,592" fill="none" stroke="#17becf" stroke-width="2" stroke-linejoin="round"/>
+<text x="1206" y="597" font-size="12" text-anchor="start" font-weight="normal" fill="#17becf" font-family="Helvetica, Arial, sans-serif">stack_top  TCRT5000, LOW=card</text>
+<rect x="1165" y="607" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="1160" y="617" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPA1</text>
+<polyline points="1170,612 1200,612" fill="none" stroke="#17becf" stroke-width="2" stroke-linejoin="round"/>
+<text x="1206" y="617" font-size="12" text-anchor="start" font-weight="normal" fill="#17becf" font-family="Helvetica, Arial, sans-serif">exit  TCRT5000, LOW=card</text>
+<rect x="1165" y="627" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="1160" y="637" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPA2</text>
+<polyline points="1170,632 1200,632" fill="none" stroke="#17becf" stroke-width="2" stroke-linejoin="round"/>
+<text x="1206" y="637" font-size="12" text-anchor="start" font-weight="normal" fill="#17becf" font-family="Helvetica, Arial, sans-serif">elev_home  NC switch</text>
+<rect x="1165" y="647" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="1160" y="657" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPA3</text>
+<polyline points="1170,652 1200,652" fill="none" stroke="#17becf" stroke-width="2" stroke-linejoin="round"/>
+<text x="1206" y="657" font-size="12" text-anchor="start" font-weight="normal" fill="#17becf" font-family="Helvetica, Arial, sans-serif">elev_limit  NC switch</text>
+<rect x="1165" y="667" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="1160" y="677" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPA4</text>
+<polyline points="1170,672 1200,672" fill="none" stroke="#17becf" stroke-width="2" stroke-linejoin="round"/>
+<text x="1206" y="677" font-size="12" text-anchor="start" font-weight="normal" fill="#17becf" font-family="Helvetica, Arial, sans-serif">pick_home  NC switch</text>
+<rect x="1165" y="687" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="1160" y="697" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPA5</text>
+<polyline points="1170,692 1200,692" fill="none" stroke="#17becf" stroke-width="2" stroke-linejoin="round"/>
+<text x="1206" y="697" font-size="12" text-anchor="start" font-weight="normal" fill="#17becf" font-family="Helvetica, Arial, sans-serif">tongue_home  NC switch</text>
+<rect x="1165" y="707" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="1160" y="717" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPA6</text>
+<polyline points="1170,712 1200,712" fill="none" stroke="#17becf" stroke-width="2" stroke-linejoin="round"/>
+<text x="1206" y="717" font-size="12" text-anchor="start" font-weight="normal" fill="#17becf" font-family="Helvetica, Arial, sans-serif">lid  NC (2nd contact)</text>
+<rect x="1165" y="727" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="1160" y="737" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPB0</text>
+<polyline points="1170,732 1200,732" fill="none" stroke="#17becf" stroke-width="2" stroke-linejoin="round"/>
+<text x="1206" y="737" font-size="12" text-anchor="start" font-weight="normal" fill="#17becf" font-family="Helvetica, Arial, sans-serif">mag_low  TCRT5000</text>
+<rect x="1165" y="747" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="1160" y="757" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPB1</text>
+<polyline points="1170,752 1200,752" fill="none" stroke="#17becf" stroke-width="2" stroke-linejoin="round"/>
+<text x="1206" y="757" font-size="12" text-anchor="start" font-weight="normal" fill="#17becf" font-family="Helvetica, Arial, sans-serif">mag_empty  TCRT5000</text>
+<rect x="1165" y="767" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="1160" y="777" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GPB2</text>
+<polyline points="1170,772 1200,772" fill="none" stroke="#17becf" stroke-width="2" stroke-linejoin="round"/>
+<text x="1206" y="777" font-size="12" text-anchor="start" font-weight="normal" fill="#17becf" font-family="Helvetica, Arial, sans-serif">sleeve_present  TCRT5000, LOW=sleeve</text>
+<rect x="855" y="245" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="850" y="255" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">lift servo  GPIO13</text>
+<polyline points="860,250 885,250" fill="none" stroke="#555" stroke-width="2" stroke-linejoin="round"/>
+<rect x="855" y="270" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="850" y="280" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">pusher servo  GPIO14</text>
+<polyline points="860,275 885,275" fill="none" stroke="#555" stroke-width="2" stroke-linejoin="round"/>
+<rect x="855" y="295" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="850" y="305" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">diverter servo  GPIO21</text>
+<polyline points="860,300 885,300" fill="none" stroke="#555" stroke-width="2" stroke-linejoin="round"/>
+<rect x="855" y="385" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="850" y="395" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">LED top Q8  GPIO39</text>
+<polyline points="860,390 885,390" fill="none" stroke="#555" stroke-width="2" stroke-linejoin="round"/>
+<rect x="855" y="410" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="850" y="420" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">LED bottom Q9  GPIO40</text>
+<polyline points="860,415 885,415" fill="none" stroke="#555" stroke-width="2" stroke-linejoin="round"/>
+<rect x="855" y="445" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="850" y="455" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">vacuum 10k/20k  GPIO1</text>
+<polyline points="860,450 885,450" fill="none" stroke="#555" stroke-width="2" stroke-linejoin="round"/>
+<rect x="855" y="535" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="850" y="545" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">scan_stop NO  GPIO41</text>
+<polyline points="860,540 885,540" fill="none" stroke="#555" stroke-width="2" stroke-linejoin="round"/>
+<rect x="855" y="560" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="850" y="570" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">sleeve_mouth TCRT  GPIO42</text>
+<polyline points="860,565 885,565" fill="none" stroke="#555" stroke-width="2" stroke-linejoin="round"/>
+<rect x="855" y="585" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="850" y="595" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">double_feed  GPIO2</text>
+<polyline points="860,590 885,590" fill="none" stroke="#555" stroke-width="2" stroke-linejoin="round"/>
+<rect x="855" y="655" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="850" y="665" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">E-stop NC2  GPIO47</text>
+<polyline points="860,660 885,660" fill="none" stroke="#555" stroke-width="2" stroke-linejoin="round"/>
+<rect x="855" y="715" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="850" y="725" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">3V3 out</text>
+<polyline points="860,720 885,720" fill="none" stroke="#555" stroke-width="2" stroke-linejoin="round"/>
+<rect x="855" y="740" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="850" y="750" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">GND -> star</text>
+<polyline points="860,745 885,745" fill="none" stroke="#555" stroke-width="2" stroke-linejoin="round"/>
+<rect x="855" y="770" width="10" height="10" fill="#fff" stroke="#444"/>
+<text x="850" y="780" font-size="13" text-anchor="end" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">USB native -> Pi 5</text>
+<polyline points="860,775 885,775" fill="none" stroke="#555" stroke-width="2" stroke-linejoin="round"/>
+<rect x="1000" y="800" width="180" height="80" rx="10" fill="#fff7e6" stroke="#444" stroke-width="2"/>
+<text x="1090.0" y="822" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">3x MG90S servos</text>
+<text x="1090.0" y="840" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">lift / pusher / diverter</text>
+<text x="1090.0" y="855" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">5V_SERVO, 470 uF</text>
+<rect x="1230" y="800" width="220" height="80" rx="10" fill="#fff7e6" stroke="#444" stroke-width="2"/>
+<text x="1340.0" y="822" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">2x 12 V COB LED rings</text>
+<text x="1340.0" y="840" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">top / bottom scan light</text>
+<text x="1340.0" y="855" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">Q8 / Q9, PWM 20 kHz</text>
+<text x="40" y="980" font-size="18" text-anchor="start" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">POWER</text>
+<rect x="40" y="1020" width="190" height="80" rx="10" fill="#f3f3f3" stroke="#444" stroke-width="2"/>
+<text x="135.0" y="1042" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">24 V 6.5 A PSU</text>
+<text x="135.0" y="1060" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">Mean Well LRS-150-24</text>
+<polyline points="230,1060 300,1060" fill="none" stroke="#d62728" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="300,1060 290,1054 290,1066" fill="#d62728"/>
+<rect x="300" y="1035" width="80" height="50" rx="10" fill="#f3f3f3" stroke="#444" stroke-width="2"/>
+<text x="340.0" y="1057" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">F0 8A</text>
+<polyline points="380,1060 440,1060" fill="none" stroke="#d62728" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="440,1060 430,1054 430,1066" fill="#d62728"/>
+<text x="445" y="1050" font-size="13" text-anchor="start" font-weight="bold" fill="#d62728" font-family="Helvetica, Arial, sans-serif">24V_ALWAYS</text>
+<polyline points="440,1060 520,1060" fill="none" stroke="#d62728" stroke-width="3" stroke-linejoin="round"/>
+<polyline points="470,1060 470,980 520,980" fill="none" stroke="#d62728" stroke-width="3" stroke-linejoin="round"/>
+<rect x="520" y="955" width="80" height="50" rx="10" fill="#f3f3f3" stroke="#444" stroke-width="2"/>
+<text x="560.0" y="977" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">F1 3A</text>
+<polyline points="600,980 650,980" fill="none" stroke="#d62728" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="650,980 640,974 640,986" fill="#d62728"/>
+<rect x="650" y="950" width="180" height="60" rx="10" fill="#f3f3f3" stroke="#444" stroke-width="2"/>
+<text x="740.0" y="972" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">5 V 5 A buck</text>
+<text x="740.0" y="990" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">Pololu D36V50F5</text>
+<polyline points="830,980 880,980" fill="none" stroke="#d62728" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="880,980 870,974 870,986" fill="#d62728"/>
+<rect x="880" y="950" width="160" height="60" rx="10" fill="#f3f3f3" stroke="#444" stroke-width="2"/>
+<text x="960.0" y="972" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">Raspberry Pi 5</text>
+<text x="960.0" y="990" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">PSU_MAX_CURRENT=5000</text>
+<polyline points="1040,980 1100,980" fill="none" stroke="#1f77b4" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1100,980 1090,974 1090,986" fill="#1f77b4"/>
+<text x="1106" y="985" font-size="12" text-anchor="start" font-weight="normal" fill="#1f77b4" font-family="Helvetica, Arial, sans-serif">USB -> ESP32-S3 (always on)</text>
+<rect x="520" y="1030" width="120" height="60" rx="10" fill="#f3f3f3" stroke="#444" stroke-width="2"/>
+<text x="580.0" y="1052" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">K1 relay</text>
+<text x="580.0" y="1070" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">24 V coil</text>
+<polyline points="470,1060 470,1140 540,1140" fill="none" stroke="#d62728" stroke-width="2" stroke-linejoin="round"/>
+<rect x="540" y="1122" width="120" height="36" rx="10" fill="#f3f3f3" stroke="#444" stroke-width="2"/>
+<text x="600.0" y="1144" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">E-stop NC1</text>
+<polyline points="660,1140 690,1140" fill="none" stroke="#d62728" stroke-width="2" stroke-linejoin="round"/>
+<rect x="690" y="1122" width="100" height="36" rx="10" fill="#f3f3f3" stroke="#444" stroke-width="2"/>
+<text x="740.0" y="1144" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">Lid NC</text>
+<polyline points="790,1140 820,1140 820,1110 580,1110 580,1090" fill="none" stroke="#d62728" stroke-width="2" stroke-linejoin="round"/>
+<text x="830" y="1145" font-size="12" text-anchor="start" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">coil loop (1N4007 across the coil)</text>
+<polyline points="640,1060 700,1060" fill="none" stroke="#d62728" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="700,1060 690,1054 690,1066" fill="#d62728"/>
+<text x="706" y="1050" font-size="13" text-anchor="start" font-weight="bold" fill="#d62728" font-family="Helvetica, Arial, sans-serif">24V_SW</text>
+<polyline points="700,1060 790,1060" fill="none" stroke="#d62728" stroke-width="3" stroke-linejoin="round"/>
+<polyline points="790,1060 790,1060 900,1060" fill="none" stroke="#d62728" stroke-width="3" stroke-linejoin="round"/>
+<rect x="900" y="1038" width="80" height="44" rx="10" fill="#f3f3f3" stroke="#444" stroke-width="2"/>
+<text x="940.0" y="1060" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">F2 4A</text>
+<polyline points="980,1060 1030,1060" fill="none" stroke="#d62728" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1030,1060 1020,1054 1020,1066" fill="#d62728"/>
+<rect x="1030" y="1035" width="220" height="50" rx="10" fill="#f3f3f3" stroke="#444" stroke-width="2"/>
+<text x="1140.0" y="1057" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">TMC2209 VM x4</text>
+<text x="1140.0" y="1075" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">steppers</text>
+<polyline points="790,1060 790,1120 900,1120" fill="none" stroke="#d62728" stroke-width="3" stroke-linejoin="round"/>
+<rect x="900" y="1098" width="80" height="44" rx="10" fill="#f3f3f3" stroke="#444" stroke-width="2"/>
+<text x="940.0" y="1120" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">F3 4A</text>
+<polyline points="980,1120 1030,1120" fill="none" stroke="#d62728" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1030,1120 1020,1114 1020,1126" fill="#d62728"/>
+<rect x="1030" y="1095" width="220" height="50" rx="10" fill="#f3f3f3" stroke="#444" stroke-width="2"/>
+<text x="1140.0" y="1117" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">24->12 V 8 A buck</text>
+<text x="1140.0" y="1135" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">12V_SW -> MOSFET board</text>
+<polyline points="790,1060 790,1180 900,1180" fill="none" stroke="#d62728" stroke-width="3" stroke-linejoin="round"/>
+<rect x="900" y="1158" width="80" height="44" rx="10" fill="#f3f3f3" stroke="#444" stroke-width="2"/>
+<text x="940.0" y="1180" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">F4 1A</text>
+<polyline points="980,1180 1030,1180" fill="none" stroke="#d62728" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1030,1180 1020,1174 1020,1186" fill="#d62728"/>
+<rect x="1030" y="1155" width="220" height="50" rx="10" fill="#f3f3f3" stroke="#444" stroke-width="2"/>
+<text x="1140.0" y="1177" font-size="16" text-anchor="middle" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">5 V 3 A servo buck</text>
+<text x="1140.0" y="1195" font-size="12" text-anchor="middle" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">5V_SERVO -> servos, DRV8833</text>
+<circle cx="790" cy="1060" r="4.5" fill="#d62728"/>
+<text x="1280" y="1070" font-size="12" text-anchor="start" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">E-stop / lid open: K1 drops,</text>
+<text x="1280" y="1086" font-size="12" text-anchor="start" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">24V_SW off (motors, pumps,</text>
+<text x="1280" y="1102" font-size="12" text-anchor="start" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">valves, servos, N20). Pi + ESP32</text>
+<text x="1280" y="1118" font-size="12" text-anchor="start" font-weight="normal" fill="#555" font-family="Helvetica, Arial, sans-serif">stay up and report it.</text>
+<line x1="40" y1="1350" x2="1560" y2="1350" stroke="#ccc"/>
+<text x="40" y="1380" font-size="15" text-anchor="start" font-weight="bold" fill="#111" font-family="Helvetica, Arial, sans-serif">NOTES</text>
+<text x="40" y="1404" font-size="13" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">1. One star ground at the PSU -V. Separate returns from: TMC power GND, 12 V buck minus (MOSFET sources), servo buck minus, Pi buck minus. Logic GND joins with one wire.</text>
+<text x="40" y="1428" font-size="13" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">2. Load currents never return through the ESP32, the USB cable or sensor wiring. MOSFET board gets one thin logic-GND wire for the gate reference.</text>
+<text x="40" y="1452" font-size="13" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">3. Every sensor module runs from 3V3 (outputs stay below 3.3 V). The vacuum sensor needs 5 V: the 10k/20k divider scales 4.5 V to 3.0 V.</text>
+<text x="40" y="1476" font-size="13" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">4. Endstops and the lid are normally closed to GND: a cut wire reads as 'at the switch' / 'lid open', which fails safe.</text>
+<text x="40" y="1500" font-size="13" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">5. GPIO8 EN has a 10k pull-up and every MOSFET gate a 10k pull-down: during reset or flashing, drivers are off and valves closed. DRV8833 inputs have internal pull-downs: the N20 coasts.</text>
+<text x="40" y="1524" font-size="13" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">6. Unused: GPIO0/3/45/46 (strapping), 19/20 (USB), 43/44 (UART0), 26-37 (flash/PSRAM), 38/48 (RGB LED).</text>
+<text x="40" y="1548" font-size="13" text-anchor="start" font-weight="normal" fill="#111" font-family="Helvetica, Arial, sans-serif">7. Air: one pump tees to the hopper puff and the sleeve-mouth jet. Each branch has its own NC valve downstream of the pump: Q6 stack_puff, Q7 mouth_jet.</text>
+</svg>

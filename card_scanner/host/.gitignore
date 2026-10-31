@@ -1,0 +1,4 @@
+data/
+config.yaml
+*.egg-info/
+.pytest_cache/
