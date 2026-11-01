@@ -68,7 +68,8 @@ def union(parts):
     return m3d.Manifold.batch_boolean(list(parts), m3d.OpType.Add)
 
 
-def rrect(w, h, r=CORNER):
+def rrect(w, h, r=None):
+    r = CORNER if r is None else r
     r = max(min(r, w / 2 - 0.01, h / 2 - 0.01), 0.01)
     sq = m3d.CrossSection.square((w - 2 * r, h - 2 * r), center=True)
     return sq.offset(r, m3d.JoinType.Round, circular_segments=48)
@@ -115,6 +116,8 @@ def make_duct():
         for sy in (-1, 1):
             d = d - m3d.Manifold.cylinder(FLANGE_T + 2, HOLE_D / 2, HOLE_D / 2, 32) \
                 .translate((sx * h, sy * h, -1))
+    if N_CARDS == 1:
+        return clean(d)
     # splitter between the cards: knife edge down (45 deg, no bridge), widens
     # at 45 deg into a fin that fills the gap between the two cards for the
     # whole sleeve depth, so air can't bypass the heatsinks through the gap
@@ -124,6 +127,12 @@ def make_duct():
                             (tf, Z_TOP), (-tf, Z_TOP), (-tf, Z_SLV), (-t, zw),
                             (-t, SPLIT_Z0 + t)]])
     sp = m3d.Manifold.extrude(cs, 2 * FAN).translate((0, 0, -FAN)).rotate((90, 0, 0))
+    if FIN_T > 4 * WALL:
+        # wide card gap: hollow the fin (open toward the cards, sealed from the
+        # fan side) instead of printing a solid block
+        cav = cs.offset(-WALL, m3d.JoinType.Miter) + m3d.CrossSection.square(
+            (FIN_T - 2 * WALL, 10.0)).translate((-(tf - WALL), Z_TOP - 5.0))
+        sp = sp - m3d.Manifold.extrude(cav, 2 * FAN).translate((0, 0, -FAN)).rotate((90, 0, 0))
     sp = sp ^ outer
     return clean(d + sp)
 
