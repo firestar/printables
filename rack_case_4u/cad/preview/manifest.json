@@ -1,0 +1,826 @@
+{
+ "title": "4U rack case: B660-G + 4 x V100 + air cooler + 1600 W (clips + rails)",
+ "size": [
+  430.0,
+  567.0,
+  176.0
+ ],
+ "parts": [
+  {
+   "name": "bezel_gpu",
+   "file": "preview/bezel_gpu.stl",
+   "color": "#e8b400",
+   "group": "fanmod",
+   "ctx": false,
+   "ex": [
+    0,
+    -360,
+    0
+   ]
+  },
+  {
+   "name": "bezel_top",
+   "file": "preview/bezel_top.stl",
+   "color": "#c26a2e",
+   "group": "bezel",
+   "ctx": false,
+   "ex": [
+    0,
+    -130,
+    0
+   ]
+  },
+  {
+   "name": "board_tray",
+   "file": "preview/board_tray.stl",
+   "color": "#c26a2e",
+   "group": "tray",
+   "ctx": false,
+   "ex": [
+    0,
+    0,
+    40
+   ]
+  },
+  {
+   "name": "comb_gpu_1",
+   "file": "preview/comb_gpu_1.stl",
+   "color": "#e04080",
+   "group": "cables",
+   "ctx": false,
+   "ex": [
+    0,
+    0,
+    30
+   ]
+  },
+  {
+   "name": "comb_gpu_2",
+   "file": "preview/comb_gpu_2.stl",
+   "color": "#e04080",
+   "group": "cables",
+   "ctx": false,
+   "ex": [
+    0,
+    0,
+    30
+   ]
+  },
+  {
+   "name": "comb_r_1",
+   "file": "preview/comb_r_1.stl",
+   "color": "#e04080",
+   "group": "cables",
+   "ctx": false,
+   "ex": [
+    0,
+    0,
+    30
+   ]
+  },
+  {
+   "name": "comb_r_2",
+   "file": "preview/comb_r_2.stl",
+   "color": "#e04080",
+   "group": "cables",
+   "ctx": false,
+   "ex": [
+    0,
+    0,
+    30
+   ]
+  },
+  {
+   "name": "fan_duct",
+   "file": "preview/fan_duct.stl",
+   "color": "#d9a400",
+   "group": "fanmod",
+   "ctx": false,
+   "ex": [
+    0,
+    -360,
+    0
+   ]
+  },
+  {
+   "name": "fan_face",
+   "file": "preview/fan_face.stl",
+   "color": "#d9a400",
+   "group": "fanmod",
+   "ctx": false,
+   "ex": [
+    0,
+    -360,
+    0
+   ]
+  },
+  {
+   "name": "fan_plate",
+   "file": "preview/fan_plate.stl",
+   "color": "#d9a400",
+   "group": "fanmod",
+   "ctx": false,
+   "ex": [
+    0,
+    -360,
+    0
+   ]
+  },
+  {
+   "name": "floor_L1",
+   "file": "preview/floor_L1.stl",
+   "color": "#5b6670",
+   "group": "floor",
+   "ctx": false,
+   "ex": [
+    0,
+    0,
+    -60
+   ]
+  },
+  {
+   "name": "floor_L2",
+   "file": "preview/floor_L2.stl",
+   "color": "#5b6670",
+   "group": "floor",
+   "ctx": false,
+   "ex": [
+    0,
+    0,
+    -60
+   ]
+  },
+  {
+   "name": "floor_L3",
+   "file": "preview/floor_L3.stl",
+   "color": "#5b6670",
+   "group": "floor",
+   "ctx": false,
+   "ex": [
+    0,
+    0,
+    -60
+   ]
+  },
+  {
+   "name": "floor_R1",
+   "file": "preview/floor_R1.stl",
+   "color": "#5b6670",
+   "group": "floor",
+   "ctx": false,
+   "ex": [
+    0,
+    0,
+    -60
+   ]
+  },
+  {
+   "name": "floor_R2",
+   "file": "preview/floor_R2.stl",
+   "color": "#5b6670",
+   "group": "floor",
+   "ctx": false,
+   "ex": [
+    0,
+    0,
+    -60
+   ]
+  },
+  {
+   "name": "floor_R3",
+   "file": "preview/floor_R3.stl",
+   "color": "#5b6670",
+   "group": "floor",
+   "ctx": false,
+   "ex": [
+    0,
+    0,
+    -60
+   ]
+  },
+  {
+   "name": "front_1",
+   "file": "preview/front_1.stl",
+   "color": "#30363d",
+   "group": "front",
+   "ctx": false,
+   "ex": [
+    0,
+    -90,
+    0
+   ]
+  },
+  {
+   "name": "front_2",
+   "file": "preview/front_2.stl",
+   "color": "#30363d",
+   "group": "front",
+   "ctx": false,
+   "ex": [
+    0,
+    -90,
+    0
+   ]
+  },
+  {
+   "name": "front_3",
+   "file": "preview/front_3.stl",
+   "color": "#30363d",
+   "group": "front",
+   "ctx": false,
+   "ex": [
+    0,
+    -90,
+    0
+   ]
+  },
+  {
+   "name": "gpu_clamp",
+   "file": "preview/gpu_clamp.stl",
+   "color": "#d9a400",
+   "group": "gpu",
+   "ctx": false,
+   "ex": [
+    0,
+    0,
+    150
+   ]
+  },
+  {
+   "name": "gpu_stand",
+   "file": "preview/gpu_stand.stl",
+   "color": "#c26a2e",
+   "group": "gpu",
+   "ctx": false,
+   "ex": [
+    0,
+    0,
+    150
+   ]
+  },
+  {
+   "name": "handle_L",
+   "file": "preview/handle_L.stl",
+   "color": "#30363d",
+   "group": "trim",
+   "ctx": false,
+   "ex": [
+    0,
+    -110,
+    0
+   ]
+  },
+  {
+   "name": "handle_R",
+   "file": "preview/handle_R.stl",
+   "color": "#30363d",
+   "group": "trim",
+   "ctx": false,
+   "ex": [
+    0,
+    -110,
+    0
+   ]
+  },
+  {
+   "name": "lid_11",
+   "file": "preview/lid_11.stl",
+   "color": "#9fb0bd",
+   "group": "lid",
+   "ctx": false,
+   "ex": [
+    0,
+    200,
+    0
+   ]
+  },
+  {
+   "name": "lid_12",
+   "file": "preview/lid_12.stl",
+   "color": "#9fb0bd",
+   "group": "lid",
+   "ctx": false,
+   "ex": [
+    0,
+    200,
+    0
+   ]
+  },
+  {
+   "name": "lid_13",
+   "file": "preview/lid_13.stl",
+   "color": "#9fb0bd",
+   "group": "lid",
+   "ctx": false,
+   "ex": [
+    0,
+    200,
+    0
+   ]
+  },
+  {
+   "name": "lid_21",
+   "file": "preview/lid_21.stl",
+   "color": "#9fb0bd",
+   "group": "lid",
+   "ctx": false,
+   "ex": [
+    0,
+    200,
+    0
+   ]
+  },
+  {
+   "name": "lid_22",
+   "file": "preview/lid_22.stl",
+   "color": "#9fb0bd",
+   "group": "lid",
+   "ctx": false,
+   "ex": [
+    0,
+    200,
+    0
+   ]
+  },
+  {
+   "name": "lid_23",
+   "file": "preview/lid_23.stl",
+   "color": "#9fb0bd",
+   "group": "lid",
+   "ctx": false,
+   "ex": [
+    0,
+    200,
+    0
+   ]
+  },
+  {
+   "name": "light_pipe",
+   "file": "preview/light_pipe.stl",
+   "color": "#e8f4ff",
+   "group": "trim",
+   "ctx": false,
+   "ex": [
+    0,
+    -110,
+    0
+   ]
+  },
+  {
+   "name": "psu_sled",
+   "file": "preview/psu_sled.stl",
+   "color": "#d9a400",
+   "group": "psu",
+   "ctx": false,
+   "ex": [
+    0,
+    -280,
+    0
+   ]
+  },
+  {
+   "name": "rail_gpu_1",
+   "file": "preview/rail_gpu_1.stl",
+   "color": "#c26a2e",
+   "group": "rails",
+   "ctx": false,
+   "ex": [
+    0,
+    0,
+    20
+   ]
+  },
+  {
+   "name": "rail_gpu_2",
+   "file": "preview/rail_gpu_2.stl",
+   "color": "#c26a2e",
+   "group": "rails",
+   "ctx": false,
+   "ex": [
+    0,
+    0,
+    20
+   ]
+  },
+  {
+   "name": "rail_psu_1",
+   "file": "preview/rail_psu_1.stl",
+   "color": "#c26a2e",
+   "group": "rails",
+   "ctx": false,
+   "ex": [
+    0,
+    0,
+    20
+   ]
+  },
+  {
+   "name": "rear_1",
+   "file": "preview/rear_1.stl",
+   "color": "#30363d",
+   "group": "rear",
+   "ctx": false,
+   "ex": [
+    0,
+    90,
+    0
+   ]
+  },
+  {
+   "name": "rear_2",
+   "file": "preview/rear_2.stl",
+   "color": "#30363d",
+   "group": "rear",
+   "ctx": false,
+   "ex": [
+    0,
+    90,
+    0
+   ]
+  },
+  {
+   "name": "rear_3",
+   "file": "preview/rear_3.stl",
+   "color": "#30363d",
+   "group": "rear",
+   "ctx": false,
+   "ex": [
+    0,
+    90,
+    0
+   ]
+  },
+  {
+   "name": "rear_4",
+   "file": "preview/rear_4.stl",
+   "color": "#30363d",
+   "group": "rear",
+   "ctx": false,
+   "ex": [
+    0,
+    90,
+    0
+   ]
+  },
+  {
+   "name": "trough_gpu_1",
+   "file": "preview/trough_gpu_1.stl",
+   "color": "#c26a2e",
+   "group": "cables",
+   "ctx": false,
+   "ex": [
+    0,
+    0,
+    30
+   ]
+  },
+  {
+   "name": "trough_gpu_2",
+   "file": "preview/trough_gpu_2.stl",
+   "color": "#c26a2e",
+   "group": "cables",
+   "ctx": false,
+   "ex": [
+    0,
+    0,
+    30
+   ]
+  },
+  {
+   "name": "trough_r_1",
+   "file": "preview/trough_r_1.stl",
+   "color": "#c26a2e",
+   "group": "cables",
+   "ctx": false,
+   "ex": [
+    0,
+    0,
+    30
+   ]
+  },
+  {
+   "name": "trough_r_2",
+   "file": "preview/trough_r_2.stl",
+   "color": "#c26a2e",
+   "group": "cables",
+   "ctx": false,
+   "ex": [
+    0,
+    0,
+    30
+   ]
+  },
+  {
+   "name": "wall_L1",
+   "file": "preview/wall_L1.stl",
+   "color": "#6f7c87",
+   "group": "wall_L",
+   "ctx": false,
+   "ex": [
+    -80,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "wall_L2",
+   "file": "preview/wall_L2.stl",
+   "color": "#6f7c87",
+   "group": "wall_L",
+   "ctx": false,
+   "ex": [
+    -80,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "wall_L3",
+   "file": "preview/wall_L3.stl",
+   "color": "#6f7c87",
+   "group": "wall_L",
+   "ctx": false,
+   "ex": [
+    -80,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "wall_R1",
+   "file": "preview/wall_R1.stl",
+   "color": "#6f7c87",
+   "group": "wall_R",
+   "ctx": false,
+   "ex": [
+    80,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "wall_R2",
+   "file": "preview/wall_R2.stl",
+   "color": "#6f7c87",
+   "group": "wall_R",
+   "ctx": false,
+   "ex": [
+    80,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "wall_R3",
+   "file": "preview/wall_R3.stl",
+   "color": "#6f7c87",
+   "group": "wall_R",
+   "ctx": false,
+   "ex": [
+    80,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "board",
+   "file": "preview/board.stl",
+   "color": "#1f5c3a",
+   "group": "ctx",
+   "ctx": true,
+   "ex": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "cable_24pin",
+   "file": "preview/cable_24pin.stl",
+   "color": "#202020",
+   "group": "cables",
+   "ctx": true,
+   "ex": [
+    0,
+    0,
+    30
+   ]
+  },
+  {
+   "name": "cable_ac",
+   "file": "preview/cable_ac.stl",
+   "color": "#101010",
+   "group": "cables",
+   "ctx": true,
+   "ex": [
+    0,
+    0,
+    30
+   ]
+  },
+  {
+   "name": "cable_eps",
+   "file": "preview/cable_eps.stl",
+   "color": "#202020",
+   "group": "cables",
+   "ctx": true,
+   "ex": [
+    0,
+    0,
+    30
+   ]
+  },
+  {
+   "name": "cable_gpu",
+   "file": "preview/cable_gpu.stl",
+   "color": "#303030",
+   "group": "cables",
+   "ctx": true,
+   "ex": [
+    0,
+    0,
+    30
+   ]
+  },
+  {
+   "name": "cable_oculink",
+   "file": "preview/cable_oculink.stl",
+   "color": "#4060c0",
+   "group": "cables",
+   "ctx": true,
+   "ex": [
+    0,
+    0,
+    30
+   ]
+  },
+  {
+   "name": "cpu_cooler",
+   "file": "preview/cpu_cooler.stl",
+   "color": "#9a9a9a",
+   "group": "ctx",
+   "ctx": true,
+   "ex": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "exhaust_1",
+   "file": "preview/exhaust_1.stl",
+   "color": "#444444",
+   "group": "ctx",
+   "ctx": true,
+   "ex": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "exhaust_2",
+   "file": "preview/exhaust_2.stl",
+   "color": "#444444",
+   "group": "ctx",
+   "ctx": true,
+   "ex": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "gpu_A",
+   "file": "preview/gpu_A.stl",
+   "color": "#b9a66b",
+   "group": "gpu",
+   "ctx": true,
+   "ex": [
+    0,
+    0,
+    150
+   ]
+  },
+  {
+   "name": "gpu_B",
+   "file": "preview/gpu_B.stl",
+   "color": "#b9a66b",
+   "group": "gpu",
+   "ctx": true,
+   "ex": [
+    0,
+    0,
+    150
+   ]
+  },
+  {
+   "name": "gpu_C",
+   "file": "preview/gpu_C.stl",
+   "color": "#b9a66b",
+   "group": "gpu",
+   "ctx": true,
+   "ex": [
+    0,
+    0,
+    150
+   ]
+  },
+  {
+   "name": "gpu_D",
+   "file": "preview/gpu_D.stl",
+   "color": "#b9a66b",
+   "group": "gpu",
+   "ctx": true,
+   "ex": [
+    0,
+    0,
+    150
+   ]
+  },
+  {
+   "name": "oculink_board_C",
+   "file": "preview/oculink_board_C.stl",
+   "color": "#7a3b8f",
+   "group": "gpu",
+   "ctx": true,
+   "ex": [
+    0,
+    0,
+    150
+   ]
+  },
+  {
+   "name": "oculink_board_D",
+   "file": "preview/oculink_board_D.stl",
+   "color": "#7a3b8f",
+   "group": "gpu",
+   "ctx": true,
+   "ex": [
+    0,
+    0,
+    150
+   ]
+  },
+  {
+   "name": "psu",
+   "file": "preview/psu.stl",
+   "color": "#2b2b2b",
+   "group": "psu",
+   "ctx": true,
+   "ex": [
+    0,
+    -280,
+    0
+   ]
+  },
+  {
+   "name": "push_fan_1",
+   "file": "preview/push_fan_1.stl",
+   "color": "#444444",
+   "group": "fanmod",
+   "ctx": true,
+   "ex": [
+    0,
+    -360,
+    0
+   ]
+  },
+  {
+   "name": "push_fan_2",
+   "file": "preview/push_fan_2.stl",
+   "color": "#444444",
+   "group": "fanmod",
+   "ctx": true,
+   "ex": [
+    0,
+    -360,
+    0
+   ]
+  },
+  {
+   "name": "pins_lock",
+   "file": "preview/pins_lock.stl",
+   "color": "#e04040",
+   "group": "pins",
+   "ctx": false,
+   "ex": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "pins_service",
+   "file": "preview/pins_service.stl",
+   "color": "#30a0e0",
+   "group": "pins",
+   "ctx": false,
+   "ex": [
+    0,
+    0,
+    0
+   ]
+  }
+ ]
+}

@@ -1,0 +1,152 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>4U rack case viewer</title>
+<style>
+  body { margin: 0; background: #f4f4f4; font: 14px sans-serif; overflow: hidden; }
+  #ui { position: absolute; top: 8px; left: 8px; background: #fffd; padding: 8px; border-radius: 6px; }
+  #ui label { display: block; margin: 2px 0; }
+  #title { position: absolute; bottom: 10px; width: 100%; text-align: center; font-size: 18px; color: #333; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="ui">
+  <label>View <select id="view">
+    <option value="iso">Iso (front left)</option>
+    <option value="rear">Iso (rear right)</option>
+    <option value="top">Top</option>
+    <option value="front">Front</option>
+    <option value="back">Back</option>
+    <option value="gpu">GPU tunnel</option>
+  </select></label>
+  <label>Section <select id="section">
+    <option value="none">None</option>
+    <option value="z">Plan (cut at z = 120)</option>
+    <option value="x">Through the cards (x = 69)</option>
+  </select></label>
+  <label><input type="checkbox" id="ctx" checked> Hardware (PSU, rad, board, V100s ...)</label>
+  <label><input type="checkbox" id="lid" checked> Lid hatches</label>
+  <label><input type="checkbox" id="shell" checked> Left wall + front</label>
+  <label><input type="checkbox" id="cassette" checked> GPU fan module</label>
+  <label><input type="checkbox" id="cables" checked> Cables + troughs</label>
+  <label><input type="checkbox" id="pins" checked> Snap pins (red lock, blue service, green tab)</label>
+  <label>Explode <input type="range" id="explode" min="0" max="100" value="0"></label>
+</div>
+<div id="title"></div>
+<script type="module">
+import * as THREE from 'three';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// URL params: view=, section=none|z|x, ctx=0, lid=0, shell=0, cassette=0 (fan module), cables=0, pins=0, explode=0..100, hideui=1.
+// Parts come from preview/manifest.json (case.export).
+const q = new URLSearchParams(location.search);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(innerWidth, innerHeight);
+renderer.localClippingEnabled = true;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xf4f4f4);
+const camera = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 1, 20000);
+camera.up.set(0, 0, 1);
+const controls = new OrbitControls(camera, renderer.domElement);
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x666666, 1.6));
+const sun = new THREE.DirectionalLight(0xffffff, 2.0);
+sun.position.set(-500, -900, 1200);
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0xffffff, 0.7);
+fill.position.set(900, 1200, -300);
+scene.add(fill);
+
+const clips = {
+  z: new THREE.Plane(new THREE.Vector3(0, 0, -1), 120),
+  x: new THREE.Plane(new THREE.Vector3(1, 0, 0), -69),
+};
+const meshes = [];
+const man = await fetch('preview/manifest.json').then(r => r.json());
+document.getElementById('title').textContent = man.title;
+const loader = new STLLoader();
+await Promise.all(man.parts.map(p => new Promise(res => loader.load(p.file, geo => {
+  geo.computeVertexNormals();
+  const mat = new THREE.MeshStandardMaterial({
+    color: new THREE.Color(p.color), roughness: 0.7, metalness: 0.0, side: THREE.DoubleSide,
+  });
+  const m = new THREE.Mesh(geo, mat);
+  m.userData = p;
+  meshes.push(m);
+  scene.add(m);
+  res();
+}, undefined, () => res()))));
+
+const el = id => document.getElementById(id);
+for (const id of ['ctx', 'lid', 'shell', 'cassette', 'cables', 'pins'])
+  if (q.get(id) === '0') el(id).checked = false;
+if (q.get('section')) el('section').value = q.get('section');
+if (q.get('explode')) el('explode').value = q.get('explode');
+if (q.get('view')) el('view').value = q.get('view');
+if (q.get('hideui') === '1') el('ui').style.display = 'none';
+for (const id of ['section', 'ctx', 'lid', 'shell', 'cassette', 'cables', 'pins']) el(id).onchange = apply;
+el('explode').oninput = apply;
+el('view').onchange = () => setView(el('view').value);
+
+const shellPart = n => n.startsWith('wall_L') || n.startsWith('front_') || n.startsWith('bezel') ||
+  n === 'light_pipe' || n === 'handle_L';
+function apply() {
+  const e = el('explode').value / 100;
+  const sec = el('section').value;
+  for (const m of meshes) {
+    const p = m.userData;
+    let vis = true;
+    if (p.ctx && !['fanmod', 'cables'].includes(p.group) && !el('ctx').checked) vis = false;
+    if (p.group === 'lid' && !el('lid').checked) vis = false;
+    if (shellPart(p.name) && !el('shell').checked) vis = false;
+    if (p.group === 'fanmod' && !el('cassette').checked) vis = false;
+    if (p.group === 'cables' && !el('cables').checked) vis = false;
+    if (p.group === 'pins' && !el('pins').checked) vis = false;
+    m.visible = vis;
+    const ex = p.ex || [0, 0, 0];
+    m.position.set(e * ex[0], e * ex[1], e * ex[2]);
+    m.material.clippingPlanes = sec === 'none' ? [] : [clips[sec]];
+    m.material.needsUpdate = true;
+  }
+}
+
+const c = [215, 283, 88];
+const views = {
+  iso:   [[-520, -700, 620], c],
+  rear:  [[950, 1250, 600], c],
+  top:   [[215, 283, 1700], c],
+  front: [[215, -1300, 120], c],
+  back:  [[215, 1850, 120], c],
+  gpu:   [[-650, 60, 520], [69, 300, 90]],
+};
+function setView(name) {
+  const [p, t] = views[name] || views.iso;
+  controls.target.set(...t);
+  camera.position.set(...p);
+  controls.update();
+}
+setView(el('view').value);
+apply();
+window.ready = true;
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+</script>
+</body>
+</html>
