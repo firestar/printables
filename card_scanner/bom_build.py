@@ -1,0 +1,161 @@
+"""Builds BOM.csv and prints subtotals for BOM.md. Not part of the shipped BOM; a
+one-off generator so the arithmetic (packs, line totals, phase/scan subtotals) is
+checked by the interpreter instead of by hand. Safe to delete after BOM.csv/.md exist.
+"""
+import csv
+
+PETG_DENSITY = 1.27  # g/cm3, not used here (grams computed in filament_estimate.py)
+
+# Each row: category, item, spec, qty_needed, pack_size, vendor, listing, url, unit_or_pack_price,
+# shipping, notes, spec_source, phase1(bool/frac), scan(bool/frac), confidence("confirmed"/"est")
+ROWS = [
+# --- Compute / host ---
+("Compute/host","Raspberry Pi 5","8GB RAM",1,1,"PiShop.us (official reseller)","Raspberry Pi 5 8GB (SC1112)","https://www.pishop.us/product/raspberry-pi-5-8gb/",175.00,0,"Official reseller per task rule. Combined Pi-order shipping below.","cad/README.md hardware BOM; electronics WIRING.md",0,1,"confirmed"),
+("Compute/host","Raspberry Pi Active Cooler","official fan+heatsink",1,1,"PiShop.us (official reseller)","Raspberry Pi Active Cooler (SC1148)","https://www.pishop.us/product/raspberry-pi-active-cooler/",12.95,0,"","host/README.md (Pi 5 + active cooler)",0,1,"confirmed"),
+("Compute/host","Raspberry Pi Camera Module 3","standard autofocus, 300mm 22pin cable needed separately",2,1,"PiShop.us (official reseller)","Raspberry Pi Camera Module 3","https://www.pishop.us/product/raspberry-pi-camera-module-3/",29.25,0,"x2 (top+bottom). Bundled Pi-order shipping ~$7 flat, see note row.","cad/README.md (CM3 x2), host/README.md",0,1,"confirmed"),
+("Compute/host","PiShop combined-order shipping","Pi5+cooler+2xCM3 one parcel",1,1,"PiShop.us","(shipping line, not a part)","https://www.pishop.us/",6.99,0,"Flat USPS/UPS parcel estimate for the combined Pi order; PiShop occasionally offers free ship over $49 which would zero this out.","n/a",0,1,"est"),
+("Compute/host","CSI camera cable 300mm","22-pin to 15-pin FPC, Pi5 CSI0/CSI1",2,1,"AliExpress","Raspberry Pi 5 camera cable 200/300mm 22pin to 15pin FPC","https://www.aliexpress.com/w/wholesale-camera-cable-for-raspberry-pi-5.html",3.50,0,"Camera Module 3 standard kit may already include a short cable; buy 300mm separately for the top/bottom CSI runs in this layout.","cad/README.md key dimensions (dual CM3)",0,1,"est"),
+("Compute/host","microSD card","64GB, A2/U3 (SanDisk Extreme or Samsung Pro Endurance)",1,1,"Amazon (not AliExpress)","SanDisk 64GB Extreme microSDXC","https://www.amazon.com/s?k=sandisk+64gb+extreme+microsd",9.99,0,"Exception: counterfeit microSD cards are rampant on AliExpress; buy storage media from a reputable reseller instead.","host/README.md (Pi 5 setup, SD card)",0,1,"est"),
+("Compute/host","ESP32-S3-DevKitC-1","N8R8, 3.3V-flash variant (not R8V/1.8V)",1,1,"AliExpress","ESP32-S3-DevKitC-1 N8R8 development board","https://www.aliexpress.com/w/wholesale-esp32-s3-devkitc-1.html",9.80,0,"Must be N8/N8R8/N16R8 per WIRING.md note (R8V runs GPIO47 at 1.8V).","electronics/WIRING.md BOM + GPIO table",1,1,"est"),
+
+# --- Motion: steppers & drivers ---
+("Motion","NEMA17 stepper 17HS4401","1.7A phase, 42x40mm, elevator axis",1,1,"AliExpress","NEMA17 42x40mm 1.7A stepper motor 17HS4401","https://www.aliexpress.com/w/wholesale-nema17-17hs4401.html",8.20,0,"","WIRING.md Vref table",0,1,"est"),
+("Motion","NEMA17 stepper 17HS3401","1.3A phase, 42x34mm, pick + feed axes",2,1,"AliExpress","NEMA17 42x34mm 1.3A stepper motor 17HS3401","https://www.aliexpress.com/w/wholesale-nema17-17hs3401.html",6.50,0,"","WIRING.md Vref table",0,1,"est"),
+("Motion","NEMA17 pancake / NEMA14 stepper","17HS08-1004S or NEMA14, tongue axis",1,1,"AliExpress","NEMA17 pancake stepper 17HS08-1004S 20mm","https://www.aliexpress.com/w/wholesale-nema17-pancake-stepper.html",11.50,0,"Tongue needs the lowest-profile motor under sleeve_deck.","WIRING.md BOM table (tongue motor)",1,0,"est"),
+("Motion","T8 leadscrew kit","8mm lead, 150mm + brass flange nut + coupler",1,1,"AliExpress","T8 lead screw 8mm pitch 150mm + nut + 5x8 coupler","https://www.aliexpress.com/w/wholesale-t8-lead-screw-150mm.html",8.90,0,"Elevator axis only.","cad/README.md hardware BOM",0,1,"est"),
+("Motion","TMC2209 driver module (4-pack)","BTT/FYSETC style, R_sense 0.11ohm, w/ heatsink",4,4,"AliExpress","BTT TMC2209 V1.3 stepper driver UART, heatsink incl, 4pcs","https://www.aliexpress.com/w/wholesale-TMC2209-stepper-driver.html",15.80,0,"One 4-pack covers elevator/pick/feed/tongue exactly.","electronics/WIRING.md BOM + pin table",1,1,"est"),
+("Motion","GT2 20T pulley, 5mm bore (5-pack)","pick/feed/tongue pulleys",3,5,"AliExpress","GT2 20 tooth pulley 5mm bore timing pulley 5pcs","https://www.aliexpress.com/w/wholesale-gt2-20t-pulley-5mm.html",4.30,0,"","cad/README.md hardware BOM",1,1,"est"),
+("Motion","GT2 20T pulley, 8mm bore (10-pack)","7x lower roller shafts",7,10,"AliExpress","GT2 20 tooth pulley 8mm bore timing pulley 10pcs","https://www.aliexpress.com/w/wholesale-gt2-20t-pulley-8mm.html",6.80,0,"","cad/README.md hardware BOM",0,1,"est"),
+("Motion","GT2 idler pulley F623 (10-pack)","flanged idler bearing, pick/feed/tongue belts",3,10,"AliExpress","F623 flanged idler bearing GT2 belt 10pcs","https://www.aliexpress.com/w/wholesale-f623-bearing.html",5.40,0,"","cad/README.md hardware BOM",1,1,"est"),
+("Motion","GT2 6mm belt, 5m roll","~0.3m pick + ~1.5m feed loop + ~0.15m tongue ≈ 2m used",1,1,"AliExpress","GT2 6mm open timing belt 5 meter roll","https://www.aliexpress.com/w/wholesale-gt2-6mm-belt.html",5.60,0,"","cad/README.md hardware BOM",1,1,"est"),
+("Motion","8mm linear shaft, cut to length","2x125 (elevator) + 6x140 + 3x160 (cross shafts) + 6x35 (stub axles) ≈ 1.78m total",1,1,"AliExpress","8mm chrome linear rod cut to length (quote by length)","https://www.aliexpress.com/w/wholesale-8mm-linear-shaft.html",19.80,0,"Buy as one cut-to-length order listing the exact lengths above.","cad/README.md hardware BOM",0,1,"est"),
+("Motion","6mm linear shaft, cut to length","2x100 (pick) + 2x55 (tongue) ≈ 0.31m total",1,1,"AliExpress","6mm chrome linear rod cut to length","https://www.aliexpress.com/w/wholesale-6mm-linear-shaft.html",4.60,0,"","cad/README.md hardware BOM",0,1,"est"),
+("Motion","LM8UU linear bearing (10-pack)","elevator carriage, need 2",2,10,"AliExpress","LM8UU 8mm linear ball bearing 10pcs","https://www.aliexpress.com/w/wholesale-lm8uu.html",6.90,0,"","cad/README.md hardware BOM",0,1,"est"),
+("Motion","LM6UU linear bearing (10-pack)","pick + tongue carriages, need 4",4,10,"AliExpress","LM6UU 6mm linear ball bearing 10pcs","https://www.aliexpress.com/w/wholesale-lm6uu.html",6.20,0,"","cad/README.md hardware BOM",1,1,"est"),
+
+# --- Servos & small motors ---
+("Actuators","MG90S micro servo (4-pack)","metal gear, lift + pusher + diverter",3,4,"AliExpress","MG90S metal gear micro servo 9g 4pcs","https://www.aliexpress.com/w/wholesale-mg90s-servo.html",9.60,0,"If the pusher is stiff, swap for an MG996R (WIRING.md note).","cad/README.md hardware BOM",1,1,"est"),
+("Actuators","N20 gearmotor, 6V ~300rpm","D-shaft, sleeve_pick drive",1,1,"AliExpress","N20 micro gearmotor 6V 300RPM GA12-N20","https://www.aliexpress.com/w/wholesale-n20-motor-300rpm.html",3.80,0,"","cad/README.md hardware BOM; WIRING.md DRV8833 section",1,0,"est"),
+("Actuators","Rubber wheel, Ø20mm (10-pack)","sleeve pick wheels A+B, need 2",2,10,"AliExpress","20mm rubber friction wheel for N20 motor 10pcs","https://www.aliexpress.com/w/wholesale-20mm-rubber-wheel.html",5.20,0,"Oversized pack is the cheapest option found; spares for wear.","cad/README.md sleeve pick",1,0,"est"),
+("Actuators","DRV8833 dual H-bridge module","sleeve_pick motor driver",1,1,"AliExpress","DRV8833 dual motor driver module","https://www.aliexpress.com/w/wholesale-drv8833.html",1.90,0,"","electronics/WIRING.md BOM",1,0,"est"),
+
+# --- Pneumatics ---
+("Pneumatics","12V diaphragm vacuum pump","≥60kPa, ~70x40x30mm",1,1,"AliExpress","12V mini diaphragm vacuum pump 60-80kPa","https://www.aliexpress.com/w/wholesale-12v-diaphragm-vacuum-pump.html",9.80,0,"","cad/README.md + WIRING.md BOM",1,1,"est"),
+("Pneumatics","12V mini air pump","370-type, puff + mouth jet",1,1,"AliExpress","12V mini air pump 370 motor diaphragm","https://www.aliexpress.com/w/wholesale-12v-mini-air-pump.html",7.40,0,"","cad/README.md + WIRING.md BOM",1,1,"est"),
+("Pneumatics","12V NC 3/2-way mini solenoid valve","\"DC 12V 0520 3-way exhaust\" class, vacuum cups (pick_cup, platen, lift_cup)",3,1,"AliExpress","DC 12V 3-way 2-position mini solenoid exhaust valve 0520","https://www.aliexpress.com/w/wholesale-12v-3-way-mini-solenoid-valve.html",4.50,0,"3/2-way so each cup vents to air when off; a 2-way NC valve traps the vacuum and the cup never releases (FEASIBILITY.md).","FEASIBILITY.md pneumatics; electronics/WIRING.md",1,1,"est"),
+("Pneumatics","12V NC 2-way mini solenoid valve","\"DC 12V 0520E NC\" class, air branches (stack_puff, mouth_jet)",2,1,"AliExpress","DC 12V 2-way NC mini solenoid valve 0520E air/vacuum","https://www.aliexpress.com/w/wholesale-12v-solenoid-valve-0520.html",3.60,0,"","electronics/WIRING.md air path",1,1,"est"),
+("Pneumatics","Vacuum manifold block","1in, 3 cup valve ports + sensor port",1,1,"AliExpress","pneumatic manifold block 4mm push-fit 4-way","https://www.aliexpress.com/w/wholesale-pneumatic-manifold-block.html",7.50,0,"Generic 4-port push-fit manifold as a stand-in; drill/tap to fit if needed.","cad/README.md hardware BOM",1,1,"est"),
+("Pneumatics","Vacuum pressure sensor XGZP6847A100KPGN","-100..0kPa, 5V, 0.5-4.5V out",1,1,"AliExpress","XGZP6847A -100kPa vacuum pressure sensor 100KPGN","https://www.aliexpress.com/w/wholesale-xgzp6847a.html",11.90,0,"","electronics/WIRING.md sensor table",1,1,"est"),
+("Pneumatics","Bellows suction cup 20mm + M5 stem","pick_cup",1,1,"AliExpress","20mm bellows vacuum suction cup M5 thread","https://www.aliexpress.com/w/wholesale-bellows-suction-cup-20mm.html",3.20,0,"","cad/README.md hardware BOM",0,1,"est"),
+("Pneumatics","Suction cup 10mm + M4 stem","lift_cup",1,1,"AliExpress","10mm flat vacuum suction cup M4 thread","https://www.aliexpress.com/w/wholesale-suction-cup-10mm.html",2.40,0,"","cad/README.md hardware BOM",1,0,"est"),
+("Pneumatics","Silicone/PU tube 4mm, 5m roll","~3m used",1,1,"AliExpress","4mm OD PU pneumatic tubing 5m","https://www.aliexpress.com/w/wholesale-4mm-pu-tubing.html",3.90,0,"","cad/README.md hardware BOM",1,1,"est"),
+("Pneumatics","4mm barb + tee fitting assortment kit","barbs, tees for the air/vacuum tree",1,1,"AliExpress","4mm barb fitting tee connector pneumatic kit","https://www.aliexpress.com/w/wholesale-4mm-barb-fitting-kit.html",7.20,0,"","cad/README.md + WIRING.md air path notes",1,1,"est"),
+
+# --- Power ---
+("Power","Mean Well LRS-150-24 PSU","24V 6.5A, 159x97x30mm",1,1,"Amazon (not AliExpress)","MEAN WELL LRS-150-24 24V 6.5A switching power supply","https://www.amazon.com/s?k=mean+well+lrs-150-24",32.99,0,"Exception: counterfeit/relabeled Mean Well PSUs are a known AliExpress problem; buy the genuine unit from Amazon/an authorized distributor for a mains-connected supply.","electronics/WIRING.md power tree + BOM; FEASIBILITY.md power",1,1,"est"),
+("Power","24->5V 5A buck converter","Pi 5 rail (set to 5.1V)",1,1,"AliExpress","DC-DC 24V to 5V 5A buck converter module","https://www.aliexpress.com/w/wholesale-24v-to-5v-5a-buck.html",3.40,0,"Generic equivalent of a Pololu D36V50F5 / \"mini560 pro\".","electronics/WIRING.md power tree",0,1,"est"),
+("Power","24->12V 8A buck converter","XL4016 module class, pneumatics+LED rail",1,1,"AliExpress","XL4016 DC-DC 24V to 12V 8A step down buck module","https://www.aliexpress.com/w/wholesale-xl4016-buck-converter.html",5.60,0,"","electronics/WIRING.md power tree",1,1,"est"),
+("Power","24->5V 3A buck converter","LM2596 module class, servo rail",1,1,"AliExpress","LM2596 DC-DC 24V to 5V 3A step down module","https://www.aliexpress.com/w/wholesale-lm2596-buck-converter.html",2.30,0,"","electronics/WIRING.md power tree",1,1,"est"),
+("Power","IEC C14 inlet, fused + switched","mains entry module",1,1,"AliExpress","IEC320 C14 power inlet socket with fuse and rocker switch","https://www.aliexpress.com/w/wholesale-iec-inlet-fuse-switch.html",3.80,0,"","electronics/WIRING.md fusing section",0,1,"est"),
+("Power","Blade fuse holder + fuse kit","8/3/4/4/1A ATO/mini blade",1,1,"AliExpress","inline blade fuse holder kit with ATO fuses assorted","https://www.aliexpress.com/w/wholesale-blade-fuse-holder-kit.html",7.90,0,"","electronics/WIRING.md fusing table",0,1,"est"),
+("Power","24V relay, >=10A 30VDC contacts","K1 safety relay, automotive class",1,1,"AliExpress","24V automotive relay 10A SPDT + socket","https://www.aliexpress.com/w/wholesale-24v-automotive-relay.html",3.50,0,"Omron G7L-1A-TUB is the \"proper\" safety relay; automotive relay is the budget sub.","electronics/WIRING.md E-stop/lid section",0,1,"est"),
+("Power","1N4007 diode (100-pack)","K1 coil flyback",1,1,"AliExpress","1N4007 rectifier diode 100pcs","https://www.aliexpress.com/w/wholesale-1n4007.html",1.60,0,"","electronics/WIRING.md",0,1,"est"),
+("Power","SS34 Schottky diode (50-pack)","valve/pump flyback, need 7",7,50,"AliExpress","SS34 schottky diode SMA 50pcs","https://www.aliexpress.com/w/wholesale-ss34-diode.html",2.90,0,"","electronics/WIRING.md BOM + MOSFET channel diagram",1,1,"est"),
+("Power","IRLB8721PbF N-MOSFET (10-pack)","9 MOSFET channels",9,10,"AliExpress","IRLB8721PbF logic level N-MOSFET TO-220 10pcs","https://www.aliexpress.com/w/wholesale-irlb8721.html",5.80,0,"AO3400A SOT-23 is the listed alternative if going SMD.","electronics/WIRING.md BOM",1,1,"est"),
+("Power","MCP23017 I/O expander module","CJMCU-2317 breakout, need 2 (0x20 out, 0x21 in)",2,1,"AliExpress","CJMCU-2317 MCP23017 I2C IO expander module","https://www.aliexpress.com/w/wholesale-mcp23017-module.html",3.60,0,"","electronics/WIRING.md BOM + pin tables",1,1,"est"),
+("Power","100uF 35V low-ESR electrolytic cap (20-pack)","TMC2209 VM decoupling, need 4",4,20,"AliExpress","100uF 35V low ESR electrolytic capacitor 20pcs","https://www.aliexpress.com/w/wholesale-100uf-35v-capacitor.html",2.60,0,"","electronics/WIRING.md BOM",1,1,"est"),
+("Power","470uF 25V electrolytic cap (20-pack)","12V board + servo rail, need 2",2,20,"AliExpress","470uF 25V electrolytic capacitor 20pcs","https://www.aliexpress.com/w/wholesale-470uf-25v-capacitor.html",2.80,0,"","electronics/WIRING.md BOM",1,1,"est"),
+("Power","Resistor assortment kit","1k/4.7k/10k/20k for UART/I2C/gate/divider",1,1,"AliExpress","600pcs 1/4W resistor kit assorted values","https://www.aliexpress.com/w/wholesale-resistor-kit.html",6.90,0,"","electronics/WIRING.md pin/resistor notes",1,1,"est"),
+("Power","USB-C to USB-A cable, short","<=0.5m, Pi<->ESP32 link",1,1,"AliExpress","USB-C to USB-A cable 0.3m short","https://www.aliexpress.com/w/wholesale-short-usb-c-cable.html",2.80,0,"","electronics/WIRING.md BOM + grounding note (keep <=0.5m)",1,1,"est"),
+
+# --- Sensors & switches ---
+("Sensors","TCRT5000 IR reflective sensor module (10-pack)","need 6: stack_top, sleeve_mouth, sleeve_present, exit, mag_low, mag_empty",6,10,"AliExpress","TCRT5000 IR infrared reflective sensor module LM393 10pcs","https://www.aliexpress.com/w/wholesale-tcrt5000-module.html",3.60,0,"","electronics/WIRING.md BOM + sensor table",1,1,"est"),
+("Sensors","Slot optical module ITR9608/H206","double_feed sensor",1,1,"AliExpress","ITR9608 H206 slot type optocoupler module","https://www.aliexpress.com/w/wholesale-itr9608-module.html",2.40,0,"","electronics/WIRING.md BOM",0,1,"est"),
+("Sensors","Microswitch KW11-3Z roller lever (10-pack)","elev_home, elev_limit, +1 spare",3,10,"AliExpress","KW11-3Z D2F roller lever microswitch 10pcs","https://www.aliexpress.com/w/wholesale-kw11-3z-microswitch.html",4.20,0,"","electronics/WIRING.md BOM (incl. listed spare)",0,1,"est"),
+("Sensors","KW-mini microswitch, roller lever (10-pack)","scan_stop, pick_home, tongue_home",3,10,"AliExpress","KW4-3Z KW10 mini roller lever microswitch 10pcs","https://www.aliexpress.com/w/wholesale-kw-mini-microswitch.html",4.80,0,"","electronics/WIRING.md BOM",1,1,"est"),
+("Sensors","Lid interlock switch, 2x NC","safety interlock for the enclosure lid",1,1,"AliExpress","safety door interlock switch 2NC micro switch","https://www.aliexpress.com/w/wholesale-safety-interlock-switch.html",8.90,0,"Cheaper alt: 2x generic microswitch wired NC, ~$2 total, lower safety rating.","electronics/WIRING.md lid section",0,1,"est"),
+("Sensors","E-stop mushroom 22mm, 2x NC","twist-release emergency stop",1,1,"AliExpress","22mm emergency stop push button mushroom 2NC twist release","https://www.aliexpress.com/w/wholesale-22mm-estop-button.html",6.80,0,"","electronics/WIRING.md E-stop section",0,1,"est"),
+
+# --- Optics / scan station ---
+("Optics","AR glass 2mm, cut to size","118x44mm + 115x44mm, 2 pcs",1,1,"AliExpress","anti-reflective coated glass cut to size 2mm custom","https://www.aliexpress.com/w/wholesale-ar-glass-cut-to-size.html",14.90,0,"Cheaper alt: plain float glass cut to size (~$6-8 for the pair) works fine under cross-polarization, just a bit more surface glare to cancel.","cad/README.md key dimensions (scan glass)",0,1,"est"),
+("Optics","Linear polarizer film sheet","covers 2x LED-ring film + 2x Ø18 lens discs",1,1,"AliExpress","linear polarizing filter film sheet A4","https://www.aliexpress.com/w/wholesale-linear-polarizer-film.html",7.80,0,"Cut the lens discs at 90 deg to the light-ring film (cross-polarized).","cad/README.md hardware BOM",0,1,"est"),
+("Optics","Opal diffuser sheet 1.5mm","2 LED-frame rings",1,1,"AliExpress","opal acrylic/PC diffuser sheet 1.5mm","https://www.aliexpress.com/w/wholesale-opal-diffuser-sheet.html",8.40,0,"","cad/README.md hardware BOM",0,1,"est"),
+("Optics","12V white LED strip, 2835 60/m, 5m roll","non-addressable, ~0.9m used (2 x 0.45m in the LED frame channels)",1,1,"AliExpress","12V 2835 LED strip 60LED/m white 6000K 5m","https://www.aliexpress.com/w/wholesale-12v-2835-led-strip-white.html",4.50,0,"Strip fits the rectangular LED-frame channel (a round COB ring does not); PWM-dimmed by MOSFET Q8/Q9 per WIRING.md.","cad/README.md LED frames; electronics/WIRING.md MOSFET table",0,1,"est"),
+("Optics","0.3mm stainless steel shim sheet","2x 40x42mm tongue shims, cut from sheet stock",1,1,"AliExpress","0.3mm 304 stainless steel sheet 100x200mm shim stock","https://www.aliexpress.com/w/wholesale-0.3mm-stainless-steel-sheet.html",8.90,0,"","cad/README.md sleeve station + hardware BOM",1,0,"est"),
+
+# --- Mechanical / fasteners ---
+("Mechanical","608-2RS bearing (10-pack)","roller blocks, need 24",24,10,"AliExpress","608-2RS skate bearing 10pcs","https://www.aliexpress.com/w/wholesale-608-bearing.html",3.80,0,"Buy 3 packs (30) for the 24 needed, 6 spare.","cad/README.md hardware BOM",0,1,"est"),
+("Mechanical","O-ring, 2mm cord 22mm ID, NBR70 (50-pack)","roller hubs, need 48",48,50,"AliExpress","NBR70 O-ring 22mm ID 2mm cord 50pcs","https://www.aliexpress.com/w/wholesale-oring-22mm-2mm.html",5.40,0,"","cad/README.md hardware BOM",0,1,"est"),
+("Mechanical","Compression spring assortment (20-pack incl 5x10mm)","upper roller pinch, need 12",12,20,"AliExpress","compression spring assortment kit small springs","https://www.aliexpress.com/w/wholesale-compression-spring-assortment.html",4.90,0,"","cad/README.md hardware BOM",0,1,"est"),
+("Mechanical","M5x10 screw (100-pack)","2020 extrusion assembly, need ~60",60,100,"AliExpress","M5x10 socket head cap screw 100pcs","https://www.aliexpress.com/w/wholesale-m5x10-screw.html",4.20,0,"","cad/README.md hardware BOM",0,1,"est"),
+("Mechanical","M5 T-nut (100-pack)","2020 extrusion, need ~60",60,100,"AliExpress","M5 drop-in T-nut for 2020 aluminum extrusion 100pcs","https://www.aliexpress.com/w/wholesale-m5-t-nut-2020.html",5.60,0,"","cad/README.md hardware BOM",0,1,"est"),
+("Mechanical","M3 heat-set insert, Ø4.0 (100-pack)","printed parts, need ~85",85,100,"AliExpress","M3 brass heat-set threaded insert for 3D printing 100pcs","https://www.aliexpress.com/w/wholesale-m3-heat-set-insert.html",6.20,0,"","cad/README.md hardware BOM",1,1,"est"),
+("Mechanical","M2/M3/M4 screw+nut assortment kit","M2x10 x8, M3x8/12/16, M2x6, M4 nuts, M3 set screws",1,1,"AliExpress","M2 M3 M4 stainless screw nut assortment box kit","https://www.aliexpress.com/w/wholesale-m2-m3-m4-screw-kit.html",13.90,0,"Covers the small assorted-fastener rows in cad/README.md's hardware table.","cad/README.md hardware BOM",1,1,"est"),
+
+# --- Structural ---
+("Structural","2020 aluminium extrusion, cut to length","2x925, 6x390, 2x576, 6x65, 2x510mm (18 pcs, 6.75m total)",1,1,"AliExpress","2020 T-slot aluminum extrusion cut to length (custom lengths)","https://www.aliexpress.com/w/wholesale-2020-aluminum-extrusion-cut-to-length.html",90.00,0,"List the 5 distinct lengths and qty-per-length to the seller; most 2020 cut-service listings price per 100mm plus a small per-cut fee.","cad/README.md hardware BOM (extrusion lengths)",0,1,"est"),
+
+# --- Filament ---
+("Filament","PETG filament, black, 1kg spool","~1.93kg needed for the full build (+ ~25-30% buy margin for failed prints/purge)",3,1,"AliExpress","PETG filament 1.75mm 1kg black","https://www.aliexpress.com/w/wholesale-petg-filament-1kg-black.html",14.90,0,"Grams computed from the real STLs, see card_scanner/filament_estimate.py. Scan-only variant needs ~1.56kg -> buy 2 spools instead of 3.","card_scanner/filament_estimate.py (parses cad/stl/*.stl)",0,1,"est"),
+("Filament","PETG filament, white, 1kg spool","~75g needed (led_frame_top/bot only)",1,1,"AliExpress","PETG filament 1.75mm 1kg white","https://www.aliexpress.com/w/wholesale-petg-filament-1kg-white.html",15.90,0,"One spool massively overcovers the ~75g need; same spool also works for other white-plastic needs if any arise.","card_scanner/filament_estimate.py",0,1,"est"),
+
+# --- Consumables ---
+("Consumables","Hookup wire kit","16AWG (24V main) + 18AWG (12V loads) + 22-24AWG (signal) silicone wire",1,1,"AliExpress","silicone wire kit 16/18/22awg assorted colors","https://www.aliexpress.com/w/wholesale-silicone-wire-kit.html",13.80,0,"","electronics/WIRING.md BOM (wire gauges)",1,1,"est"),
+("Consumables","JST-XH connector kit","2/3/4-pin housings + crimp pins",1,1,"AliExpress","JST-XH connector kit 2 3 4 pin housing crimp terminal","https://www.aliexpress.com/w/wholesale-jst-xh-connector-kit.html",8.40,0,"","electronics/WIRING.md BOM",1,1,"est"),
+("Consumables","Dupont connector kit","male/female pins + housings, jumper wire",1,1,"AliExpress","Dupont connector kit male female pin header housing","https://www.aliexpress.com/w/wholesale-dupont-connector-kit.html",6.90,0,"","electronics/WIRING.md BOM",1,1,"est"),
+("Consumables","Heat-shrink tubing assortment kit","assorted diameters/colors",1,1,"AliExpress","heat shrink tubing assortment kit 580pcs","https://www.aliexpress.com/w/wholesale-heat-shrink-tubing-kit.html",6.50,0,"","electronics/WIRING.md BOM",1,1,"est"),
+("Consumables","3M VHB tape, small roll","upper-glass bonding (track_feed/track_scan_out arches)",1,1,"Amazon (not AliExpress)","3M VHB 4910 double-sided mounting tape roll","https://www.amazon.com/s?k=3m+vhb+tape",9.99,0,"Exception: AliExpress VHB-branded tape is frequently generic double-sided foam tape with far lower bond strength; buy genuine 3M VHB.","cad/README.md assembly order step 5 (VHB glass bonding)",0,1,"est"),
+("Consumables","Penny sleeves, standard size (1000-pack)","for sleeving-rig testing + first production runs",1,1,"AliExpress","standard trading card penny sleeves 1000 pack","https://www.aliexpress.com/w/wholesale-penny-sleeves-1000.html",9.80,0,"Amazon/BCW 1000-packs run ~$14-18; AliExpress generic penny sleeves are cheaper for bulk testing stock.","cad/README.md sleeve station (62x89 / 66x91mm sleeves)",1,0,"est"),
+]
+
+HEADER = ["category","item","spec","qty_needed","pack_size","packs_to_buy","vendor","listing_title","url",
+          "unit_or_pack_price_usd","shipping_usd","line_total_usd","notes","spec_source","phase1","scan_only","confidence"]
+
+def packs_to_buy(qty, pack):
+    import math
+    return max(1, math.ceil(qty / pack))
+
+def main():
+    out_rows = []
+    cat_subtotal = {}
+    full_total = 0.0
+    phase1_total = 0.0
+    scan_total = 0.0
+    est_count = 0
+    confirmed_count = 0
+    for (cat, item, spec, qty, pack, vendor, listing, url, price, ship, notes, src, ph1, scan, conf) in ROWS:
+        n_packs = packs_to_buy(qty, pack)
+        line_total = round(n_packs * price + ship, 2)
+        out_rows.append([cat, item, spec, qty, pack, n_packs, vendor, listing, url, price, ship, line_total, notes, src, ph1, scan, conf])
+        cat_subtotal[cat] = cat_subtotal.get(cat, 0.0) + line_total
+        full_total += line_total
+        phase1_total += line_total * ph1
+        scan_total += line_total * scan
+        if conf == "est":
+            est_count += 1
+        else:
+            confirmed_count += 1
+
+    with open("card_scanner/BOM.csv", "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(HEADER)
+        for r in out_rows:
+            w.writerow(r)
+
+    print(f"Lines: {len(out_rows)}  (confirmed: {confirmed_count}, est: {est_count})")
+    print()
+    print("Category subtotals:")
+    for cat, sub in sorted(cat_subtotal.items(), key=lambda x: -x[1]):
+        print(f"  {cat:<15} ${sub:>9.2f}")
+    print()
+    print(f"GRAND TOTAL (full build): ${full_total:.2f}")
+    print(f"PHASE 1 (sleeving rig) subtotal: ${phase1_total:.2f}")
+    print(f"SCAN-ONLY (no sleever) subtotal: ${scan_total:.2f}")
+    print()
+    top5 = sorted(out_rows, key=lambda r: -r[11])[:5]
+    print("Top 5 line-cost drivers:")
+    for r in top5:
+        print(f"  {r[1]:<30} ${r[11]:>8.2f}  ({r[6]})")
+
+if __name__ == "__main__":
+    main()

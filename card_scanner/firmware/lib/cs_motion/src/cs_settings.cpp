@@ -31,6 +31,7 @@ static const SettingDef DEFS[] = {
     S_(puff_ms, 0, 5000, true),
     S_(jet_ms, 0, 5000, true),
     S_(sleeve_pick_ms, 20, 5000, true),
+    S_(sleeve_push_ms, 0, 2000, true),
     S_(servo_ms, 50, 5000, true),
     S_(lift_down_deg, 0, 180, true),
     S_(lift_up_deg, 0, 180, true),

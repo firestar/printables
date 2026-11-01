@@ -34,7 +34,9 @@ Pi 5 (cameras, recognition, prices, rules, web UI)
 
 ## Known limits
 
-- Throughput is about 6–10 cards/min, limited by sleeving.
+- Throughput is about 5–6 cards/min with the firmware defaults (≈ 10.5 s/card, limited by the
+  sleeve insert at 80 mm/s over 238 mm). See [`FEASIBILITY.md`](FEASIBILITY.md) for the cycle sum and
+  how to reach ~7–8/min.
 - The ESP32 build has never been compiled (PlatformIO was not available).
   Tests ran on the native sequencer + simulator via g++. Pin
   `FastAccelStepper` may need a version bump.

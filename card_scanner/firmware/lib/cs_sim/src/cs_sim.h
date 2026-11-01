@@ -18,7 +18,7 @@ struct SimConfig {
   float elevLimitAt = 150;
   float elevStart = 20, pickStart = 4, tongueStart = 2;  // true positions at power-up
   // card path: leading edge, mm from the pick point
-  float nipAt = 40;       // a card released past here is carried by the feed rollers
+  float nipAt = 22;       // a card released past here is carried by the feed rollers (CAD: edge 44 -> nip 66)
   float doubleAt = 60;    // double-feed gauge
   float scanAt = 120;     // scan_stop lever
   float mouthAt = 160;    // sleeve_mouth beam

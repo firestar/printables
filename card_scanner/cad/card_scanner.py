@@ -44,15 +44,15 @@ SEG = 64
 # ---- card size switch ------------------------------------------------------
 CARD = "standard"      # "standard" (MTG / Pokemon) or "small" (Yu-Gi-Oh)
 CARDS = {              # card w x l, penny sleeve w x l (open end = short side)
-    "standard": dict(w=63.0, l=88.0, sw=66.0, sl=91.0),
+    "standard": dict(w=63.0, l=88.0, sw=66.7, sl=92.1),   # Ultra Pro penny: 2-5/8 x 3-5/8 in
     "small": dict(w=59.0, l=86.0, sw=62.0, sl=89.0),
 }
 CW, CL, SW, SL = (CARDS[CARD][k] for k in ("w", "l", "sw", "sl"))
 W_MAX, L_MAX = 63.0, 88.0          # fixed geometry is sized for the larger card
 W_MIN, L_MIN = 59.0, 86.0
-SW_MAX, SL_MAX = 66.0, 91.0
+SW_MAX, SL_MAX = 66.7, 92.1
 CARD_T = 0.30
-PLY = 0.06             # penny sleeve ply
+PLY = 0.045            # penny sleeve ply (Ultra Pro: 45 um front and back)
 GUIDE_CLR = 0.75       # card -> side guide, per side
 
 # ---- printer / checks ------------------------------------------------------
@@ -136,7 +136,7 @@ Z_SHIM_LO = PLY        # lower shim bottom (lies on the bottom ply)
 Z_CARD_S = Z_SHIM_LO + TONGUE_T + TONGUE_CLR       # card bottom in the throat
 Z_SHIM_HI = Z_CARD_S + CARD_T + TONGUE_CLR          # upper shim bottom
 Z_PLATEN = Z_TRACK - Z_CARD_S                       # platen top (world)
-LIFT = 4.5             # top ply lift by the cup (just clears the upper shim)
+LIFT = 5.5             # top ply lift at the cup: mouth edge >= 4.4 after the 1.1 mm cantilever sag to x 0
 SHIM_W = 40.0          # tongue width (between the entry wheels +-24)
 SHIM_FORK = 8.0        # centre slot in the upper shim for the pusher post
 SHIM_OUT = 30.0        # shim length protruding from the clamp
@@ -154,8 +154,8 @@ Z_DECK_S = Z_DECK + DECK_T - Z_PLATEN               # sleeve deck top in S
 MAG_Y0 = SW_MAX / 2 + 0.5        # gate plate inner face (+y)
 MAG_Y1 = MAG_Y0 + 3.0 + SW_MAX + 4.0                # rear wall inner face
 MAG_H = 25.0
-GATE_GAP = 0.25        # one sleeve (0.12) passes, set with a feeler gauge
-CUP_X = 28.0           # lift cup x (S)
+GATE_GAP = 0.14        # 1.5 x one sleeve (0.09): one passes, two (0.18) do not; set with a feeler gauge
+CUP_X = 22.0           # lift cup x (S): tongue tips +15 + cup R5 + 2 margin; on a finger off the arm plate (x 41..44)
 LIFT_SERVO = (28.0, -60.0, 14.0)  # lift servo shaft (S): along x
 PUSH_START = ENTRY_S - 2.0        # pusher flap start x (behind the trailing edge)
 PUSH_STROKE = 56.0                # seat (to +1.5) + eject into the exit nip
@@ -185,16 +185,16 @@ BOARDS_A = {           # x0, y0 (plate local), l, w, h  + mounting holes
     "relay_k1": (112.0, 106.0, 26.0, 30.0, 28.0, []),        # 24 V safety relay (e-stop NC1 + lid NC in the coil)
 }
 BOARDS_B = {
-    "psu_24v": (6.0, 6.0, 129.0, 97.0, 30.0, [(20, 20), (109, 20), (20, 77), (109, 77)]),
-    "vac_pump": (145.0, 6.0, 70.0, 40.0, 30.0, []),
-    "air_pump": (145.0, 58.0, 55.0, 27.0, 27.0, []),
+    "psu_24v": (6.0, 6.0, 159.0, 97.0, 30.0, [(20, 20), (139, 20), (20, 77), (139, 77)]),   # LRS-150-24
+    "vac_pump": (168.0, 4.0, 70.0, 40.0, 30.0, []),
+    "air_pump": (168.0, 48.0, 55.0, 27.0, 27.0, []),
     "valve_pick_cup": (8.0, 112.0, 30.0, 22.0, 32.0, []),
     "valve_platen": (48.0, 112.0, 30.0, 22.0, 32.0, []),
     "valve_lift_cup": (88.0, 112.0, 30.0, 22.0, 32.0, []),
     "valve_stack_puff": (128.0, 112.0, 30.0, 22.0, 32.0, []),   # air pump -> hopper puff
     "valve_mouth_jet": (168.0, 112.0, 30.0, 22.0, 32.0, []),    # air pump -> sleeve mouth jet
-    "vac_manifold": (204.0, 52.0, 14.0, 40.0, 12.0, [(7, 5), (7, 35)]),   # pump -> 3 cup valves + sensor
-    "vac_sensor": (170.0, 88.0, 22.0, 18.0, 12.0, [(3, 3), (19, 15)]),    # XGZP6847A, teed into the manifold
+    "vac_manifold": (225.0, 48.0, 14.0, 40.0, 12.0, [(7, 5), (7, 35)]),   # pump -> 3 cup valves + sensor
+    "vac_sensor": (168.0, 80.0, 22.0, 18.0, 12.0, [(3, 3), (19, 15)]),    # XGZP6847A, teed into the manifold
 }
 ELEC_T = 4.0
 
@@ -205,8 +205,8 @@ ESW_HOME_Z = (27.0, 37.0)         # lever top 37.5: platform tab (z 38..42 at fu
 ESW_LIMIT_Z = (123.5, 133.5)      # lever bottom 123: tab top 1 mm above the empty-stack position (122)
 PLAT_TAB = (-74.0, -66.0, 48.0)   # platform trip tab x0, x1, y1
 TSW = (-63.0, -56.6, 42.0, 54.8, 5.0, 10.8)   # tongue_home KW-mini (S) on tongue_rod_block_sw
-SLEEVE_SENSOR = (6.0, 26.0)       # sleeve_present TCRT5000 under the platen (S), beside sleeve_mouth
-MAG_SENS_X = 94.6                 # magazine sensor plate inner face (S), 0.1 off the end wall
+SLEEVE_SENSOR = (30.0, -30.0)     # sleeve_present TCRT5000 under the platen (S): covered only near the fence
+MAG_SENS_X = SL_MAX + 3.6         # magazine sensor plate inner face (S), 0.1 off the end wall
 MAG_SENS = {"mag_empty": (81.0, 2.8), "mag_low": (95.0, 6.5)}   # TCRT5000 optic centre y, z (S)
 LID_SW = (335.0, 365.0, 155.0, 171.0, 4.5, 54.5)   # lid interlock (D4NS class) body on the +y base rail
 ESTOP = (-40.0, 38.0)             # 22 mm e-stop x, z on the -y panel
@@ -822,18 +822,16 @@ def make_lift_mount():
 
 
 def make_lift_arm(lift=0.0):
-    """Arm on the MG90S horn (shaft along x); cup stem at (CUP_X, -12)."""
+    """Arm on the MG90S horn (shaft along x); a 9 x 6 finger runs -x along y -12 to the cup stem at CUP_X."""
     sx, sy, sz = LIFT_SERVO
     a = xcyl(6.0, 41, 44, sy, sz, 48)
     a += box(41, 44, sy, -12, sz - 3, sz + 3)
     a += xcyl(4.5, 41, 44, -12.0, sz, 32)
+    a += box(CUP_X - 4.5, 41.01, -16.5, -7.5, sz - 3, sz + 3)                       # finger to the cup
     a -= xcyl(1.2, 40, 45, sy, sz, 16)
     a -= zcyl(1.6, sz - 4, sz + 4, CUP_X, -12.0, 24)                                # M4 cup stem
     ang = math.degrees(math.atan2(lift, sy - (-12.0)))
     return a.translate((0, -sy, -sz)).rotate((ang, 0, 0)).translate((0, sy, sz)) if lift else a
-
-
-CUP_X = 42.5
 
 
 def push_pose(p):
@@ -1040,7 +1038,7 @@ def make_elec_plate(xr, boards):
     p -= union(holes)
     p -= union(zcyl(M5, -1, ELEC_T + 1, x, y, 24) for x in (x0 + 12, x1 - 12) for y in ELEC_RAILS_Y)
     p -= union(box(x, x + 40, y0 + 120, y0 + 130, -1, ELEC_T + 1) for x in (x0 + 140, x0 + 190)) \
-        if x0 == ELEC_A_X[0] else box(x0 + 220, x0 + 232, y0 + 20, y0 + 120, -1, ELEC_T + 1)
+        if x0 == ELEC_A_X[0] else box(x0 + 195, x0 + 235, y0 + 100, y0 + 107, -1, ELEC_T + 1)
     return p
 
 
@@ -1236,7 +1234,7 @@ PRINT = {
     "tongue_carriage": ((0, 0, 1), 1, "mr"), "tongue_keeper_lo": ((0, 0, 1), 1, "mr"),
     "tongue_keeper_hi": ((0, 0, 1), 2, "mr"), "tongue_rod_block": ((0, 0, 1), 3, "mr"),
     "tongue_rod_block_sw": ((0, 0, 1), 1, "mr"), "mag_sensor_mount": ((0, 0, 1), 1, "mr"),
-    "air_jet": ((0, 0, 1), 1, "mr"), "lift_mount": ((0, 0, 1), 1, "mr"), "lift_arm": ((1, 0, 0), 1, "mr"),
+    "air_jet": ((0, 0, 1), 1, "mr"), "lift_mount": ((0, 0, 1), 1, "mr"), "lift_arm": ((-1, 0, 0), 1, "mr"),
     "pusher_bracket": ((0, 0, 1), 1, "mr"), "pusher_slider": ((1, 0, 0), 1, "mr"),
     "pusher_flap": ((0, 1, 0), 1, "mr"), "pusher_crank": ((0, 0, 1), 1, "mr"),
     "pusher_link": ((0, 0, 1), 1, "mr"),

@@ -126,8 +126,9 @@ scan station: turn on `lights`, capture, then `sleeve` or `eject_reject`.
 Sleeves the card at the scan station. Every step has a timeout. Step numbers follow the CAD
 sleeving sequence (`cad/README.md`).
 0. **Sleeve pick**: checks `mag_empty`, then runs the N20 pick wheels until `sleeve_present`
-   trips (then brakes), at most `sleeve_pick_ms`. The bottom sleeve leaves the magazine through
-   the 0.25 mm gate and slides onto the platen against the fence (platen vacuum off). Skipped
+   trips (at most `sleeve_pick_ms`), keeps them on for `sleeve_push_ms` more, then brakes. The
+   bottom sleeve leaves the magazine through the 0.14 mm gate and slides onto the platen, flush
+   against the fence (platen vacuum off). Skipped
    when the sleeve picked by an earlier `sleeve` passed step 1 but was not used (e.g. that
    `sleeve` failed at the lift cup).
 1. Vacuum pump and platen valve on. Waits for grip: only a sleeve covering every platen hole
@@ -214,15 +215,15 @@ Errors: `bad_cmd` for an unknown key, a non-number value, or a value out of rang
 | `elev_speed` | 6 | 0.5-30 | mm/s | Stack raise |
 | `elev_max_mm` | 150 | 10-400 | mm | Elevator travel |
 | `pick_speed` | 120 | 5-400 | mm/s | |
-| `pick_travel_mm` | 45 | 5-150 | mm | Pick stroke: stack → roller nip |
+| `pick_travel_mm` | 30 | 5-150 | mm | Pick stroke: stack → roller nip (leading edge 8 mm into the feed nip) |
 | `feed_speed` | 150 | 5-600 | mm/s | Feed + reject |
 | `feed_max_mm` | 220 | 20-600 | mm | `feed` → `jam` if `scan_stop` not hit |
 | `insert_speed` | 80 | 5-400 | mm/s | Sleeve insert |
 | `insert_mm` | 70 | 0-200 | mm | Feed past `sleeve_mouth` |
-| `insert_max_mm` | 160 | 10-400 | mm | `sleeve_insert_fail` if `sleeve_mouth` not hit |
-| `reject_mm` | 140 | 10-400 | mm | `eject_reject` feed distance |
+| `insert_max_mm` | 200 | 10-400 | mm | `sleeve_insert_fail` if `sleeve_mouth` not hit (scan stop → mouth sensor is 168 mm) |
+| `reject_mm` | 240 | 10-400 | mm | `eject_reject` feed distance: the trailing edge must pass the sleeve entry nip (232 mm) so the pawl drops behind it |
 | `tongue_speed` | 60 | 2-200 | mm/s | |
-| `tongue_depth_mm` | 22 | 1-80 | mm | Tongue stroke |
+| `tongue_depth_mm` | 18 | 1-80 | mm | Tongue stroke (tips −3 → +15) |
 | `cur_elev` `cur_pick` `cur_feed` `cur_tongue` | 800 / 600 / 600 / 500 | 100-1800 | mA RMS, integer | TMC2209 run current (hold = 50 %) |
 | `vac_grip_kpa` | 25 | 0-95 | kPa | Grip threshold. **0 = no sensor: skip grip checks** |
 | `cup_dwell_ms` | 250 | 0-5000 | ms, integer | Minimum cup-open time before checking |
@@ -230,12 +231,13 @@ Errors: `bad_cmd` for an unknown key, a non-number value, or a value out of rang
 | `puff_ms` | 150 | 0-5000 | ms, integer | Stack air knife pulse, 0 = off |
 | `jet_ms` | 120 | 0-5000 | ms, integer | Mouth jet pulse |
 | `sleeve_pick_ms` | 400 | 20-5000 | ms, integer | Max sleeve pick wheel run while waiting for `sleeve_present`. Too short: `sleeve_open_fail` before a slow sleeve arrives |
+| `sleeve_push_ms` | 60 | 0-2000 | ms, integer | Pick wheels keep running this long after `sleeve_present` (it trips 1.5–3.4 mm short of the fence) |
 | `servo_ms` | 350 | 50-5000 | ms, integer | Servo settle time |
 | `lift_down_deg` `lift_up_deg` | 35 / 110 | 0-180 | deg, integer | Lift servo |
 | `pusher_rest_deg` `pusher_out_deg` | 10 / 160 | 0-180 | deg, integer | Pusher servo: pawl −20 mm (rest) / +36 mm (sort: into the exit nip) |
 | `pusher_seat_deg` | 65 | 0-180 | deg, integer | Pusher at pawl +0.3 mm: seats the card in the sleeve (`sleeve` step 6). Keep below the out angle |
 | `pusher_seat_ms` | 400 | 0-5000 | ms, integer | Dwell at the seat angle (after `servo_ms`) before the tongues retract |
-| `div0_deg` `div1_deg` `div2_deg` | 30 / 90 / 150 | 0-180 | deg, integer | Diverter per bin |
+| `div0_deg` `div1_deg` `div2_deg` | 48 / 90 / 132 | 0-180 | deg, integer | Diverter per bin (tray on the servo spline, CAD −42° / 0° / +42°) |
 | `exit_timeout_ms` | 3000 | 100-60000 | ms, integer | Push → exit trip, and trip → clear |
 
 ### `estop`

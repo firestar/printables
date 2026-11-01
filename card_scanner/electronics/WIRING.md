@@ -141,7 +141,7 @@ On current MCP23017 silicon, GPA7/GPB7 are **output-only**. They are left unused
 | GPA6 | `LID` | Lid switch, NC (closed while the lid is shut) → GND | HIGH = open |
 | GPB0 | `MAG_LOW` | TCRT5000 at the magazine "low" mark | HIGH = no sleeve seen |
 | GPB1 | `MAG_EMPTY` | TCRT5000 at the magazine bottom | HIGH = no sleeve seen |
-| GPB2 | `SLEEVE_PRESENT` | TCRT5000 module `DO`, under the platen (Ø2.5 window at S (6, +26)) | LOW = sleeve seen |
+| GPB2 | `SLEEVE_PRESENT` | TCRT5000 module `DO`, under the platen (Ø2.5 window at S (30, −30), 1.5–3.4 mm short of the fence) | LOW = sleeve seen |
 | GPB3–6 | spare inputs | | |
 
 Endstops are wired **normally closed**, so a broken wire reads as "at the switch". A homing
@@ -185,7 +185,8 @@ headers. Join the servo GND to logic GND at the ESP32 header, so the signal has 
 
 An N20 6 V gearmotor (~300 rpm) drives two Ø20 rubber wheels, linked by a 2 mm O-ring: wheel A
 in the magazine floor, wheel B in the platen. They push the **bottom** sleeve out of the side
-magazine, through the 0.25 mm gate, onto the platen against the fence.
+magazine, through the 0.14 mm gate (1.5 × one 0.09 mm sleeve), onto the platen against the fence. The
+wheels keep running `sleeve_push_ms` after `sleeve_present` trips, so the sleeve ends flush on the fence.
 
 | DRV8833 pin | Connect |
 |---|---|
@@ -218,10 +219,10 @@ Each channel:
 | Q | Load | Typical current | Notes |
 |---|---|---|---|
 | Q1 | 12 V vacuum pump (diaphragm, ≥ 60 kPa) | 0.4–0.8 A, 2 A start | Flyback diode. Add 220 µF at the pump if the 12 V dips |
-| Q2–Q4 | 12 V NC solenoid valves: pick cup, platen, lift cup | 0.15–0.3 A each | Flyback on each |
+| Q2–Q4 | 12 V NC **3/2-way** solenoid valves: pick cup, platen, lift cup | 0.15–0.3 A each | Flyback on each. De-energised the cup port must vent to air, or the cup keeps its vacuum and never lets go |
 | Q5 | 12 V air pump | 0.3–0.6 A | Flyback |
 | Q6–Q7 | 12 V NC valves: stack puff, mouth jet | 0.15–0.3 A | Flyback |
-| Q8–Q9 | 12 V COB LED rings, top / bottom | 0.3–0.5 A each | PWM 20 kHz. Diffuse them for even scan light |
+| Q8–Q9 | 12 V white LED strip (non-addressable), ~0.45 m in each LED frame, top / bottom | 0.3–0.5 A each | PWM 20 kHz. The LED-frame diffuser evens the light |
 
 **Air path (CAD):** one air pump feeds a tee to the hopper puff nozzle (hopper_front) and the
 sleeve-mouth jet (air_jet). Both branches need their own NC valve **downstream of the pump**:
@@ -238,7 +239,7 @@ only one at a time with the pump. The CAD BOM lists 3 valves (vacuum side only).
 | `double_feed` | Slot opto module (ITR9608 / H206) + spring flag. The flag rides on the card at 1.5× card thickness and lifts into the slot only with 2+ cards | 3V3 | `DO`, HIGH = blocked. Set `ACTIVE_DOUBLE_FEED` to match your module |
 | `scan_stop` | KW-mini microswitch on stop_mount, actuated by stop_flag (Ø1.8 pin) | — | NO → GND |
 | `sleeve_mouth` | TCRT5000 module (LM393), under the platen, looking up through the Ø2.5 window at S (6, −26) | 3V3 | `DO`, LOW = reflect. An empty sleeve covers the window: set the pot so a clear sleeve reads HIGH and a card in it reads LOW |
-| `sleeve_present` | TCRT5000 module (LM393), under the platen, looking up through the Ø2.5 window at S (6, +26) | 3V3 | `DO`, LOW = reflect. Set the pot so an empty sleeve reads LOW and the bare platen window reads HIGH |
+| `sleeve_present` | TCRT5000 module (LM393), under the platen, looking up through the Ø2.5 window at S (30, −30), next to the fence | 3V3 | `DO`, LOW = reflect. Set the pot so an empty sleeve reads LOW and the bare platen window reads HIGH |
 | `exit` | TCRT5000 module, Ø2.5 window in the diverter_base lead-in | 3V3 | `DO`, LOW = card seen |
 | Elevator, pick, tongue endstops | Microswitch (KW11-3Z / D2F) | — | **NC** → GND |
 | `mag_low`, `mag_empty` | TCRT5000 module looking at the sleeve stack | 3V3 | HIGH = no sleeve |
@@ -340,7 +341,9 @@ Measure Vref between the pot wiper (or the `VREF` pad) and GND with VIO powered.
 - Start at these values. Raise `cur_*` in 100 mA steps only if an axis skips. A TMC2209
   module tops out around 1.4 A RMS without extra cooling.
 - Without a heatsink and airflow, stay ≤ 1.0 A RMS.
-- The elevator's leadscrew self-locks, so its hold current can be low.
+- The T8 lead-8 screw is **not** self-locking (lead angle 18.6° > friction angle ~11°), but a full
+  stack back-drives it with only ~2.4 mN·m, below the motor's detent torque, so its hold current
+  can be low.
 
 Steps per mm (`config.h`, 16 µsteps):
 
@@ -348,7 +351,7 @@ Steps per mm (`config.h`, 16 µsteps):
 |---|---|
 | Elevator, T8 lead 8 | 400 |
 | Pick / tongue, GT2 20T | 80 |
-| Feed (~22 mm effective roller) | 46.3. Calibrate it |
+| Feed (28 mm roller: D26 hub + 2 mm O-ring) | 36.4. Calibrate it |
 
 ## BOM (electronics)
 
@@ -368,10 +371,11 @@ Steps per mm (`config.h`, 16 µsteps):
 | 7 | Schottky flyback diode | SS34 / 1N5819 | Valves + pumps |
 | 1 | 12 V vacuum pump, ≥ 60 kPa | Kamoer KVP04 / generic 370 diaphragm pump | |
 | 1 | 12 V mini air pump | 370-type air pump | Puffs + jet |
-| 5 | 12 V NC 2-way mini solenoid valve | "DC 12 V 0520E NC" | 3 vacuum, 2 air |
+| 3 | 12 V NC 3/2-way mini solenoid valve | "DC 12 V 0520 3-way NC" class | Vacuum: pick cup, platen, lift cup. Common → cup, NC → manifold, NO → air (vents the cup on release) |
+| 2 | 12 V NC 2-way mini solenoid valve | "DC 12 V 0520E NC" | Air: stack puff, mouth jet |
 | 3 | Vacuum suction cup 6–10 mm | Bellows cup, nitrile/silicone | Pick, lift. Platen: drilled plate |
 | 1 | Vacuum pressure sensor | CFSensor XGZP6847A100KPGN | 5 V, 0.5–4.5 V |
-| 2 | 12 V COB LED ring (white, 5000–6500 K) | 60–80 mm "angel eye" ring | Top / bottom scan light |
+| 2 × 0.45 m | 12 V white LED strip, non-addressable (5000–6500 K) | 2835, 60 LED/m | Top / bottom scan light, in the LED-frame channels |
 | 6 | TCRT5000 IR reflective module | | `stack_top`, `sleeve_mouth`, `sleeve_present`, `exit`, `mag_low`, `mag_empty` |
 | 1 | Slot optical module | ITR9608 / H206 | Double-feed flag |
 | 3 | Microswitch, roller lever | Omron D2F-01L / KW11-3Z | Elevator home, pick home, tongue home (NC) |

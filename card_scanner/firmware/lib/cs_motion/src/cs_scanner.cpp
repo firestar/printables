@@ -20,7 +20,7 @@ enum Phase : uint8_t {
   P_NONE,
   P_HOME_SERVOS, P_HOME_BACKOFF, P_HOME_SEEK, P_HOME_SETTLE,
   P_FEED_RAISE, P_FEED_PUFF, P_FEED_GRIP, P_FEED_PICK, P_FEED_RUN,
-  P_SLV_PICK, P_SLV_PLATEN, P_SLV_LIFT_DOWN, P_SLV_LIFT_GRIP, P_SLV_LIFT_UP, P_SLV_JET,
+  P_SLV_PICK, P_SLV_PICK_PUSH, P_SLV_PLATEN, P_SLV_LIFT_DOWN, P_SLV_LIFT_GRIP, P_SLV_LIFT_UP, P_SLV_JET,
   P_SLV_TONGUE_IN, P_SLV_FEED, P_SLV_SEAT, P_SLV_TONGUE_OUT, P_SLV_RELEASE,
   P_SORT_DIVERT, P_REJ_FEED, P_SORT_PUSH, P_SORT_CLEAR, P_SORT_RETURN,
 };
@@ -638,13 +638,18 @@ void Scanner::startPlaten() {
 
 void Scanner::stepSleeve() {
   switch (phase_) {
-    case P_SLV_PICK:  // 0. run until sleeve_present, then brake; sleeve_pick_ms is the max run
+    case P_SLV_PICK:  // 0. run until sleeve_present, then sleeve_push_ms more; sleeve_pick_ms is the max run
       if (hal_.sensor(SN_SLEEVE_PRESENT)) {
-        hal_.output(OUT_SLEEVE_PICK, false);
-        startPlaten();
+        enter(P_SLV_PICK_PUSH, 0);
       } else if (expired()) {
         hal_.output(OUT_SLEEVE_PICK, false);
         failJob(ERR_SLEEVE_OPEN_FAIL, "no sleeve at sleeve_present (wheels slipped, or misfeed)", false);
+      }
+      break;
+    case P_SLV_PICK_PUSH:  // sleeve_present trips a few mm short of the fence: push it flush, then brake
+      if (elapsed() >= (uint32_t)s_.sleeve_push_ms) {
+        hal_.output(OUT_SLEEVE_PICK, false);
+        startPlaten();
       }
       break;
     case P_SLV_PLATEN:  // 1. platen vacuum (2nd check): only a sleeve covering every hole reaches grip

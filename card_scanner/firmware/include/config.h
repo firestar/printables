@@ -94,7 +94,7 @@
 #define MCPI_LID 6             // GPA6  lid switch NC (closed while shut) -> GND, open = lid open
 #define MCPI_MAG_LOW 8         // GPB0  IR reflective at the low mark, HIGH = no sleeve seen
 #define MCPI_MAG_EMPTY 9       // GPB1  IR reflective at the bottom,   HIGH = no sleeve seen
-#define MCPI_SLEEVE_PRESENT 10 // GPB2  TCRT5000 module under the platen at (6, +26), LOW = sleeve seen
+#define MCPI_SLEEVE_PRESENT 10 // GPB2  TCRT5000 module under the platen at (30, -30) by the fence, LOW = sleeve seen
 // GPB3-6: spare inputs.  GPA7 / GPB7: output-only on current MCP23017 silicon, unused.
 
 // ---- sensor polarity: level that means "active" ----
@@ -112,7 +112,7 @@
 // ---- mechanics: microsteps per mm (MICROSTEPS = 16, 1.8 deg motors) ----
 #define STEPS_PER_MM_ELEV 400.0f    // T8 leadscrew, 8 mm lead: 3200 / 8
 #define STEPS_PER_MM_PICK 80.0f     // GT2 belt, 20T pulley: 3200 / 40
-#define STEPS_PER_MM_FEED 46.3f     // ~22 mm effective roller dia: 3200 / 69.1 (calibrate)
+#define STEPS_PER_MM_FEED 36.4f     // 28 mm roller (D26 hub + 2 mm O-ring, CAD R_ROLL 14): 3200 / 88.0 (calibrate)
 #define STEPS_PER_MM_TONGUE 80.0f   // GT2 belt, 20T pulley
 #define DIR_INVERT_ELEV 0           // 1 = flip if the axis runs backwards
 #define DIR_INVERT_PICK 0

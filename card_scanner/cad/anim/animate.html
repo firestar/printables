@@ -1,0 +1,571 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Card scanner – cycle animation</title>
+<style>
+  html, body { margin: 0; background: #e9ecef; overflow: hidden; width: 100%; height: 100%; }
+  body { font: 15px/1.3 "DejaVu Sans", "Helvetica Neue", Arial, sans-serif; color: #1b1f24; }
+  canvas { display: block; }
+  #caption { position: absolute; left: 24px; right: 24px; bottom: 22px; padding: 12px 18px; background: #11151ad9;
+             color: #fff; border-radius: 8px; font-size: 20px; }
+  #caption .step { font-weight: 700; color: #ffd166; margin-right: 10px; }
+  #caption .act { display: block; font-size: 14px; color: #a9d6ff; margin-top: 4px; }
+  #hud { position: absolute; top: 14px; right: 14px; width: 232px; background: #11151ad9; color: #d6dde5; border-radius: 8px;
+         padding: 8px 10px; font-size: 11.5px; }
+  #hud h4 { margin: 0 0 4px; font-size: 11px; letter-spacing: .08em; color: #8fa3b8; text-transform: uppercase; }
+  #hud .row { display: flex; justify-content: space-between; align-items: center; line-height: 16px; }
+  #hud .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #3a4654; margin-right: 6px;
+              vertical-align: middle; }
+  #hud .on .dot { background: #4ade80; box-shadow: 0 0 6px #4ade80; }
+  #hud .on { color: #fff; }
+  #hud .val { color: #9fb3c8; font-variant-numeric: tabular-nums; }
+  #hud .on .val { color: #ffe08a; }
+  #hud .sep { border-top: 1px solid #2a333d; margin: 6px 0; }
+  #title { position: absolute; top: 14px; left: 18px; background: #11151ad9; color: #fff; border-radius: 8px; padding: 8px 14px;
+           font-size: 17px; }
+  #title small { display: block; color: #a9d6ff; font-size: 12px; }
+  #flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+  #inset { position: absolute; left: 24px; bottom: 100px; display: none; gap: 12px; }
+  #inset .shot { background: #11151ad9; border-radius: 8px; padding: 8px; color: #fff; font-size: 12px; text-align: center; }
+  #inset .shot canvas { display: block; margin: 0 auto 4px; border-radius: 3px; }
+  #clock { position: absolute; left: 18px; top: 64px; font-size: 11px; color: #5c6b7a; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="title">Card scanner + penny sleever + 3-bin sorter<small>one card cycle · rendered from the CAD preview</small></div>
+<div id="clock"></div>
+<div id="hud"></div>
+<div id="inset">
+  <div class="shot"><canvas id="shot_front" width="96" height="134"></canvas>front · cam_top</div>
+  <div class="shot"><canvas id="shot_back" width="96" height="134"></canvas>back · cam_bottom</div>
+</div>
+<div id="caption"></div>
+<div id="flash"></div>
+<script type="module">
+import * as THREE from 'three';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+
+// Deterministic timeline: window.setTime(t) poses everything for time t (s) and renders one frame.
+// ?t=<s> sets the initial time; ?play=1 runs it live. Geometry follows cad/README.md (world mm, z = 0 at the
+// 2020 base frame top). Sleeve frame S: x = 0 at the sleeve mouth, z = 0 at the platen top.
+const q = new URLSearchParams(location.search);
+const W = innerWidth, H = innerHeight;
+
+// ---- constants (card_scanner.py) --------------------------------------------------------------------------
+const Z_TRACK = 125.0, CARD_T = 0.3, CW = 63, CL = 88, SW = 66, SL = 91, PLY = 0.06;
+const X_FEED = 66, X_SCAN_IN = 146, X_SCAN_OUT = 228, X_STOP = 244, X_XFER = 308, X_ENTRY = 388;
+const X_MOUTH = 406, X_EXIT = 526, X_DIV = 576;
+const Z_PLATEN = Z_TRACK - 1.86;                     // 123.14
+const R_ROLL = 14.0;
+const LIFT = 5.5, LIFT_SERVO = [28.0, -60.0, 14.0];   // cup at S (22, -12), from the preview STLs
+const TIP_RET = -3.0, TIP_IN = 15.0;
+const PUSH_START = -20.0, PUSH_SEAT = 0.3, PUSH_OUT = 36.0, PUSH_Z = 26.0;
+const PUSH_SERVO = [79.0, -40.0], CRANK_R = 24.0, LINK_L = 80.0;
+const DIV_TILT = 25.0, DIV_Z = Z_PLATEN - 2.0, DIV_LEN = 120.0, DIV_ANG = 42.0;
+const BIN_R0 = DIV_LEN * Math.cos(rad(DIV_TILT)) + 2, BIN_FLOOR = 3.0;
+const STOP_X = X_SCAN_OUT + 16;                      // track_scan_out x0 (stop_flag pivot = STOP_X + 2)
+const STACK_TOP = Z_TRACK - 3.0;                     // stack top in the preview pose (122)
+const MAG_Y_C = 33.5 + 3.5 + SW / 2;                 // sleeve stack centre y (S) = 70
+const PLATEN_Y = SW / 2 + 2.0;
+const PICK_X0 = -15.0, PICK_STROKE = 30.0, PICK_Z = Z_TRACK + 44;
+const S = new THREE.Vector3(X_MOUTH, 0, Z_PLATEN);   // S -> world
+
+function rad(d) { return d * Math.PI / 180; }
+function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+function smooth(a, b, t) { const u = clamp01((t - a) / (b - a)); return u * u * (3 - 2 * u); }       // ease in/out
+function lin(a, b, t) { return clamp01((t - a) / (b - a)); }
+function life(a, b, t) { return (t >= a && t < b) ? (t - a) / (b - a) : 0; }                        // 0 outside [a, b)
+function mix(a, b, u) { return a + (b - a) * u; }
+function pulse(a, b, t) { if (t < a || t > b) return 0; const u = (t - a) / (b - a); return Math.sin(u * Math.PI); }
+
+// ---- renderer / scene -----------------------------------------------------------------------------------
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1);
+renderer.setSize(W, H);
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xe9ecef);
+const camera = new THREE.PerspectiveCamera(30, W / H, 1, 20000);
+camera.up.set(0, 0, 1);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8f94, 1.4));
+const sun = new THREE.DirectionalLight(0xffffff, 1.9); sun.position.set(-600, -900, 1400); scene.add(sun);
+const fill = new THREE.DirectionalLight(0xffffff, 0.6); fill.position.set(900, 600, -200); scene.add(fill);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(4000, 4000),
+  new THREE.MeshStandardMaterial({ color: 0xdfe3e7, roughness: 1 }));
+ground.position.z = -41; scene.add(ground);
+
+// ---- load the CAD preview -------------------------------------------------------------------------------
+const man = await fetch('../preview/manifest.json').then(r => r.json());
+const meshes = {};
+const loader = new STLLoader();
+// hidden: hood (hood=0), the static card / sleeve stand-ins (replaced by animated meshes)
+const HIDE = new Set(['hood', 'sleeve', 'sleeved_card', 'card_scan']);
+// faded so the card stays visible: lower shroud, -y hopper guide, the pick bridge over the hopper,
+// the -y pusher / lift hardware and the -y roller blocks of the sleeve station
+const FADE = { lower_shroud: 0.28, hopper_guide_m: 0.45, hopper_front: 0.75, pick_bridge: 0.35, nema_pick: 0.45,
+               pusher_bracket: 0.35, lift_mount: 0.4, servo_pusher: 0.45, servo_lift: 0.45,
+               roller_block_entry_m: 0.35, roller_block_exit_m: 0.35, roller_block_xfer_m: 0.5 };
+await Promise.all(man.parts.map(p => new Promise(res => loader.load('../' + p.file, geo => {
+  geo.computeVertexNormals();
+  const glassy = p.name.startsWith('glass');
+  let opacity = p.opacity;
+  if (p.group === 'frame') opacity = 0.35;
+  if (FADE[p.name]) opacity = FADE[p.name];
+  const mat = new THREE.MeshStandardMaterial({
+    color: new THREE.Color(p.color), roughness: glassy ? 0.1 : 0.7, metalness: p.name.includes('shim') ? 0.6 : 0.0,
+    side: THREE.DoubleSide, transparent: opacity < 1, opacity, depthWrite: opacity >= 1,
+  });
+  const m = new THREE.Mesh(geo, mat);
+  m.userData = p;
+  m.visible = !HIDE.has(p.name);
+  if (p.group === 'frame') m.renderOrder = -1;
+  meshes[p.name] = m;
+  scene.add(m);
+  res();
+}, undefined, () => { console.warn('missing', p.file); res(); }))));
+
+// Re-parent world-space meshes under a group whose origin is at `pivot` (world) so they can rotate/translate.
+function pivotGroup(names, pivot) {
+  const g = new THREE.Group();
+  g.position.copy(pivot);
+  for (const n of names) {
+    const m = meshes[n]; if (!m) continue;
+    scene.remove(m); m.position.copy(pivot).negate(); g.add(m);
+  }
+  g.userData.pivot = pivot.clone();
+  scene.add(g);
+  return g;
+}
+function sPivot(x, y, z) { return new THREE.Vector3(x, y, z).add(S); }
+function shift(g, dx, dy = 0, dz = 0) { g.position.copy(g.userData.pivot).add(new THREE.Vector3(dx, dy, dz)); }
+
+// hopper
+const gElev = pivotGroup(['elevator_platform', 'card_stack', 'lm8uu'], new THREE.Vector3(0, 0, 0));
+const gPick = pivotGroup(['pick_carriage'], new THREE.Vector3(PICK_X0, 0, PICK_Z));
+const gCup = pivotGroup(['cup_pick'], new THREE.Vector3(PICK_X0, 0, Z_TRACK));
+// rollers: lower wheel axis z = nip - 14, upper axis z = nip + 0.3 + 14
+const nips = { feed: [X_FEED, Z_TRACK], scan_in: [X_SCAN_IN, Z_TRACK], scan_out: [X_SCAN_OUT, Z_TRACK],
+               xfer: [X_XFER, Z_TRACK], entry: [X_ENTRY, Z_TRACK], exit: [X_EXIT, Z_PLATEN] };
+const wheels = [];
+for (const [n, [x, z]] of Object.entries(nips)) {
+  wheels.push([pivotGroup([`${n}_wheels_lo`], new THREE.Vector3(x, 0, z - R_ROLL)), 1]);
+  wheels.push([pivotGroup([`${n}_wheels_up`], new THREE.Vector3(x, 0, z + CARD_T + R_ROLL)), -1]);
+}
+// stop flag pin at (STOP_X + 2, z = track + 1 + 2 + 4 + 10)
+const gFlag = pivotGroup(['stop_flag'], new THREE.Vector3(STOP_X + 2, 0, Z_TRACK + 17));
+// sleeve station
+const gTongue = pivotGroup(['tongue_carriage', 'tongue_keeper_lo', 'tongue_keeper_hi', 'tongue_keeper_hi_m',
+                            'shim_lower', 'shim_upper', 'lm6uu_tongue'], sPivot(TIP_IN, 0, 0));
+const gLift = pivotGroup(['lift_arm', 'cup_lift'], sPivot(LIFT_SERVO[0], LIFT_SERVO[1], LIFT_SERVO[2]));
+const gPickWheels = pivotGroup(['pick_wheels'], sPivot(50.0, 0, -9.7));
+const gSlider = pivotGroup(['pusher_slider'], sPivot(PUSH_START, 0, PUSH_Z));
+const gFlap = pivotGroup(['pusher_flap'], sPivot(PUSH_START - 1, 0, 8.0));
+const gCrank = pivotGroup(['pusher_crank'], sPivot(PUSH_SERVO[0], PUSH_SERVO[1], 41));
+const gLink = pivotGroup(['pusher_link'], sPivot(PUSH_START + 4, 0, PUSH_Z + 12));
+// diverter
+const gDiv = pivotGroup(['diverter_tray'], new THREE.Vector3(X_DIV, 0, DIV_Z));
+
+// ---- crank-slider (push_pose) -----------------------------------------------------------------------------
+function crankPose(p) {
+  const [px, py] = PUSH_SERVO, sxp = p + 4.0;
+  let best = null;
+  for (let k = 0; k < 3600; k++) {
+    const t = 2 * Math.PI * k / 3600, cx = px + CRANK_R * Math.cos(t), cy = py + CRANK_R * Math.sin(t);
+    const err = Math.abs(Math.hypot(sxp - cx, -cy) - LINK_L);
+    if (cx > sxp && (best === null || err < best.err)) best = { err, cx, cy, th: t, phi: Math.atan2(cy, cx - sxp) };
+  }
+  return best;
+}
+const crank0 = crankPose(PUSH_START);
+
+// ---- card + sleeve meshes -----------------------------------------------------------------------------------
+function cardTexture(front) {
+  const c = document.createElement('canvas'); c.width = 256; c.height = 358;
+  const g = c.getContext('2d');
+  g.fillStyle = front ? '#f3ead8' : '#5b4a9a'; g.fillRect(0, 0, 256, 358);
+  if (front) {
+    g.fillStyle = '#2b2b2b'; g.fillRect(10, 10, 236, 338);
+    g.fillStyle = '#e9dfc8'; g.fillRect(16, 16, 224, 326);
+    g.fillStyle = '#3d6fa8'; g.fillRect(28, 50, 200, 150);
+    g.fillStyle = '#e76f51'; g.beginPath(); g.arc(128, 125, 48, 0, 7); g.fill();
+    g.fillStyle = '#2b2b2b'; g.fillRect(28, 24, 150, 14); g.fillRect(28, 215, 200, 8); g.fillRect(28, 232, 170, 8);
+    g.fillRect(28, 249, 190, 8); g.fillRect(28, 266, 120, 8);
+    g.fillStyle = '#2a9d8f'; g.fillRect(190, 24, 38, 14);
+  } else {
+    g.fillStyle = '#3f3272'; g.fillRect(14, 14, 228, 330);
+    g.fillStyle = '#d9b84a'; g.beginPath(); g.ellipse(128, 179, 70, 95, 0, 0, 7); g.fill();
+    g.fillStyle = '#3f3272'; g.beginPath(); g.ellipse(128, 179, 52, 76, 0, 0, 7); g.fill();
+  }
+  const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; return tx;
+}
+// card: long edge along x, face up. Texture rotated so the art runs along x.
+const cardGeo = new THREE.BoxGeometry(CL, CW, CARD_T);
+const sideMat = new THREE.MeshStandardMaterial({ color: 0xf6f1e7, roughness: 0.8 });
+const frontTx = cardTexture(true), backTx = cardTexture(false);
+frontTx.center.set(0.5, 0.5); frontTx.rotation = -Math.PI / 2;
+backTx.center.set(0.5, 0.5); backTx.rotation = -Math.PI / 2;
+const cardMats = [sideMat, sideMat, sideMat, sideMat,
+  new THREE.MeshStandardMaterial({ map: frontTx, roughness: 0.8 }),
+  new THREE.MeshStandardMaterial({ map: backTx, roughness: 0.8 })];
+const card = new THREE.Mesh(cardGeo, cardMats);
+scene.add(card);
+
+// Two-ply sleeve: bottom ply flat, top ply deformable (mouth opening). Group origin = mouth centre on the platen,
+// local x runs 0..SL toward the closed end, y +-SW/2.
+const sleeve = new THREE.Group();
+const plyMat = new THREE.MeshPhysicalMaterial({ color: 0xdde9f7, roughness: 0.25, transparent: true, opacity: 0.55,
+  side: THREE.DoubleSide, depthWrite: false });
+const plyBot = new THREE.Mesh(new THREE.PlaneGeometry(SL, SW, 1, 1), plyMat);
+plyBot.position.set(SL / 2, 0, PLY / 2);
+sleeve.add(plyBot);
+const NX = 46, NY = 18;
+const topGeo = new THREE.PlaneGeometry(SL, SW, NX, NY);
+topGeo.translate(SL / 2, 0, 2 * PLY);
+const topBase = topGeo.attributes.position.array.slice();
+sleeve.add(new THREE.Mesh(topGeo, plyMat));
+const edgeMat = new THREE.LineBasicMaterial({ color: 0x6f7a86 });
+const outline = [new THREE.Vector3(0, -SW / 2, 0), new THREE.Vector3(SL, -SW / 2, 0), new THREE.Vector3(SL, SW / 2, 0),
+                 new THREE.Vector3(0, SW / 2, 0), new THREE.Vector3(0, -SW / 2, 0)];
+sleeve.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(outline), edgeMat));
+scene.add(sleeve);
+function setSleeveOpen(open) {            // open = mouth height (mm) at the centre
+  const pos = topGeo.attributes.position.array;
+  for (let i = 0; i < pos.length; i += 3) {
+    const x = topBase[i], y = topBase[i + 1];
+    const fx = Math.pow(Math.max(0, 1 - x / (0.62 * SL)), 1.15);
+    const fy = 1 - Math.pow(Math.abs(y) / (SW / 2), 5);
+    pos[i + 2] = topBase[i + 2] + open * fx * fy;
+  }
+  topGeo.attributes.position.needsUpdate = true;
+  topGeo.computeVertexNormals();
+}
+
+// ---- effects ---------------------------------------------------------------------------------------------
+const puffMat = new THREE.MeshBasicMaterial({ color: 0xbfe9ff, transparent: true, opacity: 0.5, depthWrite: false });
+function makePuff(n) {
+  const g = new THREE.Group();
+  for (let i = 0; i < n; i++) g.add(new THREE.Mesh(new THREE.SphereGeometry(1, 10, 8), puffMat.clone()));
+  g.visible = false; scene.add(g); return g;
+}
+const stackPuff = makePuff(7), mouthJet = makePuff(7);
+function animPuff(g, u, origin, dir, spread) {    // u 0..1 life
+  g.visible = u > 0 && u < 1;
+  if (!g.visible) return;
+  g.children.forEach((m, i) => {
+    const k = (i + 1) / g.children.length, d = u * (12 + 26 * k);
+    m.position.set(origin.x + dir.x * d + spread.x * (k - 0.5) * u * 10, origin.y + dir.y * d + spread.y * (k - 0.5) * u * 14,
+                   origin.z + dir.z * d + spread.z * (k - 0.5) * u * 8);
+    const r = 1.2 + u * (3 + 4 * k); m.scale.set(r, r, r);
+    m.material.opacity = 0.55 * (1 - u) * (0.6 + 0.4 * (1 - k));
+  });
+}
+// platen vacuum indicator: glowing ring at the vacuum barb (S 60, -PLATEN_Y - 8, -6) + a platen tint
+const vacRing = new THREE.Mesh(new THREE.RingGeometry(4, 6.5, 32),
+  new THREE.MeshBasicMaterial({ color: 0x4ade80, transparent: true, opacity: 0.9, side: THREE.DoubleSide }));
+vacRing.position.copy(sPivot(60, -PLATEN_Y - 8, -6)); vacRing.rotation.x = Math.PI / 2; vacRing.visible = false;
+scene.add(vacRing);
+// LED glow quads inside the frames (top frame underside z 170.3, bottom frame top z 80)
+const ledMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.0, side: THREE.DoubleSide });
+const ledTop = new THREE.Mesh(new THREE.PlaneGeometry(84, 52), ledMat.clone()); ledTop.position.set(200, 0, Z_TRACK + 45.3 - 0.5);
+const ledBot = new THREE.Mesh(new THREE.PlaneGeometry(84, 52), ledMat.clone()); ledBot.position.set(200, 0, Z_TRACK - 45 + 0.5);
+scene.add(ledTop, ledBot);
+// camera flash cones: apex at the lens (WD 100), base on the card
+const flashMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false });
+const coneTop = new THREE.Mesh(new THREE.ConeGeometry(46, 100, 32, 1, true), flashMat.clone());
+coneTop.position.set(200, 0, Z_TRACK + 0.3 + 50); coneTop.rotation.set(Math.PI / 2, 0, 0);
+const coneBot = new THREE.Mesh(new THREE.ConeGeometry(46, 100, 32, 1, true), flashMat.clone());
+coneBot.position.set(200, 0, Z_TRACK - 50); coneBot.rotation.set(-Math.PI / 2, 0, 0);
+scene.add(coneTop, coneBot);
+
+// ---- camera keyframes ------------------------------------------------------------------------------------
+const V = {
+  iso:      [[-350, -1000, 700], [320, -20, 80]],
+  hopper:   [[-30, -250, 520], [8, 0, 116]],
+  feed:     [[40, -420, 290], [150, 0, 120]],
+  scan:     [[200 - 170, -380, 290], [205, 0, 125]],
+  xfer:     [[300, -420, 300], [330, 0, 122]],
+  sleeve:   [[X_MOUTH - 90, -250, 330], [X_MOUTH + 45, 0, 123]],
+  sleeveHi: [[X_MOUTH + 10, -190, 330], [X_MOUTH + 45, 0, 123]],
+  diverter: [[X_DIV + 240, -330, 330], [X_DIV + 90, 60, 55]],
+  isoEnd:   [[-250, -1050, 650], [330, 0, 80]],
+};
+// [time, view] – the camera holds a view, then eases to the next one over BLEND seconds before its key time
+const camKeys = [[0, 'iso'], [3.0, 'hopper'], [9.0, 'feed'], [10.6, 'scan'], [15.3, 'xfer'], [17.2, 'sleeve'],
+                 [23.2, 'sleeveHi'], [27.6, 'sleeve'], [30.2, 'diverter'], [35.0, 'isoEnd']];
+const BLEND = 1.6;
+function poseCamera(t) {
+  let i = 0;
+  while (i + 1 < camKeys.length && t >= camKeys[i + 1][0]) i++;
+  const a = camKeys[i][1];
+  const p = new THREE.Vector3(...V[a][0]), l = new THREE.Vector3(...V[a][1]);
+  if (i + 1 < camKeys.length) {
+    const [t1, b] = camKeys[i + 1];
+    const u = smooth(t1 - BLEND, t1, t);
+    if (u > 0) { p.lerp(new THREE.Vector3(...V[b][0]), u); l.lerp(new THREE.Vector3(...V[b][1]), u); }
+  }
+  camera.position.copy(p); camera.lookAt(l);
+}
+
+// ---- timeline -------------------------------------------------------------------------------------------
+// Key times (s). One card cycle = 36 s.
+const T = {
+  elev0: 3.2, elev1: 5.4,                       // 1 elevator raise (stack top 113 -> 125)
+  puff0: 5.6, puff1: 6.1,                       // stack puff
+  cupDn0: 5.9, cupDn1: 6.5, grip: 6.6,          // 2 pick cup
+  pick0: 6.9, pick1: 8.1,                       // slide +30
+  feedOn: 7.7,                                  // feed rollers start
+  cupUp0: 8.2, cupUp1: 8.6, pickRet0: 8.6, pickRet1: 9.7,
+  scan0: 8.4, scan1: 10.4,                      // 3 card -> scan_stop
+  led0: 11.0, flashTop: 11.9, flashBot: 12.8, led1: 14.6,   // 4 scan
+  xfer0: 15.0, xfer1: 16.6,                     // 5 card -> sleeve entry
+  spick0: 17.3, spick1: 18.9, vacOn: 19.2,      // 6a sleeve pick + platen vacuum
+  liftDn0: 19.4, liftDn1: 20.0, cupOn: 20.1, lift0: 20.4, lift1: 21.2,   // 6b lift cup
+  jet0: 21.2, jet1: 21.7,
+  tng0: 21.7, tng1: 22.7,                       // 6c tongues +18
+  cupOff: 22.8, liftUp0: 22.9, liftUp1: 23.5,
+  ins0: 23.6, ins1: 25.2,                       // 7 card into the sleeve (92 mm)
+  seat0: 25.6, seat1: 26.5,                     // 8 pawl seats the card
+  tngRet0: 26.7, tngRet1: 27.5, vacOff: 27.7,
+  div0: 27.8, div1: 28.6,                       // 9 diverter to bin C
+  push0: 28.7, push1: 29.6,                     // pusher -> exit nip
+  exit0: 29.6, exit1: 30.8,                     // exit rollers -> tray
+  slide0: 30.8, slide1: 32.2,                   // slides down the tray
+  drop0: 32.1, drop1: 32.9,                     // drops into the bin
+  pushRet0: 29.9, pushRet1: 30.9,
+  end: 36.0,
+};
+window.DURATION = T.end;
+
+const captions = [
+  [0.0, '', 'Card scanner + penny sleever + 3-bin sorter', 'hopper → O-ring roller transport → dual CM3 scan → vacuum platen sleever → servo diverter → bins'],
+  [3.0, '1', 'Elevator raises the stack until stack_top sees the top card', 'elevator NEMA17 + T8 lead screw (TMC2209) · stack_top TCRT5000'],
+  [5.6, '2', 'Stack puff, pick cup grips the top card and slides it +30 mm into the feed nip', 'stack_puff valve · valve_pick_cup + vacuum_pump · pick NEMA17 + GT2 (30 mm stroke, leading edge → x 74)'],
+  [8.4, '3', 'Feed rollers carry the card to the scan station, stop at scan_stop (x 244)', 'feed NEMA17 drives every lower roller over one GT2 loop · scan_stop KW-mini + flag'],
+  [11.0, '4', 'LED frames on, cross-polarized capture from the top and bottom CM3', 'led_top / led_bottom · cam_top + cam_bottom (Pi 5 CSI 0/1) · card on AR glass, camera axis x 200'],
+  [15.0, '5', 'Card runs through the transfer nip to the sleeve entry', 'feed loop: xfer nip x 308 → entry nip x 388'],
+  [17.3, '6a', 'Sleeve pick: bottom sleeve leaves the magazine through the 0.14 mm gate onto the platen; platen vacuum on', 'sleeve_pick N20 + Ø20 wheels · sleeve_present TCRT5000 · valve_platen'],
+  [19.4, '6b', 'Lift cup lowers 22 mm behind the mouth, grips the top ply and lifts it 5.5 mm; mouth jet inflates the sleeve', 'lift_servo MG90S · valve_lift_cup · air_pump + mouth_jet'],
+  [21.7, '6c', 'Duck-bill tongues extend +18 mm (tips 15 mm into the mouth); lift cup releases', 'tongue NEMA17 + GT2 · 0.3 mm stainless shims'],
+  [23.6, '7', 'Card slides between the tongues into the sleeve, 70 mm in when it leaves the entry nip', 'feed loop ≤ 60 mm/s · sleeve_mouth TCRT5000 · gravity pawl lifts and drops behind the card'],
+  [25.6, '8', 'Pusher pawl seats the card (−20 → +0.3 mm), tongues retract, vacuum off', 'pusher_servo MG90S crank-slider · tongue home · valve_platen off'],
+  [27.8, '9', 'Diverter swings to bin C (+42°); pusher pushes the sleeved card into the exit nip; exit rollers deliver it', 'diverter_servo MG90S · pusher_servo → +36 mm · feed loop (exit rollers) · exit TCRT5000'],
+  [33.0, '✓', 'Cycle complete: scanned, sleeved, sorted', 'host loop: feed → capture → sleeve → sort {bin}'],
+];
+
+function state(t) {
+  const s = {};
+  // 1 elevator
+  s.elev = mix(-9, 3, smooth(T.elev0, T.elev1, t));
+  s.elevRun = t > T.elev0 && t < T.elev1;
+  s.stackTop = t > T.elev1 - 0.1 && t < T.pick0 + 0.3;
+  // 2 pick
+  s.cupDip = -1.5 * smooth(T.cupDn0, T.cupDn1, t) * (1 - smooth(T.cupUp0, T.cupUp1, t));
+  s.pick = PICK_STROKE * smooth(T.pick0, T.pick1, t) * (1 - smooth(T.pickRet0, T.pickRet1, t));
+  s.pickCup = t >= T.grip && t < T.cupUp0;
+  s.puff = life(T.puff0, T.puff1, t);
+  s.pickRun = (t > T.pick0 && t < T.pick1) || (t > T.pickRet0 && t < T.pickRet1);
+  // card leading-edge x (world)
+  const dScan = (X_STOP - (CL / 2 + PICK_STROKE)) * smooth(T.scan0, T.scan1, t);      // 74 -> 244
+  const dXfer = (X_ENTRY - 4 - X_STOP) * smooth(T.xfer0, T.xfer1, t);                 // 244 -> 384
+  const dIns = (X_MOUTH + 70 - (X_ENTRY - 4)) * smooth(T.ins0, T.ins1, t);            // 384 -> 476 (70 mm into the sleeve)
+  const dSeat = 19.5 * smooth(T.seat0, T.seat1, t);                                    // trailing edge -> S +1.5
+  const dPush = (PUSH_OUT - PUSH_SEAT) * smooth(T.push0, T.push1, t);                  // +35.7: closed end 7 mm into the exit nip
+  const dExit = 62 * smooth(T.exit0, T.exit1, t);                                      // exit rollers: closed end -> x 595
+  s.cardLead = CL / 2 + s.pick + dScan + dXfer + dIns + dSeat + dPush + dExit;
+  s.feedDist = dScan + dXfer + dIns + dPush + dExit;    // roller surface travel (mm)
+  s.feedRun = (t > T.feedOn && t < T.scan1) || (t > T.xfer0 && t < T.xfer1) || (t > T.ins0 && t < T.ins1) || (t > T.push0 && t < T.exit1);
+  s.cardZ = t < T.pick0 ? STACK_TOP + s.elev : Z_TRACK;                                // card bottom
+  s.scanStop = s.cardLead >= X_STOP - 0.2 && t < T.xfer0 + 0.05;
+  // 4 scan
+  s.led = smooth(T.led0, T.led0 + 0.3, t) * (1 - smooth(T.led1 - 0.3, T.led1, t));
+  s.flashTop = pulse(T.flashTop - 0.12, T.flashTop + 0.25, t);
+  s.flashBot = pulse(T.flashBot - 0.12, T.flashBot + 0.25, t);
+  s.shotFront = t >= T.flashTop; s.shotBack = t >= T.flashBot;
+  s.inset = t >= T.flashTop && t < T.led1 + 0.4;
+  // 6 sleeve
+  s.sleeveY = MAG_Y_C * (1 - smooth(T.spick0, T.spick1, t));          // sleeve centre y (S) 70 -> 0
+  s.spick = t > T.spick0 && t < T.spick1;
+  s.spickRot = MAG_Y_C * smooth(T.spick0, T.spick1, t) / 10;           // wheel surface travel / r
+  s.vac = t >= T.vacOn && t < T.vacOff;
+  s.sleevePresent = t >= T.spick0 && s.sleeveY < 1 && t < T.push1;
+  // lift arm angle (deg about the servo x axis); the preview pose has the cup at LIFT (5.5) = 0 deg
+  const aDown = -Math.atan2(LIFT, 48) * 180 / Math.PI, aUp = Math.atan2(11, 48) * 180 / Math.PI;
+  let lift = mix(aUp, aDown, smooth(T.liftDn0, T.liftDn1, t));
+  lift = mix(lift, 0, smooth(T.lift0, T.lift1, t));
+  lift = mix(lift, aUp, smooth(T.liftUp0, T.liftUp1, t));
+  s.liftAng = lift;
+  s.liftState = t < T.liftDn0 || t >= T.liftUp1 ? 'up' : t < T.lift0 ? 'down' : t < T.liftUp0 ? `lift ${LIFT}` : 'up';
+  s.liftRun = (t > T.liftDn0 && t < T.liftDn1) || (t > T.lift0 && t < T.lift1) || (t > T.liftUp0 && t < T.liftUp1);
+  s.liftCup = t >= T.cupOn && t < T.cupOff;
+  s.open = LIFT * smooth(T.lift0, T.lift1, t) * (1 - smooth(T.tngRet0 + 0.2, T.tngRet1 + 0.4, t));
+  s.jet = life(T.jet0, T.jet1, t);
+  // tongues
+  s.tip = mix(TIP_RET, TIP_IN, smooth(T.tng0, T.tng1, t)) + (TIP_RET - TIP_IN) * smooth(T.tngRet0, T.tngRet1, t);
+  s.tongueRun = (t > T.tng0 && t < T.tng1) || (t > T.tngRet0 && t < T.tngRet1);
+  // pusher flap x (S)
+  let p = PUSH_START + (PUSH_SEAT - PUSH_START) * smooth(T.seat0, T.seat1, t) + (PUSH_OUT - PUSH_SEAT) * smooth(T.push0, T.push1, t);
+  p -= (PUSH_OUT - PUSH_START) * smooth(T.pushRet0, T.pushRet1, t);
+  s.push = p;
+  s.pushRun = (t > T.seat0 && t < T.seat1) || (t > T.push0 && t < T.push1) || (t > T.pushRet0 && t < T.pushRet1);
+  // gravity pawl lifts while the card passes under it, drops behind the trailing edge
+  const trail = s.cardLead - CL, flapW = X_MOUTH + p;
+  s.flapUp = (t >= T.ins0 && t < T.seat0) ? smooth(flapW - 2, flapW + 6, s.cardLead) * smooth(flapW + 7.2, flapW - 0.8, trail) : 0;
+  // diverter
+  s.div = DIV_ANG * smooth(T.div0, T.div1, t);
+  s.divRun = t > T.div0 && t < T.div1;
+  // tray / bin
+  s.slide = smooth(T.slide0, T.slide1, t);
+  s.drop = smooth(T.drop0, T.drop1, t);
+  s.exitSensor = s.cardLead > X_EXIT + 26 && trail < X_EXIT + 26 && t < T.slide0;
+  s.sleeveMouth = t >= T.ins0 + 0.25 && t < T.push1;
+  return s;
+}
+
+const _v = new THREE.Vector3();
+function pose(t) {
+  const s = state(t);
+  // hopper
+  gElev.position.set(0, 0, s.elev);
+  gPick.position.set(PICK_X0 + s.pick, 0, PICK_Z);
+  gCup.position.set(PICK_X0 + s.pick, 0, Z_TRACK + s.cupDip);
+  animPuff(stackPuff, s.puff, new THREE.Vector3(45, 0, Z_TRACK + 1), new THREE.Vector3(-1, 0, 0.05), new THREE.Vector3(0, 1, 0.3));
+  // rollers
+  for (const [g, dir] of wheels) g.rotation.y = dir * s.feedDist / R_ROLL;
+  // stop flag tips when the card presses it
+  gFlag.rotation.y = -rad(5) * clamp01((s.cardLead - (X_STOP - 1)) / 1.2) * (s.cardLead < X_STOP + 20 ? 1 : 0);
+  // sleeve + card
+  sleeve.visible = t >= T.spick0;
+  setSleeveOpen(s.open);
+  if (t < T.slide0) {
+    // on the platen: mouth at x 406 (S 0) until the pusher moves the sleeved card
+    const mouthX = t < T.seat0 ? X_MOUTH : s.cardLead - CL - 1.5;
+    sleeve.position.set(mouthX, s.sleeveY, Z_PLATEN + 0.02);
+    sleeve.rotation.set(0, 0, 0);
+    card.position.set(s.cardLead - CL / 2, 0, s.cardZ + CARD_T / 2);
+    card.rotation.set(0, 0, 0);
+  } else {
+    // tray: closed end leads, radius r from the pivot along the tray direction (yaw). The mouth end stays in the
+    // exit nip / on the lead-in (z platen) until it passes the lead-in end (S + 158 = x 564), then follows the tray.
+    const yaw = rad(s.div) * smooth(0, 0.45, s.slide);
+    const zTray = r => DIV_Z - r * Math.tan(rad(DIV_TILT));
+    const r0 = 595 - X_DIV;
+    let rTip = mix(r0, DIV_LEN + 12, s.slide);
+    let zTip = Math.min(zTray(rTip), Z_PLATEN + 0.3);
+    let rMouth = rTip - SL;
+    let zMouth = rMouth < -12 ? Z_PLATEN + 0.3 : zTray(rMouth);
+    let pitch = Math.asin(clamp01((zMouth - zTip) / SL));
+    if (s.drop > 0) {                      // drop into bin C: tray end -> bin floor, lands flat
+      rTip = mix(DIV_LEN + 12, BIN_R0 + 94, s.drop);
+      zTip = mix(zTray(DIV_LEN + 12), BIN_FLOOR + 3.2, s.drop);
+      pitch = rad(DIV_TILT) * (1 - s.drop);
+      zMouth = zTip + SL * Math.sin(pitch);
+    }
+    const dir = new THREE.Vector3(Math.cos(yaw), Math.sin(yaw), 0);
+    const tip = new THREE.Vector3(X_DIV, 0, 0).addScaledVector(dir, rTip).setZ(zTip);
+    const mouth = tip.clone().addScaledVector(dir, -SL * Math.cos(pitch)).setZ(zMouth);
+    sleeve.position.copy(mouth);
+    sleeve.rotation.set(0, pitch, yaw, 'ZYX');
+    sleeve.updateMatrixWorld();
+    card.position.copy(sleeve.localToWorld(_v.set(1.5 + CL / 2, 0, PLY + CARD_T / 2)));
+    card.rotation.copy(sleeve.rotation);
+  }
+  // sleeve station mechanisms
+  shift(gTongue, s.tip - TIP_IN);
+  gLift.rotation.x = rad(s.liftAng);
+  gPickWheels.rotation.x = s.spickRot;
+  shift(gSlider, s.push - PUSH_START);
+  shift(gFlap, s.push - PUSH_START);
+  gFlap.rotation.y = rad(28) * s.flapUp;             // pawl swings up about its pin
+  const cp = crankPose(s.push);
+  gCrank.rotation.z = cp.th - crank0.th;
+  shift(gLink, s.push - PUSH_START);
+  gLink.rotation.z = cp.phi - crank0.phi;
+  animPuff(mouthJet, s.jet, sPivot(1, -40, 2.5), new THREE.Vector3(0.12, 1, 0.02), new THREE.Vector3(1, 0, 0.4));
+  vacRing.visible = s.vac;
+  meshes.platen.material.emissive.setHex(s.vac ? 0x0a4a2a : 0x000000);
+  // scan lights / flashes
+  ledTop.material.opacity = ledBot.material.opacity = 0.85 * s.led;
+  meshes.led_frame_top.material.emissive.setScalar(0.6 * s.led);
+  meshes.led_frame_bot.material.emissive.setScalar(0.6 * s.led);
+  coneTop.material.opacity = 0.55 * s.flashTop; coneBot.material.opacity = 0.55 * s.flashBot;
+  document.getElementById('flash').style.opacity = 0.6 * Math.max(s.flashTop, s.flashBot);
+  // diverter
+  gDiv.rotation.z = rad(s.div);
+  poseCamera(t);
+  updateOverlay(t, s);
+}
+
+// ---- overlays -------------------------------------------------------------------------------------------
+const hud = document.getElementById('hud');
+function row(name, on, val) {
+  return `<div class="row ${on ? 'on' : ''}"><span><span class="dot"></span>${name}</span><span class="val">${val ?? (on ? 'ON' : 'off')}</span></div>`;
+}
+function updateOverlay(t, s) {
+  let cap = captions[0];
+  for (const c of captions) if (t >= c[0]) cap = c;
+  document.getElementById('caption').innerHTML =
+    `${cap[1] ? `<span class="step">${cap[1]}</span>` : ''}${cap[2]}<span class="act">${cap[3]}</span>`;
+  document.getElementById('clock').textContent = `t = ${t.toFixed(2)} s`;
+  hud.innerHTML = `<h4>steppers</h4>` +
+    row('elevator', s.elevRun, s.elevRun ? 'RUN ▲' : `platform z ${(42 + s.elev).toFixed(0)}`) +
+    row('pick', s.pickRun, s.pickRun ? (t < T.pick1 ? 'RUN ▶' : 'RUN ◀') : `cup x ${(PICK_X0 + s.pick).toFixed(0)}`) +
+    row('feed', s.feedRun, s.feedRun ? 'RUN ▶' : 'hold') +
+    row('tongue', s.tongueRun, `tip ${s.tip >= 0 ? '+' : ''}${s.tip.toFixed(0)} mm`) +
+    `<div class="sep"></div><h4>servos</h4>` +
+    row('lift_servo', s.liftRun, s.liftState) +
+    row('pusher_servo', s.pushRun, `pawl ${s.push >= 0 ? '+' : ''}${s.push.toFixed(1)} mm`) +
+    row('diverter_servo', s.divRun, `${s.div.toFixed(0)}° → bin ${s.div > 20 ? 'C' : 'B'}`) +
+    row('sleeve_pick N20', s.spick) +
+    `<div class="sep"></div><h4>pneumatics</h4>` +
+    row('vacuum_pump', s.pickCup || s.vac || s.liftCup) +
+    row('valve_pick_cup', s.pickCup) +
+    row('valve_platen', s.vac) +
+    row('valve_lift_cup', s.liftCup) +
+    row('air_pump', s.puff > 0 || s.jet > 0) +
+    row('stack_puff', s.puff > 0) +
+    row('mouth_jet', s.jet > 0) +
+    `<div class="sep"></div><h4>sensors</h4>` +
+    row('stack_top', s.stackTop) +
+    row('scan_stop', s.scanStop) +
+    row('sleeve_present', s.sleevePresent) +
+    row('sleeve_mouth', s.sleeveMouth) +
+    row('exit', s.exitSensor) +
+    row('led_top / led_bottom', s.led > 0.5, `${Math.round(255 * s.led)}`);
+  const inset = document.getElementById('inset');
+  inset.style.display = s.inset ? 'flex' : 'none';
+  if (s.inset) {
+    drawShot('shot_front', s.shotFront, true);
+    drawShot('shot_back', s.shotBack, false);
+  }
+}
+function drawShot(id, taken, front) {
+  const c = document.getElementById(id), g = c.getContext('2d');
+  g.fillStyle = '#222'; g.fillRect(0, 0, c.width, c.height);
+  if (!taken) { g.fillStyle = '#777'; g.font = '11px sans-serif'; g.textAlign = 'center'; g.fillText('waiting…', c.width / 2, c.height / 2); return; }
+  g.drawImage(front ? frontTx.image : backTx.image, 4, 4, c.width - 8, c.height - 8);
+  g.strokeStyle = '#4ade80'; g.lineWidth = 2; g.strokeRect(2, 2, c.width - 4, c.height - 4);
+}
+
+// ---- API ---------------------------------------------------------------------------------------------------
+window.setTime = function (t) {
+  pose(t);
+  renderer.render(scene, camera);
+  return true;
+};
+const t0 = parseFloat(q.get('t') || '0');
+setTime(t0);
+window.ready = true;
+if (q.get('play') === '1') {
+  const start = performance.now();
+  renderer.setAnimationLoop(() => setTime(((performance.now() - start) / 1000 + t0) % T.end));
+}
+</script>
+</body>
+</html>

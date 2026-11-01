@@ -377,9 +377,16 @@ static void test_sleeve_pick_stops_at_sleeve_present() {
     r.sc.tick();
   }
   TEST_ASSERT_TRUE(r.hal.sensor(SN_SLEEVE_PRESENT));
-  r.hal.advance(1);
-  r.sc.tick();
-  TEST_ASSERT_FALSE(r.hal.out_[OUT_SLEEVE_PICK]);  // braked on the sensor, long before 5000 ms
+  for (int i = 0; i < 50; i++) {  // keeps pushing for sleeve_push_ms (60): sleeve flush on the fence
+    r.hal.advance(1);
+    r.sc.tick();
+  }
+  TEST_ASSERT_TRUE(r.hal.out_[OUT_SLEEVE_PICK]);
+  for (int i = 0; i < 20; i++) {
+    r.hal.advance(1);
+    r.sc.tick();
+  }
+  TEST_ASSERT_FALSE(r.hal.out_[OUT_SLEEVE_PICK]);  // braked, long before 5000 ms
   TEST_ASSERT_EQUAL_INT(99, r.hal.sleeves);
 }
 
