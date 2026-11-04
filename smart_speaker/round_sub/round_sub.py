@@ -98,6 +98,13 @@ AMP_L, AMP_W = 20.1, 18.0
 AMP_PLAT_H = 10.0     # clears header pins soldered pointing down
 AMP_PLAT_D = 14.0     # platform depth: header row (outer 2.5 mm) hangs off the edge
 AUX_ANG = 150.0
+# Interface PCB (../pcb/make_pcb.py): bottom face height and screw positions.
+# 8.5 mm sockets under the ESP32's 2.5 mm pin spacer put the top at z 9.
+PCB_BOTTOM = 7.4
+PCB_MOUNTS = [(32.0, 13.5), (32.0, -13.5), (81.0, 27.0), (81.0, -27.0)]
+PCB_BOSS_D = 6.0
+PCB_PILOT_D = 2.2 + HOLE_COMP
+PCB_PILOT_DEPTH = 6.0
 
 SLOPE = math.tan(math.radians(LEAN))        # dr/dz of every wall
 COS = math.cos(math.radians(LEAN))
@@ -391,8 +398,11 @@ def make_base():
     # wire guides along each cable run
     for (x, y, ang) in wire_routes(rb_in):
         base = base + wire_clip().rotate((0, 0, ang)).translate((x, y, 0))
+    # interface PCB bosses (M2.5 x 6 self-tapping, see ../pcb/)
+    for (x, y) in PCB_MOUNTS:
+        base = base + cyl(PCB_BOTTOM + 0.01, PCB_BOSS_D / 2, z=-0.01, x=x, y=y)
+        base = base - cyl(PCB_PILOT_DEPTH + 0.01, PCB_PILOT_D / 2, z=PCB_BOTTOM - PCB_PILOT_DEPTH, x=x, y=y)
     return base
-
 
 def wire_routes(rb_in):
     """(x, y, direction) of each wire clip on the bay floor."""

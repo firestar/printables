@@ -86,6 +86,18 @@ speaker output to GND.
   supply is on is safe. Check yours.
 - Put the 1000 µF capacitor at the strip's +5V/GND entry.
 
+## Interface PCB (replaces the loose wiring)
+
+[`../pcb/`](../pcb/README.md) has a 4-layer board that makes all the connections above. The
+ESP32 plugs into its sockets instead of Dupont leads; the mics and amp connect by 5-pin
+JST SM cables, the LED strip by a 5-pin SM with 2 pins unused, and the 5 V supply by 2
+soldered wires. The speaker still wires directly to the amp. The board adds reverse-polarity
+protection on the 5 V input and a level shifter on the LED data line, selected by solder
+jumper JP1, which must be bridged. The base needs reprinting for the board's screw bosses.
+
+The ESP32's rows are 25.4 mm apart, not the 22.86 mm `check_fit.py` used to assume. The
+`wiring.svg` diagram still shows the wire-by-wire version, which remains valid as the
+connection map but doesn't show the PCB's added parts.
 ## Routing through the enclosure
 
 | Cable | Path |

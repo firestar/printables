@@ -25,11 +25,26 @@ def esp32():
     pcb = box(xa, xu, -14, 14, z, z + 1.6)
     module = box(xa, xa + 25.5, -9, 9, z + 1.6, z + 4.8)          # WROOM can
     usb = box(xu - 7.3, xu + 0.8, -4.5, 4.5, z + 1.6, z + 4.8)    # USB-C receptacle
-    pins = box(xa + 7.5, xu - 7.5, -11.43 - 1.27, -11.43 + 1.27, z - 8.5, z)
+    # Rows 25.4 apart, pin 1 is 9.6 mm from the USB end (listing's pinout photo).
+    px0, px1 = xu - 9.6 - 14 * 2.54 - 1.27, xu - 9.6 + 1.27
+    pins = box(px0, px1, 12.7 - 1.27, 12.7 + 1.27, z - 8.5, z)
     pins = pins + pins.mirror((0, 1, 0))
-    dupont = box(xa + 7.5, xu - 7.5, -11.43 - 1.3, -11.43 + 1.3, z - 16.5, z - 2.5)
-    dupont = dupont + dupont.mirror((0, 1, 0))
-    return pcb + module + usb + pins, dupont
+    socket = box(px0, px1, 12.7 - 1.27, 12.7 + 1.27, rs.PCB_BOTTOM + 1.6, z - 2.5)
+    socket = socket + socket.mirror((0, 1, 0))
+    return pcb + module + usb + pins, socket
+
+
+def interface_pcb():
+    """Interface board (../pcb/make_pcb.py) with its tallest part and the
+    solder tails underneath."""
+    z0, z1 = rs.PCB_BOTTOM, rs.PCB_BOTTOM + 1.6
+    board = box(39.6, 83.5, -10.5, 10.5, z0, z1)
+    for sy in (1, -1):
+        y0, y1 = sorted((sy * 10.5, sy * 31.0))
+        board = board + box(29.0, 83.5, y0, y1, z0, z1)
+        board = board + box(42.0, 79.0, sy * 12.7 - 1.0, sy * 12.7 + 1.0, z0 - 2.0, z0)
+    cap = cyl(13.5, 5.25, z=z1, x=51.0, y=-21.0)
+    return board + cap
 
 
 def usb_plug():
@@ -90,10 +105,11 @@ def speaker():
 def main():
     baffle, body, base = rs.make_baffle(), rs.make_body(), rs.make_base()
     printed = baffle + body + base
-    esp, dupont = esp32()
+    esp, socket = esp32()
     parts = {
         "ESP32 board + pins": esp,
-        "Dupont housings under ESP32": dupont,
+        "ESP32 sockets": socket,
+        "Interface PCB": interface_pcb(),
         "USB-C plug in slot": usb_plug(),
         "MAX98357A (both orientations)": amp(),
         "INMP441 x2": mics(),
@@ -109,7 +125,7 @@ def main():
     for i in range(len(names)):
         for j in range(i + 1, len(names)):
             hit = vol(parts[names[i]] ^ parts[names[j]])
-            mated = [{"ESP32 board + pins", "Dupont housings under ESP32"},   # plugged on
+            mated = [{"ESP32 board + pins", "ESP32 sockets"},   # plugged in
                      {"ESP32 board + pins", "USB-C plug in slot"}]          # plugged in
             if hit > 0.01 and {names[i], names[j]} not in mated:
                 print(f"  {names[i]} x {names[j]}: {hit:.2f} mm^3 FAIL")
@@ -118,7 +134,8 @@ def main():
 
     # top-down layout of the bay at board height
     fig, ax = plt.subplots(figsize=(9, 9), dpi=110)
-    for m, c, lab in [(base, "#6a6f7a", "base"), (esp, "#1f77b4", "ESP32"),
+    for m, c, lab in [(base, "#6a6f7a", "base"), (interface_pcb(), "#2e7d32", "interface PCB"),
+                      (esp, "#1f77b4", "ESP32"),
                       (amp(), "#9467bd", "MAX98357A"), (mics(), "#2ca02c", "INMP441"),
                       (usb_plug(), "#ff7f0e", "USB-C plug")]:
         cs = m.project()
@@ -129,10 +146,10 @@ def main():
     rb_in = rs.skin_r(rs.Z_FLOOR) - rs.T / rs.COS
     cl = rs.wire_routes(rb_in)
     edge = lambda ang: rs.polar(rb_in + 2, ang)
-    runs = [("mic L", "#2ca02c", [edge(90)] + [c[:2] for c in cl[0:2]] + [(48, 12)]),
-            ("mic R", "#2ca02c", [edge(270)] + [c[:2] for c in cl[2:4]] + [(48, -12)]),
-            ("LED lead", "#17becf", [edge(rs.HALO_WIRE_ANG)] + [c[:2] for c in cl[4:7]] + [(48, -12)]),
-            ("5 V in", "#d62728", [edge(rs.AUX_ANG)] + [c[:2] for c in cl[7:10]] + [(48, 12)])]
+    runs = [("mic L", "#2ca02c", [edge(90)] + [c[:2] for c in cl[0:2]] + [(70, 31)]),
+            ("mic R", "#2ca02c", [edge(270)] + [c[:2] for c in cl[2:4]] + [(70, -31)]),
+            ("LED lead", "#17becf", [edge(rs.HALO_WIRE_ANG)] + [c[:2] for c in cl[4:6]] + [(38, -31)]),
+            ("5 V in", "#d62728", [edge(rs.AUX_ANG)] + [c[:2] for c in cl[7:9]] + [(36, 31)])]
     for lab, c, pts in runs:
         xs, ys = zip(*pts)
         ax.plot(xs, ys, color=c, lw=2.5, ls="--", label=lab)

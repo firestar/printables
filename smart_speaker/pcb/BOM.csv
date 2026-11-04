@@ -1,0 +1,14 @@
+ref,qty,part,notes,est_usd_each
+PCB,1,4-layer PCB 54.5x62 mm 1.6 mm,from interface_board-gerbers.zip; fabs usually have a 5-board minimum; about $10-30 for 5 before shipping,4.00
+J1 J2,2,Female socket 1x15 2.54 mm 8.5 mm tall,straight through-hole; height sets the board fit,0.40
+J3 J4 J5 J6,4,JST SM 5-pin pigtail 22 AWG,you have these; board side soldered,0.00
+J7,1,Screw-terminal barrel connector with 2 wires,you have this; board side soldered,0.00
+Q1,1,AO3401A P-channel MOSFET SOT-23,reverse-polarity protection,0.10
+U1,1,SN74AHCT1G125DBVR SOT-23-5,LED data level shifter; optional if JP1 is set to bypass,0.30
+C1,1,1000 uF 10 V general-purpose electrolytic 10 x 12.5 mm 5 mm lead spacing,keep it 13.5 mm tall or less; ESR 0.1 ohm or more (not an ultra-low-ESR type) to limit plug-in current,0.30
+C2,1,10 uF 10 V X5R 0805,amp port,0.05
+C3 C4 C5 C6,4,100 nF 0805,decoupling,0.02
+R1,1,330 ohm 0805,LED data,0.02
+R2,1,100 kohm 0805,mic SD pull-down,0.02
+R3 R4,2,100 ohm 0805,damp mic WS and SCK at the ESP32,0.02
+Screws,4,M2.5 x 6 self-tapping,into base bosses,0.05
