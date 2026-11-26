@@ -30,7 +30,7 @@ class Mock:
             "volume": 60,
             "mic": {"enabled": False, "rate": MIC_RATE, "bits": 16, "channels": 1, "gain_db": 12.0, "duck": False},
             "spk": {"rate": 16000, "bits": 16, "channels": 1, "buffer": SPK_BUF, "queued": 0},
-            "led": {"mode": "idle", "color": "#0060FF", "brightness": 200, "max": 150, "count": 39},
+            "led": {"mode": "idle", "color": "#0060FF", "brightness": 200, "max": 150, "max_effective": 150, "count": 39},
         }
         self.queued = 0
         self.play_end = False

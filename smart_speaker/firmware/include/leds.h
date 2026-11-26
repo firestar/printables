@@ -19,7 +19,9 @@ enum Mode : uint8_t {
   MODE_COUNT
 };
 
-void begin();
+void begin(uint16_t count);
+void setCount(uint16_t count);     // takes effect on the next frame
+uint16_t count();
 void setMode(Mode m);
 Mode mode();
 void setColor(uint8_t r, uint8_t g, uint8_t b);
@@ -27,7 +29,8 @@ uint32_t color();
 void setBrightness(uint8_t b);     // 0..255, requested by the hub
 uint8_t brightness();
 void setMaxBrightness(uint8_t b);  // power cap, applied on top
-uint8_t maxBrightness();
+uint8_t maxBrightness();           // as requested
+uint8_t effectiveMaxBrightness();  // after the power budget for this LED count
 
 bool modeFromString(const char *s, Mode &out);
 const char *modeName(Mode m);

@@ -1,6 +1,9 @@
 #pragma once
 
 #define FW_VERSION "0.1.0"
+#define FW_NAME "Round speaker"  // Improv firmware name; matches the ESP Web Tools manifest
+#define PROJECT_ID "speaker"     // "project" in the serial settings protocol
+#define HW_NAME "ESP32"
 
 // ---- pins (see electronics/WIRING.md) ----------------------------------------
 // Speaker: MAX98357A on I2S0
@@ -13,7 +16,6 @@
 #define PIN_MIC_SD 35
 // LED halo ring: WS2812B, 330 ohm in series
 #define PIN_LED 27
-#define NUM_LEDS 39
 
 // ---- audio ------------------------------------------------------------------
 #define MIC_SAMPLE_RATE 16000     // Hz, mic stream to the hub
@@ -26,9 +28,17 @@
 #define VOLUME_DEFAULT 60          // %
 
 // ---- LEDs -------------------------------------------------------------------
-// Power budget: 39 LEDs at full white = 2.3 A. 150 (~60%) is safe on the
-// 5 V 3 A supply; use ~64 (25%) when running from USB only.
+// LED count and max brightness are stored settings; these are their defaults.
+#define LED_COUNT_DEFAULT 39
 #define LED_MAX_BRIGHTNESS_DEFAULT 150
+// Power budget on the 5 V 3 A supply: 3 A less the ESP32 peak (0.35 A) and the
+// amp peak (0.8 A) leaves about 1.8 A for the LEDs. Whatever the settings say,
+// brightness is limited so count * full white stays inside this budget, which
+// allows at most 196 of 255 at 39 LEDs and 25 of 255 at 300 LEDs.
+// The firmware can't tell what's powering it. On USB only, also set the max
+// brightness to about 64 (39 LEDs); the budget above doesn't protect a USB port.
+#define LED_POWER_BUDGET_MA 1800
+#define LED_FULL_WHITE_MA 60  // per WS2812B at full white
 #define LED_FPS 40
 
 // ---- network ----------------------------------------------------------------
@@ -38,6 +48,9 @@
 #define STATUS_INTERVAL_MS 5000
 #define PLAY_BUFFER_INTERVAL_MS 100
 #define PORTAL_TIMEOUT_S 180        // Wi-Fi setup portal, then reboot
+#define WIFI_CONNECT_TIMEOUT_MS 20000  // saved network or Improv credentials
+#define WIFI_SCAN_TIMEOUT_MS 15000
+#define SERIAL_SESSION_MS 60000     // recent USB traffic: don't reboot on portal timeout
 
 // ---- binary frame types (first byte of every binary WebSocket message) ------
 #define FRAME_MIC 0x01  // device -> hub: PCM16LE mic audio
