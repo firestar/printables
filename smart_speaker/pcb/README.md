@@ -9,6 +9,8 @@ board edge) were scaled off the listing's photo, then confirmed by test-fitting 
 in the printed plate from `esp32_fit_gauge.py`. The plate has loose 1.5 mm holes, so it
 confirms the layout but not small errors.
 
+**Parts and labels:** the board shows references only; values are in [`../PCB_PARTS.md`](../PCB_PARTS.md).
+
 ## Ports
 
 Pin 1 has the square pad. Labels are on the silkscreen.

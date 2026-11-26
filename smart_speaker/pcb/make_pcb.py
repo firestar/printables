@@ -505,7 +505,7 @@ def silk():
 
     def row_labels(pins, x0, y, pitch):
         for i, (label, _) in enumerate(pins):
-            T(label, x0 + i * pitch, y, 0.7)
+            T(label, x0 + i * pitch, y + (0.5 if i % 2 else -0.6) * (1 if y > 0 else -1), 0.8)   # staggered, so neighbours stay apart
 
     T("MIC L  (mic only: 3.3 V)", 70.0, 29.6, 1.0)
     T("MIC R  (mic only: 3.3 V)", 70.0, -29.6, 1.0)
@@ -516,25 +516,22 @@ def silk():
     row_labels(MIC_PINS, 65.0, -24.7, PITCH)
     row_labels(AMP_PINS, 44.0, 24.7, PITCH)
     row_labels(LED_PINS, 33.0, -24.7, PITCH)
-    T("GND", 33.5, 24.9, 0.8)
-    T("+5V", 38.5, 24.9, 0.8)
+    T("GND", 33.5, 24.9, 1.0)
+    T("+5V", 38.5, 24.9, 1.0)
     T("USB END >>", 72.0, 1.0, 1.2)
     T("ESP32 faces up", 52.0, 1.0, 1.0)
     T("Speaker interface", 57.0, 8.0, 1.2)
-    T("4-layer v1", 57.0, 5.8, 0.9)
-    T("JP1: 1-2 bypass / 2-3 shifter", 49.0, -2.4, 0.7)
+    T("4-layer v1", 57.0, 5.8, 1.0)
     for i in (1, 2, 3):
-        T(str(i), 53.0 + (i - 2) * 1.25, -7.0, 0.7)
-    # Reference and value labels for hand assembly.
-    for label, x, y in (("R1 330R", 47.0, -7.0), ("R2 100k", 46.0, -9.2), ("R4 R3 100R", 59.2, -7.4),
-                        ("C2 10uF", 47.0, 20.0), ("C3 100nF", 53.5, 20.0),
-                        ("C4 100nF", 64.8, 18.0), ("C5 100nF", 64.8, -18.0),
-                        ("C6 100nF", 68.0, -2.9), ("U1 74AHCT1G125", 62.0, -1.0),
-                        ("1", 59.6, -2.2), ("Q1 AO3401A", 37.6, 14.0),
-                        ("C1 1000uF", 51.0, -24.0), ("10V", 51.0, -25.2), ("+", 48.5, -18.4)):
-        T(label, x, y, 0.8)
-    T("VIN", PIN1_X, -15.0, 0.8)
-    T("3V3", PIN1_X, 15.0, 0.8)
+        T(str(i), 53.0 + (i - 2) * 1.25, -6.3, 0.8)
+    # References only; values and part details are in ../PCB_PARTS.md.
+    for label, x, y in (("R1", 47.0, -7.2), ("R2", 47.6, -9.2), ("R3", 57.38, -7.5), ("R4", 54.84, -7.5),
+                        ("C2", 47.0, 20.0), ("C3", 53.5, 20.0), ("C4", 67.2, 18.0), ("C5", 67.2, -18.0),
+                        ("C6", 68.0, -2.9), ("U1", 62.0, -2.2), ("1", 59.6, -2.2), ("JP1", 53.0, -3.3),
+                        ("Q1", 37.0, 14.0), ("C1", 51.0, -24.5), ("+", 48.5, -18.4)):
+        T(label, x, y, 1.0)
+    T("VIN", PIN1_X, -15.0, 1.0)
+    T("3V3", PIN1_X, 15.0, 1.0)
     # ESP32 outline
     x0, y0 = K(ESP_USB_END_X - ESP_L, 14.0)
     x1, y1 = K(EDGE_R - 0.3, -14.0)
@@ -635,7 +632,7 @@ def write_pcb(path):
           f' (fill no) (layer "Edge.Cuts") (uuid {q(uid("slot", i))}))')
     for i, (s, x, y, size, rot) in enumerate(texts):
         w(f' (gr_text {q(s)} (at {x} {y} {rot}) (layer "F.SilkS") (uuid {q(uid("t", i, s))})'
-          f' (effects (font (size {size} {size}) (thickness {round(size*0.15,3)}))))')
+          f' (effects (font (size {size} {size}) (thickness {max(0.15, round(size*0.15,3))}))))')
     for i, (x0, y0, x1, y1) in enumerate(silk_rects):
         w(f' (gr_rect (start {x0} {y0}) (end {x1} {y1}) (stroke (width 0.12) (type dash))'
           f' (fill no) (layer "F.Fab") (uuid {q(uid("sr", i))}))')

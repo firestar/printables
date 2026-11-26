@@ -45,9 +45,8 @@ $52 for 4-layer. Its 4-layer boards use FR408 rather than FR-4.
 
 ## To settle before ordering
 
-- **Silkscreen size:** PCBWay asks for characters at least 0.8 mm tall and 0.15 mm wide. Our smallest labels
-  are 0.7 mm tall with lines of about 0.1 mm, and the part labels are 0.8 mm with lines of about 0.12 mm, so
-  they may print blurry or prompt a question. This is cosmetic. Enlarging them means rebuilding both zips.
+- **Silkscreen size:** all text now meets PCBWay's published 0.8 mm tall and 0.15 mm wide minimums. Part
+  values moved to `PCB_PARTS.md`, so the boards show references only.
 - **PCBWay colors:** the earlier screenshot had black mask and yellow silkscreen. Its page lists white and black as
   the no-extra-charge silkscreen, and black mask isn't on its no-extra-charge list, so that combination
   may cost more.

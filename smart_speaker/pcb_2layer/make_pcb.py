@@ -94,8 +94,10 @@ class Pad:
 
 
 class Part:
-    def __init__(s, ref, value, x, y, pads, lib="speaker"):
+    def __init__(s, ref, value, x, y, pads, lib="speaker", rot=0, fitted=True):
         s.ref, s.value, s.x, s.y, s.pads, s.lib = ref, value, x, y, pads, lib
+        s.rot = rot          # footprint angle (deg, KiCad CCW); pads stay in board coords
+        s.fitted = fitted    # False: copper only (solder jumper), keep out of BOM/placement
         s.silk = []
 
 
@@ -117,7 +119,9 @@ def tht_row(ref, value, pins, x0, y, pitch, drill, pad, first_square=True):
 
 
 def smd2(ref, value, x, y, net1, net2, vertical=False):
-    """0805 two-terminal part, hand-solderable land pattern."""
+    """0805 two-terminal part, hand-solderable land pattern.
+    Vertical parts use the standard horizontal footprint turned to 270 deg
+    (pad 1 on top), so the placement file rotation matches the pads."""
     kx, ky = K(x, y)
     d = 0.95
     if vertical:
@@ -126,7 +130,7 @@ def smd2(ref, value, x, y, net1, net2, vertical=False):
     else:
         pads = [Pad(ref, 1, net1, kx - d, ky, "rect", 1.0, 1.4),
                 Pad(ref, 2, net2, kx + d, ky, "rect", 1.0, 1.4)]
-    p = Part(ref, value, kx, ky, pads)
+    p = Part(ref, value, kx, ky, pads, rot=270 if vertical else 0)
     parts.append(p)
     return p
 
@@ -157,7 +161,7 @@ def solder_jumper(ref, value, x, y, nets):
     kx, ky = K(x, y)
     pads = [Pad(ref, i + 1, n, kx + (i - 1) * 1.25, ky, "rect", 0.9, 1.4)
             for i, n in enumerate(nets)]
-    p = Part(ref, value, kx, ky, pads)
+    p = Part(ref, value, kx, ky, pads, fitted=False)
     parts.append(p)
     return p
 
@@ -190,14 +194,16 @@ def build_parts():
             [(n, ESP_NET.get(n, "")) for n in ROW_A], PIN1_X, -ROW_Y, -PITCH, 1.0, 1.6)
     tht_row("J2", "Socket 1x15 2.54mm, ESP32 3V3 row",
             [(n, ESP_NET.get(n, "")) for n in ROW_B], PIN1_X, ROW_Y, -PITCH, 1.0, 1.6)
-    # Cable rows: 22 AWG pigtails soldered in; 1.2 mm plated holes.
-    tht_row("J3", "MIC L: 5-pin JST SM pigtail", MIC_PINS, 65.0, ROW, PITCH, 1.2, 2.1)
-    tht_row("J4", "MIC R: 5-pin JST SM pigtail", MIC_PINS, 65.0, -ROW, PITCH, 1.2, 2.1)
-    tht_row("J5", "AMP: 5-pin JST SM pigtail", AMP_PINS, 44.0, ROW, PITCH, 1.2, 2.1)
-    tht_row("J6", "LED: 5-pin JST SM pigtail", LED_PINS, 33.0, -ROW, PITCH, 1.2, 2.1)
+    # Cable rows: 22 AWG pigtails soldered in by hand; 1.2 mm plated holes.
+    # Wire pads only, so they stay out of the fab BOM and placement file.
+    for ref, value, pins, x, y in (("J3", "MIC L: 5-pin JST SM pigtail", MIC_PINS, 65.0, ROW),
+                                   ("J4", "MIC R: 5-pin JST SM pigtail", MIC_PINS, 65.0, -ROW),
+                                   ("J5", "AMP: 5-pin JST SM pigtail", AMP_PINS, 44.0, ROW),
+                                   ("J6", "LED: 5-pin JST SM pigtail", LED_PINS, 33.0, -ROW)):
+        tht_row(ref, value, pins, x, y, PITCH, 1.2, 2.1).fitted = False
     # 5 V input: the wires from the screw-terminal barrel connector.
     tht_row("J7", "5V IN: 2 wires, up to 18 AWG", [("GND", "GND"), ("+5V", "VIN_RAW")],
-            33.5, ROW, 5.0, 1.5, 3.0)
+            33.5, ROW, 5.0, 1.5, 3.0).fitted = False
 
     # Reverse polarity protection: drain to input, source to load, gate to GND.
     sot23("Q1", "AO3401A", 37.0, 17.0, ["GND", "+5V", "VIN_RAW"])
@@ -562,7 +568,7 @@ def silk():
 
     def row_labels(pins, x0, y, pitch):
         for i, (label, _) in enumerate(pins):
-            T(label, x0 + i * pitch, y, 0.7)
+            T(label, x0 + i * pitch, y + (0.5 if i % 2 else -0.6) * (1 if y > 0 else -1), 0.8)   # staggered, so neighbours stay apart
 
     T("MIC L  (mic only: 3.3 V)", 70.0, 29.6, 1.0)
     T("MIC R  (mic only: 3.3 V)", 70.0, -29.6, 1.0)
@@ -573,25 +579,22 @@ def silk():
     row_labels(MIC_PINS, 65.0, -24.7, PITCH)
     row_labels(AMP_PINS, 44.0, 24.7, PITCH)
     row_labels(LED_PINS, 33.0, -24.7, PITCH)
-    T("GND", 33.5, 24.9, 0.8)
-    T("+5V", 38.5, 24.9, 0.8)
+    T("GND", 33.5, 24.9, 1.0)
+    T("+5V", 38.5, 24.9, 1.0)
     T("USB END >>", 72.0, 1.0, 1.2)
     T("ESP32 faces up", 52.0, 1.0, 1.0)
     T("Speaker interface", 57.0, 8.0, 1.2)
-    T("2-layer v1", 57.0, 5.8, 0.9)
-    T("JP1: 1-2 bypass / 2-3 shifter", 49.0, -2.4, 0.7)
+    T("2-layer v1", 57.0, 5.8, 1.0)
     for i in (1, 2, 3):
-        T(str(i), 53.0 + (i - 2) * 1.25, -7.0, 0.7)
-    # Reference and value labels for hand assembly.
-    for label, x, y in (("R1 330R", 47.0, -7.0), ("R2 100k", 46.0, -9.2), ("R4 R3 100R", 59.2, -7.4),
-                        ("C2 10uF", 47.0, 20.0), ("C3 100nF", 53.5, 20.0),
-                        ("C4 100nF", 64.8, 18.0), ("C5 100nF", 64.8, -18.0),
-                        ("C6 100nF", 68.0, -2.9), ("U1 74AHCT1G125", 62.0, -1.0),
-                        ("1", 59.6, -2.2), ("Q1 AO3401A", 37.6, 14.0),
-                        ("C1 1000uF", 51.0, -24.0), ("10V", 51.0, -25.2), ("+", 48.5, -18.4)):
-        T(label, x, y, 0.8)
-    T("VIN", PIN1_X, -15.0, 0.8)
-    T("3V3", PIN1_X, 15.0, 0.8)
+        T(str(i), 53.0 + (i - 2) * 1.25, -6.3, 0.8)
+    # References only; values and part details are in ../PCB_PARTS.md.
+    for label, x, y in (("R1", 47.0, -7.2), ("R2", 47.6, -9.2), ("R3", 57.38, -7.5), ("R4", 54.84, -7.5),
+                        ("C2", 47.0, 20.0), ("C3", 53.5, 20.0), ("C4", 67.2, 18.0), ("C5", 67.2, -18.0),
+                        ("C6", 68.0, -2.9), ("U1", 62.0, -2.2), ("1", 59.6, -2.2), ("JP1", 53.0, -3.3),
+                        ("Q1", 37.0, 14.0), ("C1", 51.0, -24.5), ("+", 48.5, -18.4)):
+        T(label, x, y, 1.0)
+    T("VIN", PIN1_X, -15.0, 1.0)
+    T("3V3", PIN1_X, 15.0, 1.0)
     # ESP32 outline
     x0, y0 = K(ESP_USB_END_X - ESP_L, 14.0)
     x1, y1 = K(EDGE_R - 0.3, -14.0)
@@ -641,26 +644,36 @@ def write_pcb(path):
 
     for p in parts:
         w(f' (footprint {q(p.lib + ":" + p.ref)} (layer "F.Cu") (uuid {q(uid("fp", p.ref))})')
-        w(f'  (at {p.x} {p.y})')
+        w(f'  (at {p.x} {p.y}{" " + str(p.rot) if p.rot else ""})')
         w(f'  (property "Reference" {q(p.ref)} (at 0 -2) (layer "F.Fab") (uuid {q(uid("ref", p.ref))})'
           ' (effects (font (size 0.8 0.8) (thickness 0.12))))')
         w(f'  (property "Value" {q(p.value)} (at 0 2) (layer "F.Fab") (uuid {q(uid("val", p.ref))})'
           ' (effects (font (size 0.8 0.8) (thickness 0.12))))')
         smd = not any(a.tht for a in p.pads)
-        w(f'  (attr {"smd" if smd else "through_hole"})')
+        flags = "" if p.fitted else " exclude_from_pos_files exclude_from_bom"
+        w(f'  (attr {"smd" if smd else "through_hole"}{flags})')
+        th = math.radians(p.rot)
+        ct, st = round(math.cos(th), 9), round(math.sin(th), 9)
+
+        def local(bx, by):
+            # board offset -> footprint-local (undo KiCad's CCW footprint rotation)
+            return round(bx * ct - by * st, 4), round(bx * st + by * ct, 4)
         for kind, c, r in p.silk:
-            w(f'  (fp_circle (center {c[0]-p.x:.4f} {c[1]-p.y:.4f}) (end {c[0]-p.x+r:.4f} {c[1]-p.y:.4f})'
+            cx, cy = local(c[0] - p.x, c[1] - p.y)
+            w(f'  (fp_circle (center {cx:.4f} {cy:.4f}) (end {cx+r:.4f} {cy:.4f})'
               f' (stroke (width 0.15) (type solid)) (fill no) (layer "F.SilkS") (uuid {q(uid("c", p.ref))}))')
         for a in p.pads:
-            rx, ry = round(a.x - p.x, 4), round(a.y - p.y, 4)
+            rx, ry = local(a.x - p.x, a.y - p.y)
+            pw, ph = (a.h, a.w) if p.rot % 180 else (a.w, a.h)
+            ang = f' {p.rot}' if p.rot else ''
             nid = NET_ID[a.net] if a.net else 0
             net = f'(net {nid} {q(a.net)})' if a.net else ''
             if a.tht:
-                w(f'  (pad {q(a.num)} thru_hole {a.shape} (at {rx} {ry}) (size {a.w} {a.h})'
+                w(f'  (pad {q(a.num)} thru_hole {a.shape} (at {rx} {ry}{ang}) (size {pw} {ph})'
                   f' (drill {a.drill}) (layers "*.Cu" "*.Mask") {net}'
                   f' (uuid {q(uid("pad", p.ref, a.num))}))')
             else:
-                w(f'  (pad {q(a.num)} smd {a.shape} (at {rx} {ry}) (size {a.w} {a.h})'
+                w(f'  (pad {q(a.num)} smd {a.shape} (at {rx} {ry}{ang}) (size {pw} {ph})'
                   f' (layers "F.Cu" "F.Paste" "F.Mask") {net}'
                   f' (uuid {q(uid("pad", p.ref, a.num))}))')
         w(' )')
@@ -688,7 +701,7 @@ def write_pcb(path):
           f' (fill no) (layer "Edge.Cuts") (uuid {q(uid("slot", i))}))')
     for i, (s, x, y, size, rot) in enumerate(texts):
         w(f' (gr_text {q(s)} (at {x} {y} {rot}) (layer "F.SilkS") (uuid {q(uid("t", i, s))})'
-          f' (effects (font (size {size} {size}) (thickness {round(size*0.15,3)}))))')
+          f' (effects (font (size {size} {size}) (thickness {max(0.15, round(size*0.15,3))}))))')
     for i, (x0, y0, x1, y1) in enumerate(silk_rects):
         w(f' (gr_rect (start {x0} {y0}) (end {x1} {y1}) (stroke (width 0.12) (type dash))'
           f' (fill no) (layer "F.Fab") (uuid {q(uid("sr", i))}))')
@@ -747,6 +760,29 @@ def write_netlist(path):
             out.writerow(r)
 
 
+def write_kicad_netlist(path):
+    """Design connection list (pad -> net as assigned here, before routing) in
+    KiCad netlist form, so a board checker can compare it with the routed copper."""
+    def s(v):
+        return '"' + str(v).replace('"', "'") + '"'
+    nets = {}
+    for p in parts:
+        for a in p.pads:
+            if a.net:
+                nets.setdefault(a.net, []).append((p.ref, a.num))
+    lines = ['(export (version "E")',
+             f' (design (source {s(NAME + ".kicad_sch")}) (tool "make_pcb.py"))',
+             ' (components']
+    lines += [f'  (comp (ref {s(p.ref)}) (value {s(p.value)}))' for p in sorted(parts, key=lambda p: p.ref)]
+    lines += [' )', ' (nets']
+    for i, (n, nodes) in enumerate(sorted(nets.items()), 1):
+        lines.append(f'  (net (code {s(i)}) (name {s(n)})'
+                     + "".join(f' (node (ref {s(r)}) (pin {s(pin)}))' for r, pin in sorted(nodes)) + ')')
+    lines += [' )', ')']
+    with open(path, "w") as f:
+        f.write("\n".join(lines) + "\n")
+
+
 # ---- check against the firmware --------------------------------------------
 def check_firmware_pins():
     cfg = os.path.join(HERE, "..", "firmware", "include", "config.h")
@@ -769,6 +805,7 @@ def main():
     route_all()
     write_pcb(os.path.join(HERE, NAME + ".kicad_pcb"))
     write_project(os.path.join(HERE, NAME + ".kicad_pro"))
+    write_kicad_netlist(os.path.join(HERE, NAME + ".net"))
     write_netlist(os.path.join(HERE, "netlist.csv"))
     print(f"parts {len(parts)}, tracks {len(tracks)}, vias {len(vias)}")
 

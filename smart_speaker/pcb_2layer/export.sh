@@ -12,6 +12,11 @@ rm -rf gerbers && mkdir -p gerbers render
 LAYERS=F.Cu,B.Cu,F.SilkS,B.SilkS,F.Mask,B.Mask,F.Paste,Edge.Cuts
 $K kicad-cli pcb export gerbers --layers $LAYERS --no-protel-ext -o gerbers/ $B.kicad_pcb
 $K kicad-cli pcb export drill --format excellon --excellon-separate-th -o gerbers/ $B.kicad_pcb
+# Placement (pick-and-place) and IPC-D-356 test netlist for the fab package.
+$K kicad-cli pcb export pos --format csv --units mm --side both --exclude-dnp -o gerbers/$B-pos.csv $B.kicad_pcb
+$K kicad-cli pcb export ipcd356 -o gerbers/$B.d356 $B.kicad_pcb
+cp BOM_fab.csv gerbers/$B-BOM.csv
+cp $B.net gerbers/$B.net
 for L in F.Cu B.Cu; do
   $K kicad-cli pcb export svg --layers "$L,Edge.Cuts" --mode-single --exclude-drawing-sheet --page-size-mode 2 -o "render/$L.svg" $B.kicad_pcb
 done

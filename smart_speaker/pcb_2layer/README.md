@@ -4,6 +4,8 @@ The 2-layer version of [`../pcb/`](../pcb/README.md). Circuit, ports, pin map, p
 outline, slots and mounting holes are the same, so the ports table, assembly steps, ESP32 fit
 test and base all carry over from that README. **JP1 still has to be bridged.**
 
+**Parts and labels:** the board shows references only; values are in [`../PCB_PARTS.md`](../PCB_PARTS.md).
+
 ## What differs from the 4-layer board
 
 | Item | 2-layer |
